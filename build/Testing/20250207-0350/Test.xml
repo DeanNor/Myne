@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Site BuildName="Linux-c++"
+	BuildStamp="20250207-0350-Experimental"
+	Name="fedora"
+	Generator="ctest-3.31.1"
+	CompilerName="/usr/bin/c++"
+	CompilerVersion="14.2.1"
+	OSName="Linux"
+	Hostname="fedora"
+	OSRelease="6.12.11-200.fc41.x86_64"
+	OSVersion="#1 SMP PREEMPT_DYNAMIC Fri Jan 24 04:59:58 UTC 2025"
+	OSPlatform="x86_64"
+	Is64Bits="1"
+	VendorString="AuthenticAMD"
+	VendorID="Advanced Micro Devices"
+	FamilyID="25"
+	ModelID="33"
+	ModelName="AMD Ryzen 7 5800X 8-Core Processor"
+	ProcessorCacheSize="512"
+	NumberOfLogicalCPU="16"
+	NumberOfPhysicalCPU="8"
+	TotalVirtualMemory="8191"
+	TotalPhysicalMemory="31992"
+	LogicalProcessorsPerPhysical="2"
+	ProcessorClockFrequency="4200.18"
+	>
+	<Testing>
+		<StartDateTime>Feb 07 17:56 CST</StartDateTime>
+		<StartTestTime>1738972578</StartTestTime>
+		<TestList/>
+		<EndDateTime>Feb 07 17:56 CST</EndDateTime>
+		<EndTestTime>1738972578</EndTestTime>
+		<ElapsedMinutes>0</ElapsedMinutes>
+	</Testing>
+</Site>

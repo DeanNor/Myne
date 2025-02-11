@@ -1,0 +1,50 @@
+[
+{
+  "directory": "/home/kangarooniphant/Projects/Myne/build",
+  "command": "/usr/bin/c++  -I/home/kangarooniphant/Projects/Myne/.h -g -o CMakeFiles/Game.dir/main.cpp.o -c /home/kangarooniphant/Projects/Myne/main.cpp",
+  "file": "/home/kangarooniphant/Projects/Myne/main.cpp",
+  "output": "CMakeFiles/Game.dir/main.cpp.o"
+},
+{
+  "directory": "/home/kangarooniphant/Projects/Myne/build",
+  "command": "/usr/bin/c++  -I/home/kangarooniphant/Projects/Myne/.h -g -o CMakeFiles/Game.dir/.cpp/drawobj.cpp.o -c /home/kangarooniphant/Projects/Myne/.cpp/drawobj.cpp",
+  "file": "/home/kangarooniphant/Projects/Myne/.cpp/drawobj.cpp",
+  "output": "CMakeFiles/Game.dir/.cpp/drawobj.cpp.o"
+},
+{
+  "directory": "/home/kangarooniphant/Projects/Myne/build",
+  "command": "/usr/bin/c++  -I/home/kangarooniphant/Projects/Myne/.h -g -o CMakeFiles/Game.dir/.cpp/game.cpp.o -c /home/kangarooniphant/Projects/Myne/.cpp/game.cpp",
+  "file": "/home/kangarooniphant/Projects/Myne/.cpp/game.cpp",
+  "output": "CMakeFiles/Game.dir/.cpp/game.cpp.o"
+},
+{
+  "directory": "/home/kangarooniphant/Projects/Myne/build",
+  "command": "/usr/bin/c++  -I/home/kangarooniphant/Projects/Myne/.h -g -o CMakeFiles/Game.dir/.cpp/object.cpp.o -c /home/kangarooniphant/Projects/Myne/.cpp/object.cpp",
+  "file": "/home/kangarooniphant/Projects/Myne/.cpp/object.cpp",
+  "output": "CMakeFiles/Game.dir/.cpp/object.cpp.o"
+},
+{
+  "directory": "/home/kangarooniphant/Projects/Myne/build",
+  "command": "/usr/bin/c++  -I/home/kangarooniphant/Projects/Myne/.h -g -o CMakeFiles/Game.dir/.cpp/pos.cpp.o -c /home/kangarooniphant/Projects/Myne/.cpp/pos.cpp",
+  "file": "/home/kangarooniphant/Projects/Myne/.cpp/pos.cpp",
+  "output": "CMakeFiles/Game.dir/.cpp/pos.cpp.o"
+},
+{
+  "directory": "/home/kangarooniphant/Projects/Myne/build",
+  "command": "/usr/bin/c++  -I/home/kangarooniphant/Projects/Myne/.h -g -o CMakeFiles/Game.dir/.cpp/process.cpp.o -c /home/kangarooniphant/Projects/Myne/.cpp/process.cpp",
+  "file": "/home/kangarooniphant/Projects/Myne/.cpp/process.cpp",
+  "output": "CMakeFiles/Game.dir/.cpp/process.cpp.o"
+},
+{
+  "directory": "/home/kangarooniphant/Projects/Myne/build",
+  "command": "/usr/bin/c++  -I/home/kangarooniphant/Projects/Myne/.h -g -o CMakeFiles/Game.dir/.cpp/window.cpp.o -c /home/kangarooniphant/Projects/Myne/.cpp/window.cpp",
+  "file": "/home/kangarooniphant/Projects/Myne/.cpp/window.cpp",
+  "output": "CMakeFiles/Game.dir/.cpp/window.cpp.o"
+},
+{
+  "directory": "/home/kangarooniphant/Projects/Myne/build",
+  "command": "/usr/bin/c++  -I/home/kangarooniphant/Projects/Myne/.h -g -o CMakeFiles/Game.dir/.cpp/collobj.cpp.o -c /home/kangarooniphant/Projects/Myne/.cpp/collobj.cpp",
+  "file": "/home/kangarooniphant/Projects/Myne/.cpp/collobj.cpp",
+  "output": "CMakeFiles/Game.dir/.cpp/collobj.cpp.o"
+}
+]
