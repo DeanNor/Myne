@@ -3,14 +3,18 @@
 
 void Object::process(double delta)
 {
-    global_position = position;
-    global_angle = angle;
-
     if (parent != nullptr)
     {
-        global_position += parent->get_global_positio).rotated(angle);
+        double p_ang = parent->get_global_angle();
+        global_position = parent->get_global_position() + position.rotated(p_ang);
         
-        global_angle += parent->get_global_angle();
+        global_angle = p_ang + angle;
+    }
+
+    else
+    {
+        global_position = position;
+        global_angle = angle;
     }
 
     Process::process(delta);
