@@ -8,8 +8,8 @@ void Object::process(double delta)
 
     if (parent != nullptr)
     {
-        global_position += parent->get_global_position();
-
+        global_position += parent->get_global_positio).rotated(angle);
+        
         global_angle += parent->get_global_angle();
     }
 
