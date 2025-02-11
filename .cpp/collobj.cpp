@@ -8,15 +8,14 @@ CollObj::CollObj()
 
 void CollObj::process(double delta)
 {
-    pos offset = get_offset();
-    if (offset != past_offset)
-    {
-        past_offset = offset;
-
-        collision_body->SetTransform(past_offset.to_b2Vec2(),angle);
-    }
-
     Object::process(delta);
+    
+    if (global_position != past_offset)
+    {
+        past_offset = global_position;
+
+        collision_body->SetTransform(past_offset.to_b2Vec2(),global_angle);
+    }
 }
 
 void CollObj::collision_process()
