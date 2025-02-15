@@ -16,19 +16,11 @@ protected:
     std::vector<Process*> children = {};
 
 public:
+    virtual ~Process(){};
+
     virtual void process(double delta);
 
     void process_children(double delta);
-
-    pos get_parent_offset();
-
-    virtual pos get_offset();
-
-    virtual pos get_global_position();
-
-    virtual double get_angle();
-
-    virtual double get_global_angle();
 
     void add_child(Process* child);
 

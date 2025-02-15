@@ -5,10 +5,15 @@ void Object::process(double delta)
 {
     if (parent != nullptr)
     {
-        double p_ang = parent->get_global_angle();
-        global_position = parent->get_global_position() + position.rotated(p_ang);
-        
-        global_angle = p_ang + angle;
+        Object* p = static_cast<Object*>(parent);
+
+        if (p != nullptr)
+        {
+            double p_ang = p->get_global_angle();
+            global_position = p->get_global_position() + position.rotated(p_ang);
+            
+            global_angle = p_ang + angle;
+        }
     }
 
     else
@@ -26,9 +31,14 @@ pos Object::get_offset()
 
     if (parent != nullptr)
     {
-        offset = offset.rotated(parent->get_angle());
+        Object* p = static_cast<Object*>(parent);
+        
+        if (p != nullptr)
+        {
+            offset = offset.rotated(p->get_angle());
 
-        offset += parent->get_offset();
+            offset += p->get_offset();
+        }
     }
 
     return offset;

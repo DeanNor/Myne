@@ -21,7 +21,17 @@ void CollObj::process(double delta)
 void CollObj::collision_process()
 {
     b2Vec2 body_pos = collision_body->GetPosition();
-    pos offset = get_parent_offset();
+    pos offset = {};
+    
+    if (parent != nullptr)
+    {
+        Object* p = static_cast<Object*>(parent);
+        
+        if (p != nullptr)
+        {
+            offset = p->get_global_position();
+        }
+    }
     
     position.x = body_pos.x - offset.x;
     position.y = body_pos.y - offset.y;

@@ -74,22 +74,16 @@ bool game::frame()
     {
         double tim = al_get_time();
 
-        std::cout << "<S>" << std::endl;
-        double abc = tim;
         process();
-        double bcd = al_get_time();
-        std::cout << bcd - abc << std::endl;
         collision_process();
-        double cde = al_get_time();
-        std::cout << cde - bcd << std::endl;
+
         al_set_target_bitmap(game_window->background);
         draw();
         al_set_target_bitmap(nullptr);
-        std::cout << al_get_time() - cde << std::endl;
+
+        std::cout << 1.0 / (al_get_time() - tim) << std::endl;
 
         game_window->push_screen();
-
-        std::cout << al_get_time() - tim << std::endl;
     }
 
     return running;

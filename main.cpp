@@ -67,12 +67,26 @@ public:
         collision_def.position.Set(0,0);
         collision_body = get_current_coll_world()->CreateBody(&collision_def);
 
-        b2Vec2 points[] = {{0.0, 0.0}, {200.0, 0.0}, {200.0, 10.0}, {100.0, 10.0}, {25.0, 200.0}, {100.0, 200.0}, {100.0, 210.0}, {0.0, 210.0}};
+        b2Vec2 points[] = {{0.0, 0.0}, {200.0, 0.0}, {0.0,500.0}};
 
         b2PolygonShape roundedTriangle;
-        roundedTriangle.Set(points,8);
+        roundedTriangle.Set(points,3);
         
         collision_body->CreateFixture(&roundedTriangle,0.0);
+
+        b2Vec2 points2[] = {{0,-500}, {500,-500}, {500,0}, {0,0}};
+
+        b2PolygonShape sqr;
+        sqr.Set(points2,4);
+        
+        collision_body->CreateFixture(&sqr,0.0);
+
+        b2Vec2 points3[] = {{0,500}, {500,500}, {500,600}, {0,600}};
+
+        b2PolygonShape sqr2;
+        sqr2.Set(points3,4);
+        
+        collision_body->CreateFixture(&sqr2,0.0);
     }
 };
 
