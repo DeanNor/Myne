@@ -25,7 +25,7 @@ void CollObj::collision_process()
     
     if (parent != nullptr)
     {
-        Object* p = static_cast<Object*>(parent);
+        Object* p = dynamic_cast<Object*>(parent);
         
         if (p != nullptr)
         {
