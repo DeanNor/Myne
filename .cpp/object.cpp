@@ -31,7 +31,7 @@ pos Object::get_offset()
 
     if (parent != nullptr)
     {
-        Object* p = static_cast<Object*>(parent);
+        Object* p = dynamic_cast<Object*>(parent);
         
         if (p != nullptr)
         {
