@@ -14,6 +14,12 @@ void Object::process(double delta)
             
             global_angle = p_ang + angle;
         }
+        
+        else
+        {
+            global_position = position;
+            global_angle = angle;
+        }
     }
 
     else
