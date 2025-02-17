@@ -10,9 +10,10 @@ void CollObj::process(double delta)
 {
     Object::process(delta);
     
-    if (global_position != past_offset)
+    pos calculated = global_position.calculate();
+    if (calculated != past_offset)
     {
-        past_offset = global_position;
+        past_offset = calculated;
 
         collision_body->SetTransform(past_offset.to_b2Vec2(),global_angle);
     }
@@ -29,12 +30,17 @@ void CollObj::collision_process()
         
         if (p != nullptr)
         {
-            offset = p->get_global_position();
+            offset = p->get_global_position().calculate();
         }
     }
+
+    std::cout << position << std::endl;
     
     position.x = body_pos.x - offset.x;
     position.y = body_pos.y - offset.y;
+    std::cout << body_pos.x << ' ' << body_pos.y << std::endl;
+
+    std::cout << position << " 2" << std::endl;
 
     angle = collision_body->GetAngle();
 }

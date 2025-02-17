@@ -12,6 +12,8 @@ class Tileset : public DrawObj
 protected:
     std::vector<pos> tiles;
 
+    ALLEGRO_BITMAP* tilemap = nullptr;
+
     pos tile_size = {10, 10};
 
     ALLEGRO_COLOR tilecol = al_map_rgb_f(1,1,1);
@@ -125,9 +127,9 @@ int main()
 
     gameplay->root->add_child(new StaticObj);
 
-    pos a = {500,50};
+    pos a = {600,50};
 
-    for (int x = 0; x < 2000; ++x)
+    for (int x = 0; x < 5; ++x)
     {
         DynamObj* dynam = new DynamObj;
         gameplay->root->add_child(dynam);
@@ -143,6 +145,8 @@ int main()
         spr->set_sprite(bitmap);
         dynam->add_child(spr);
     }
+
+    std::cout << "Start" << std::endl;
 
     gameplay->start();
 

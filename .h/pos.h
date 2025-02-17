@@ -1,9 +1,6 @@
 
 #pragma once
 
-#ifndef POS_H
-#define POS_H
-
 #include <cmath>
 #include <iostream>
 
@@ -89,6 +86,3 @@ public:
 
     friend std::ostream& operator<< (std::ostream& os, const pos& convert);    
 };
-
-
-#endif

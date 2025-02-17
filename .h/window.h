@@ -1,9 +1,6 @@
 
 #pragma once
 
-#ifndef WINDOW_H
-#define WINDOW_H
-
 #include <allegro5/allegro.h>
 #include <allegro5/allegro_primitives.h>
 #include <allegro5/allegro_image.h>
@@ -31,5 +28,3 @@ struct window
 
     void push_screen();
 };
-
-#endif

@@ -1,9 +1,6 @@
 
 #pragma once
 
-#ifndef GAME_H
-#define GAME_H
-
 #include "window.h"
 
 #include <box2d/box2d.h>
@@ -55,5 +52,3 @@ b2World* get_current_coll_world();
 
 void set_current_game(game* new_world);
 game* get_current_game();
-
-#endif

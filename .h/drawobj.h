@@ -1,9 +1,6 @@
 
 #pragma once
 
-#ifndef DRAWOBJ_H
-#define DRAWOBJ_H
-
 #include "object.h"
 
 #include "window.h"
@@ -37,5 +34,3 @@ public:
 
     window* get_window();
 };
-
-#endif

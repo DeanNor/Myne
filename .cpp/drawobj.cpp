@@ -12,7 +12,8 @@ void DrawObj::draw()
 {
     if (sprite != nullptr)
     {
-        al_draw_scaled_rotated_bitmap(sprite, center.x, center.y, global_position.x, global_position.y, scale.x, scale.y, global_angle, 0);
+        pos calculated = global_position.calculate();
+        al_draw_scaled_rotated_bitmap(sprite, center.x, center.y, calculated.x, calculated.y, scale.x, scale.y, global_angle, 0);
     }
 }
 
