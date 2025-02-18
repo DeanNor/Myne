@@ -24,7 +24,7 @@ public:
 
     void add_child(Process* child);
 
-    void set_parent(Process* new_parent);
+    virtual void set_parent(Process* new_parent);
 
     Process* get_parent();
 };

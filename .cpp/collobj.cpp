@@ -10,11 +10,12 @@ void CollObj::process(double delta)
 {
     Object::process(delta);
     
-    if (global_position != past_offset)
+    pos computed = global_position.compute();
+    if (computed != past_offset)
     {
-        past_offset = global_position;
+        past_offset = computed;
 
-        collision_body->SetTransform(past_offset.to_b2Vec2(),global_angle);
+        collision_body->SetTransform(past_offset.to_b2Vec2(),global_position.compute_angle());
     }
 }
 

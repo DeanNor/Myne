@@ -1,58 +1,26 @@
 
 #include "object.h"
 
-void Object::process(double delta)
+void Object::set_parent(Process* new_parent)
 {
-    if (parent != nullptr)
+    Process::set_parent(new_parent);
+
+    Object* p = dynamic_cast<Object*>(new_parent);
+
+    if (p != nullptr)
     {
-        Object* p = dynamic_cast<Object*>(parent);
-
-        if (p != nullptr)
-        {
-            double p_ang = p->get_global_angle();
-            global_position = p->get_global_position() + position.rotated(p_ang);
-            
-            global_angle = p_ang + angle;
-        }
-        
-        else
-        {
-            global_position = position;
-            global_angle = angle;
-        }
+        global_position.parent = p->get_tfm();
     }
-
-    else
-    {
-        global_position = position;
-        global_angle = angle;
-    }
-
-    Process::process(delta);
 }
 
-pos Object::get_offset()
+tfm* Object::get_tfm()
 {
-    pos offset = position;
-
-    if (parent != nullptr)
-    {
-        Object* p = dynamic_cast<Object*>(parent);
-        
-        if (p != nullptr)
-        {
-            offset = offset.rotated(p->get_angle());
-
-            offset += p->get_offset();
-        }
-    }
-
-    return offset;
+    return &global_position;
 }
 
 pos Object::get_global_position()
 {
-    return global_position;
+    return global_position.compute();
 }
 
 void Object::set_position(pos new_pos)
@@ -77,5 +45,5 @@ double Object::get_angle()
 
 double Object::get_global_angle()
 {
-    return global_angle;
+    return global_position.compute_angle();
 }

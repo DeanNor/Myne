@@ -6,6 +6,8 @@
 
 #include "process.h"
 
+#include "tfm.h"
+
 #include <vector>
 
 class Object: public Process
@@ -14,13 +16,12 @@ protected:
     pos position;
     double angle = 0;
 
-    pos global_position;
-    double global_angle = 0;
+    tfm global_position = {&position, &angle};
 
 public:
-    void process(double delta);
+    void set_parent(Process* new_parent);
 
-    pos get_offset();
+    tfm* get_tfm();
 
     pos get_global_position();
 

@@ -9,6 +9,7 @@ add_executable(Game main.cpp
     .cpp/process.cpp
     .cpp/window.cpp
     .cpp/collobj.cpp
+    .cpp/tfm.cpp
     )
 
 include_directories(.h)
