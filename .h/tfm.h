@@ -6,18 +6,26 @@
 struct tfm
 {
 protected:
+    pos transform;
+    double transform_angle = 0;
+
     pos past_pos;
     double past_angle = 0;
-
-    pos transform;
 
 public:
     pos* position = nullptr;
     double* angle = nullptr;
 
+    tfm* parent = nullptr;
+
     tfm(pos* new_position, double* new_angle);
+    tfm(pos* new_position, double* new_angle, tfm* new_parent);
 
-    void update_transform();
+    bool has_changed();
 
-    virtual pos calculate();
+    pos compute();
+
+    bool angle_changed();
+
+    double compute_angle();
 };

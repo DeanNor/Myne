@@ -1,11 +1,14 @@
 
 #pragma once
 
+#ifndef OBJ_H
+#define OBJ_H
+
 #include "process.h"
 
-#include <vector>
+#include "tfm.h"
 
-#include "ptfm.h"
+#include <vector>
 
 class Object: public Process
 {
@@ -13,13 +16,14 @@ protected:
     pos position;
     double angle = 0;
 
-    ptfm global_position = ptfm(&position, &angle, nullptr);
-    double global_angle = 0;
+    tfm global_position = {&position, &angle};
 
 public:
     void set_parent(Process* new_parent);
 
-    ptfm& get_global_position();
+    tfm* get_tfm();
+
+    pos get_global_position();
 
     void set_position(pos new_pos);
 
@@ -31,3 +35,5 @@ public:
 
     double get_global_angle();
 };
+
+#endif

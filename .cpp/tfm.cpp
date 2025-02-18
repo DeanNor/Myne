@@ -1,25 +1,76 @@
 
 #include "tfm.h"
 
-tfm::tfm(pos* new_position, double* new_angle) : position(new_position), angle(new_angle)
+tfm::tfm(pos* new_position, double* new_angle) : position(new_position), angle(new_angle), parent(nullptr)
 {
-    update_transform();
+    compute();
+}
+tfm::tfm(pos* new_position, double* new_angle, tfm* new_parent) : position(new_position), angle(new_angle), parent(new_parent)
+{
+    compute();
 }
 
-void tfm::update_transform()
+bool tfm::has_changed()
 {
-    transform = position->rotated(*angle);
-
-    past_pos = *position;
-    past_angle = *angle;
-}
-
-pos tfm::calculate()
-{
-    if (*position != past_pos && *angle != past_angle)
+    if (*position != past_pos || angle_changed())
     {
-        update_transform();
+        return true;
+    }
+
+    if (parent != nullptr)
+    {
+        return parent->has_changed();
+    }
+
+    return false;
+}
+
+pos tfm::compute()
+{
+    if (has_changed())
+    {
+        if (parent != nullptr)
+        {
+            transform = position->rotated(*parent->angle);
+
+            transform += parent->compute();
+        }
+
+        else
+        {
+            transform = *position;
+        }
     }
 
     return transform;
+}
+
+bool tfm::angle_changed()
+{
+    if (*angle != past_angle)
+    {
+        return true;
+    }
+
+    if (parent != nullptr)
+    {
+        return parent->angle_changed();
+    }
+
+    return false;
+}
+
+double tfm::compute_angle()
+{
+    if (angle_changed())
+    {
+        transform_angle = *angle;
+
+        if (parent != nullptr)
+        {
+            transform_angle += parent->compute_angle();
+        }
+    }
+
+    return transform_angle;
 }
