@@ -29,6 +29,8 @@ pos tfm::compute()
 {
     if (has_changed())
     {
+        past_pos = *position;
+
         if (parent != nullptr)
         {
             transform = position->rotated(*parent->angle);
@@ -64,6 +66,8 @@ double tfm::compute_angle()
 {
     if (angle_changed())
     {
+        past_angle = *angle;
+
         transform_angle = *angle;
 
         if (parent != nullptr)

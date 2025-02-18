@@ -109,8 +109,8 @@ public:
         b2FixtureDef fixtureDef;
         fixtureDef.shape = &box;
         fixtureDef.density = 10;
-        fixtureDef.friction = 0.5;
-        fixtureDef.restitution = 0.25;
+        fixtureDef.friction = 0.7;
+        fixtureDef.restitution = 0.5;
 
         collision_body->CreateFixture(&fixtureDef);
     }

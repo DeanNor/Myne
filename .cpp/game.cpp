@@ -81,7 +81,7 @@ bool game::frame()
         draw();
         al_set_target_bitmap(nullptr);
 
-        std::cout << 1.0 / (al_get_time() - tim) << std::endl;
+        //std::cout << 1.0 / (al_get_time() - tim) << std::endl;
 
         game_window->push_screen();
     }
