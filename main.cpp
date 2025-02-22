@@ -5,7 +5,6 @@
 #include "drawobj.h"
 #include "collobj.h"
 
-
 pos to_tileset(pos value, pos tile_size);
 
 class Tileset : public DrawObj
@@ -19,12 +18,19 @@ protected:
 
     ALLEGRO_COLOR tilecol = al_map_rgb_f(1,1,1);
 
+    bool redraw = false;
+
 public:
+    Tileset()
+    {
+        tilemap = al_create_bitmap(100,100);
+    }
+
     void draw()
     {
         if (redraw)
         {
-        ALLEGRO_BITMAP* main_bitmap = al_get_target_bitmap();
+            ALLEGRO_BITMAP* main_bitmap = al_get_target_bitmap();
         
             al_set_target_bitmap(tilemap);
 
@@ -33,10 +39,10 @@ public:
                 al_draw_bitmap(sprite,tile.x,tile.y,0);
             }
 
-        al_set_target_bitmap(main_bitmap);
-       
+            al_set_target_bitmap(main_bitmap);
         }
- al_draw_bitmap(tilemap,position.x,position.y,0);
+
+        al_draw_bitmap(tilemap,position.x,position.y,0);
     }
 
     bool tile_used(pos tile_position)
@@ -72,7 +78,7 @@ public:
         collision_def.position.Set(0,0);
         collision_body = get_current_coll_world()->CreateBody(&collision_def);
 
-        b2Vec2 points[] = {{0.0, 0.0}, {200.0, 0.0}, {0.0,500.0}};
+        b2Vec2 points[] = {{0.0, 0.0},{0.1, 0.0}, {0.0,500.0}};
 
         b2PolygonShape roundedTriangle;
         roundedTriangle.Set(points,3);
@@ -104,15 +110,17 @@ public:
         collision_def.type = b2_dynamicBody;
         collision_body = get_current_coll_world()->CreateBody(&collision_def);
 
+        collision_def.bullet = true;
+
         b2CircleShape box;
         box.m_p.Set(0,0);
         box.m_radius = 2.5;
         
         b2FixtureDef fixtureDef;
         fixtureDef.shape = &box;
-        fixtureDef.density = 10;
-        fixtureDef.friction = 0.7;
-        fixtureDef.restitution = 0.5;
+        fixtureDef.density = 0.1;
+        fixtureDef.friction = 0;
+        fixtureDef.restitution = 0.9;
 
         collision_body->CreateFixture(&fixtureDef);
     }
@@ -120,7 +128,7 @@ public:
 
 int main()
 {
-    b2World* coll_world = new b2World(b2Vec2(-50.0,0));
+    b2World* coll_world = new b2World(b2Vec2(-100.0,0));
     set_current_coll_world(coll_world);
 
     game* gameplay = new game;
@@ -131,8 +139,12 @@ int main()
     gameplay->root->add_child(new StaticObj);
 
     pos a = {600,50};
+    
+    std::vector<ALLEGRO_BITMAP*> bitmaps;
 
-    for (int x = 0; x < 5; ++x)
+    double size = 1000;
+
+    for (double x = 0; x < size; ++x)
     {
         DynamObj* dynam = new DynamObj;
         gameplay->root->add_child(dynam);
@@ -141,15 +153,14 @@ int main()
 
         DrawObj* spr = new DrawObj();
 
-        ALLEGRO_BITMAP* bitmap = al_create_bitmap(5,5);
+        ALLEGRO_BITMAP* bitmap = al_create_bitmap(6,6);
         al_set_target_bitmap(bitmap);
-        al_clear_to_color(WHITE);
+
+        al_draw_filled_circle(3,3,3,al_map_rgb_f(x / size, x / size, x / size));
 
         spr->set_sprite(bitmap);
         dynam->add_child(spr);
     }
-
-    std::cout << "Start" << std::endl;
 
     gameplay->start();
 

@@ -55,6 +55,8 @@ game::~game()
         delete game_window;
     }
 
+    al_unregister_event_source(queue,al_get_timer_event_source(timer));
+
     al_destroy_timer(timer);
 
     al_destroy_event_queue(queue);
@@ -72,16 +74,13 @@ bool game::frame()
 
     if (event.type == ALLEGRO_EVENT_TIMER)
     {
-        double tim = al_get_time();
-
         process();
+
         collision_process();
 
         al_set_target_bitmap(game_window->background);
         draw();
         al_set_target_bitmap(nullptr);
-
-        //std::cout << 1.0 / (al_get_time() - tim) << std::endl;
 
         game_window->push_screen();
     }

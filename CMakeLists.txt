@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.10)
-project(Game VERSION 0.1.0 LANGUAGES C CXX)
+project(Game.exe VERSION 0.1.0 LANGUAGES C CXX)
 
-add_executable(Game main.cpp
+add_executable(Game.exe main.cpp
     .cpp/drawobj.cpp
     .cpp/game.cpp
     .cpp/object.cpp
@@ -29,4 +29,6 @@ target_link_libraries(${PROJECT_NAME} PUBLIC
 
     box2d
     )
+
+
 
