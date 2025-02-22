@@ -22,19 +22,21 @@ protected:
 public:
     void draw()
     {
-        int x,y;
-        al_get_mouse_cursor_position(&x, &y);
-
-        int scr_x, scr_y;
-        al_get_window_position(screen->display, &scr_x, &scr_y);
-
-        pos mouse = to_tileset(pos(x,y) - pos(scr_x, scr_y), tile_size);
-        al_draw_rectangle(mouse.x, mouse.y, mouse.x + tile_size.x, mouse.y + tile_size.y, tilecol, 1);
-
-        for(pos tile : tiles)
+        if (redraw)
         {
-            al_draw_bitmap(sprite, tile.x, tile.y, 0);
+        ALLEGRO_BITMAP* main_bitmap = al_get_target_bitmap();
+        
+            al_set_target_bitmap(tilemap);
+
+            for (pos tile : tiles)
+            {
+                al_draw_bitmap(sprite,tile.x,tile.y,0);
+            }
+
+        al_set_target_bitmap(main_bitmap);
+       
         }
+ al_draw_bitmap(tilemap,position.x,position.y,0);
     }
 
     bool tile_used(pos tile_position)
