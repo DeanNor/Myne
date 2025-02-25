@@ -1,6 +1,8 @@
 
 #pragma once
 
+#define ALLEGRO_UNSTABLE
+
 #include <allegro5/allegro.h>
 #include <allegro5/allegro_primitives.h>
 #include <allegro5/allegro_image.h>
@@ -8,6 +10,8 @@
 
 #include <string>
 #include <iostream>
+
+#include "pos.h"
 
 static ALLEGRO_COLOR WHITE = al_map_rgb_f(1,1,1);
 static ALLEGRO_COLOR BLACK = al_map_rgb_f(0,0,0);
@@ -23,7 +27,11 @@ struct window
     ALLEGRO_BITMAP* background = nullptr;
     ALLEGRO_BITMAP* foreground = nullptr;
 
-    window(int x, int y, ALLEGRO_EVENT_QUEUE* event_queue, std::string name);
+    pos center;
+    pos size;
+    pos half_size;
+
+    window(pos window_size, ALLEGRO_EVENT_QUEUE* event_queue, std::string name);
 
     ~window();
 

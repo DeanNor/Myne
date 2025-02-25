@@ -30,19 +30,24 @@ public:
     {
         if (redraw)
         {
-            ALLEGRO_BITMAP* main_bitmap = al_get_target_bitmap();
-        
-            al_set_target_bitmap(tilemap);
-
-            for (pos tile : tiles)
-            {
-                al_draw_bitmap(sprite,tile.x,tile.y,0);
-            }
-
-            al_set_target_bitmap(main_bitmap);
+            update_map();
         }
 
         al_draw_bitmap(tilemap,position.x,position.y,0);
+    }
+
+    void update_map()
+    {
+        ALLEGRO_BITMAP* main_bitmap = al_get_target_bitmap();
+        
+        al_set_target_bitmap(tilemap);
+
+        for (pos tile : tiles)
+        {
+            al_draw_bitmap(sprite,tile.x,tile.y,0);
+        }
+
+        al_set_target_bitmap(main_bitmap);
     }
 
     bool tile_used(pos tile_position)
@@ -85,14 +90,14 @@ public:
         
         collision_body->CreateFixture(&roundedTriangle,0.0);
 
-        b2Vec2 points2[] = {{0,-500}, {500,-500}, {500,0}, {0,0}};
+        b2Vec2 points2[] = {{0,-500}, {10000,-500}, {10000,0}, {0,0}};
 
         b2PolygonShape sqr;
         sqr.Set(points2,4);
         
         collision_body->CreateFixture(&sqr,0.0);
 
-        b2Vec2 points3[] = {{0,500}, {500,500}, {500,600}, {0,600}};
+        b2Vec2 points3[] = {{0,500}, {10000,500}, {10000,600}, {0,600}};
 
         b2PolygonShape sqr2;
         sqr2.Set(points3,4);
@@ -114,13 +119,13 @@ public:
 
         b2CircleShape box;
         box.m_p.Set(0,0);
-        box.m_radius = 2.5;
+        box.m_radius = 2;
         
         b2FixtureDef fixtureDef;
         fixtureDef.shape = &box;
-        fixtureDef.density = 0.1;
+        fixtureDef.density = 1;
         fixtureDef.friction = 0;
-        fixtureDef.restitution = 0.9;
+        fixtureDef.restitution = 1;
 
         collision_body->CreateFixture(&fixtureDef);
     }
@@ -138,25 +143,24 @@ int main()
 
     gameplay->root->add_child(new StaticObj);
 
-    pos a = {600,50};
-    
-    std::vector<ALLEGRO_BITMAP*> bitmaps;
+    pos a = {200,250};
 
-    double size = 1000;
+    double size = 80000;
+
+    ALLEGRO_BITMAP* bitmap = al_create_bitmap(4,4);
+
+    al_set_target_bitmap(bitmap);
+
+    al_draw_filled_circle(2,2,2,al_map_rgb_f(1,1,1));
 
     for (double x = 0; x < size; ++x)
     {
         DynamObj* dynam = new DynamObj;
         gameplay->root->add_child(dynam);
 
-        dynam->set_position(a + pos(x * 5,0));
+        dynam->set_position(a + pos(x * 8,0));
 
         DrawObj* spr = new DrawObj();
-
-        ALLEGRO_BITMAP* bitmap = al_create_bitmap(6,6);
-        al_set_target_bitmap(bitmap);
-
-        al_draw_filled_circle(3,3,3,al_map_rgb_f(x / size, x / size, x / size));
 
         spr->set_sprite(bitmap);
         dynam->add_child(spr);

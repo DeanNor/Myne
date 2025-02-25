@@ -42,7 +42,7 @@ game::game()
 
         al_start_timer(timer);
 
-        game_window = new window(500,500, queue, "SOMETHING");
+        game_window = new window(pos(500,500), queue, "SOMETHING");
     }
 
     root = new Process;
@@ -64,25 +64,30 @@ game::~game()
 
 bool game::frame()
 {
-    ALLEGRO_EVENT event;
-    al_wait_for_event(queue, &event);
-
-    if (event.type == ALLEGRO_EVENT_DISPLAY_CLOSE)
+    while(!al_is_event_queue_empty(queue))
     {
-        return false;
-    }
+        ALLEGRO_EVENT event;
+        al_wait_for_event(queue, &event);
 
-    if (event.type == ALLEGRO_EVENT_TIMER)
-    {
-        process();
+        if (event.type == ALLEGRO_EVENT_DISPLAY_CLOSE)
+        {
+            return false;
+        }
 
-        collision_process();
+        if (event.type == ALLEGRO_EVENT_TIMER)
+        {
+            process();
 
-        al_set_target_bitmap(game_window->background);
-        draw();
-        al_set_target_bitmap(nullptr);
+            collision_process();
 
-        game_window->push_screen();
+            al_set_target_bitmap(game_window->background);
+            al_hold_bitmap_drawing(true);
+            draw();
+            al_hold_bitmap_drawing(false);
+            al_set_target_bitmap(nullptr);
+
+            game_window->push_screen();
+        }
     }
 
     return running;

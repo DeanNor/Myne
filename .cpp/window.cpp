@@ -1,9 +1,18 @@
 
 #include "window.h"
 
-window::window(int x, int y, ALLEGRO_EVENT_QUEUE* event_queue, std::string name)
+window::window(pos window_size, ALLEGRO_EVENT_QUEUE* event_queue, std::string name)
 {
-    display = al_create_display(x, y);
+    size = window_size;
+    center = size / 2.0;
+    half_size = size / 2;
+
+    al_set_render_state(ALLEGRO_DEPTH_TEST,1);
+    al_set_render_state(ALLEGRO_ALPHA_FUNCTION,1);
+
+    al_set_new_display_flags(ALLEGRO_OPENGL_3_0 + ALLEGRO_GENERATE_EXPOSE_EVENTS);
+
+    display = al_create_display(size.x, size.y);
 
     queue = event_queue;
 
@@ -11,8 +20,11 @@ window::window(int x, int y, ALLEGRO_EVENT_QUEUE* event_queue, std::string name)
 
     al_set_window_title(display, name.c_str());
 
-    background = al_create_bitmap(x,y);
-    foreground = al_create_bitmap(x,y);
+    background = al_create_bitmap(size.x,size.y);
+    foreground = al_create_bitmap(size.x,size.y);
+
+    al_set_target_bitmap(background);
+    al_clear_to_color(CLEAR);
 }
 
 window::~window()
@@ -25,7 +37,7 @@ void window::push_screen()
 {
     al_set_target_backbuffer(display);
     al_draw_bitmap(background, 0, 0, 0);
-    //al_draw_bitmap(foreground, 0, 0, 0);
+    al_draw_bitmap(foreground, 0, 0, 0);
 
     al_flip_display();
     al_clear_to_color(CLEAR);
