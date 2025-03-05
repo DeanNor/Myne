@@ -12,8 +12,6 @@ protected:
     b2Body* collision_body = nullptr;
     b2BodyDef collision_def;
 
-    pos past_offset;
-
 public:
     CollObj();
 
