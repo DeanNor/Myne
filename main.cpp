@@ -143,7 +143,7 @@ public:
 
         b2CircleShape box;
         box.m_p.Set(0,0);
-        box.m_radius = size;
+        box.m_radius = 30;
         
         b2FixtureDef fixtureDef;
         fixtureDef.shape = &box;
