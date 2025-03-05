@@ -31,4 +31,6 @@ public:
     bool angle_changed();
 
     double compute_angle();
+
+    void eof();
 };
