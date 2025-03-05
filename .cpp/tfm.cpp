@@ -84,3 +84,9 @@ double tfm::compute_angle()
 
     return transform_angle;
 }
+
+void tfm::eof()
+{
+    changed = false;
+    a_changed = false;
+}
