@@ -123,18 +123,48 @@ public:
         
         b2FixtureDef fixtureDef;
         fixtureDef.shape = &box;
-        fixtureDef.density = 0.1;
+        fixtureDef.density = 1;
+        fixtureDef.friction = 0;
+        fixtureDef.restitution = 1;
+
+        collision_body->CreateFixture(&fixtureDef);
+    }
+};
+
+class Mouse : public CollObj
+{
+public:
+    Mouse()
+    {
+        collision_def.type = b2_kinematicBody;
+        collision_def.bullet = true;
+
+        collision_body = get_current_coll_world()->CreateBody(&collision_def);
+
+        b2CircleShape box;
+        box.m_p.Set(0,0);
+        box.m_radius = size;
+        
+        b2FixtureDef fixtureDef;
+        fixtureDef.shape = &box;
+        fixtureDef.density = 50;
         fixtureDef.friction = 1;
-        fixtureDef.restitution = 0;
+        fixtureDef.restitution = 2;
 
         collision_body->CreateFixture(&fixtureDef);
     }
 
-    void collision_process(double delta)
+    void process(double delta)
     {
-        CollObj::collision_process(delta);
+        int x,y;
+        al_get_mouse_cursor_position(&x,&y);
 
-        collision_body->ApplyTorque(200000,false);
+        int src_x,src_y;
+        al_get_window_position(get_current_game()->game_window->display,&src_x,&src_y);
+
+        position = pos(x - src_x, y - src_y);
+
+        CollObj::process(delta);
     }
 };
 
@@ -149,10 +179,11 @@ int main()
     gameplay->coll_world = coll_world;
 
     gameplay->root->add_child(new StaticObj);
+    gameplay->root->add_child(new Mouse);
 
     pos position = {200,250};
     
-    for (int x = 0; x < 100; x++)
+    for (int x = 0; x < 1000; x++)
     {
         DynamObj* obj = new DynamObj;
         DrawObj* spr = new DrawObj;

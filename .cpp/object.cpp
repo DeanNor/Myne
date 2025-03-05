@@ -1,13 +1,6 @@
 
 #include "object.h"
 
-void Object::eof()
-{
-    global_position.eof();
-
-    Process::eof();
-}
-
 void Object::set_parent(Process* new_parent)
 {
     Process::set_parent(new_parent);
