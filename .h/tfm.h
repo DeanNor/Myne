@@ -5,7 +5,7 @@
 
 struct tfm
 {
-protected:
+public:
     pos transform;
     double transform_angle = 0;
 
@@ -30,4 +30,6 @@ public:
     bool angle_changed();
 
     double compute_angle();
+
+    void eof();
 };

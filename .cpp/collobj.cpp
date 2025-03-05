@@ -11,18 +11,14 @@ void CollObj::process(double delta)
     Object::process(delta);
     
     pos computed = global_position.compute();
-    if (computed != past_offset)
-    {
-        past_offset = computed;
 
-        collision_body->SetTransform(past_offset.to_b2Vec2(),global_position.compute_angle());
-    }
+    collision_body->SetTransform(computed.to_b2Vec2(),global_position.compute_angle());
 }
 
 void CollObj::collision_process(double delta)
 {
-    b2Vec2 body_pos = collision_body->GetPosition();
-    pos offset = {};
+    b2Vec2 body_pos = collision_body->GetTransform().p;
+    pos offset = {0, 0};
     
     if (parent != nullptr)
     {

@@ -12,10 +12,12 @@ tfm::tfm(pos* new_position, double* new_angle, tfm* new_parent) : position(new_p
 
 bool tfm::has_changed()
 {
-    if (*position != past_pos || angle_changed())
+    if (!changed)
     {
-        return true;
-    }
+        if (*position != past_pos || angle_changed())
+        {
+            changed = true;
+        }
 
     if (parent != nullptr)
     {
@@ -27,7 +29,7 @@ bool tfm::has_changed()
         return parent->has_changed();
     }
 
-    return false;
+    return changed;
 }
 
 pos tfm::compute()
@@ -56,17 +58,20 @@ pos tfm::compute()
 
 bool tfm::angle_changed()
 {
-    if (*angle != past_angle)
+    if (!a_changed)
     {
-        return true;
+        if (*angle != past_angle)
+        {
+            a_changed = true;
+        }
+
+        else if (parent != nullptr)
+        {
+            a_changed = parent->angle_changed();
+        }
     }
 
-    if (parent != nullptr)
-    {
-        return parent->angle_changed();
-    }
-
-    return false;
+    return angle_changed;
 }
 
 double tfm::compute_angle()
@@ -84,4 +89,10 @@ double tfm::compute_angle()
     }
 
     return transform_angle;
+}
+
+void tfm::eof()
+{
+    changed = false;
+    a_changed = false;
 }
