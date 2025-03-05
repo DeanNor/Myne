@@ -5,12 +5,15 @@
 
 struct tfm
 {
-protected:
+public:
     pos transform;
     double transform_angle = 0;
 
     pos past_pos;
     double past_angle = 0;
+
+    bool changed = false;
+    bool a_changed = false;
 
 public:
     pos* position = nullptr;
