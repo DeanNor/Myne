@@ -64,6 +64,8 @@ game::~game()
 
 bool game::frame()
 {
+    bool redraw = true;
+
     while(!al_is_event_queue_empty(queue))
     {
         ALLEGRO_EVENT event;
@@ -76,18 +78,21 @@ bool game::frame()
 
         if (event.type == ALLEGRO_EVENT_TIMER)
         {
-            process();
-
-            collision_process();
-
-            al_set_target_bitmap(game_window->background);
-            al_hold_bitmap_drawing(true);
-            draw();
-            al_hold_bitmap_drawing(false);
-            al_set_target_bitmap(nullptr);
-
-            game_window->push_screen();
+            redraw = true;
         }
+    }
+
+    if (redraw)
+    {
+        process();
+
+        collision_process();
+
+        al_set_target_bitmap(game_window->background);
+        draw();
+        al_set_target_bitmap(nullptr);
+
+        game_window->push_screen();
     }
 
     return running;
@@ -105,7 +110,7 @@ void game::process()
 {
     if (root != nullptr)
     {
-        root->process(0.016);
+        root->process(spf);
     }
 
     else
@@ -121,7 +126,7 @@ void game::collision_process()
 
     for (CollObj* collision : collisions)
     {
-        collision->collision_process();
+        collision->collision_process(spf);
     }
 }
 

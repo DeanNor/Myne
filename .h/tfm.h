@@ -12,6 +12,8 @@ protected:
     pos past_pos;
     double past_angle = 0;
 
+    pos past_parent;
+
 public:
     pos* position = nullptr;
     double* angle = nullptr;

@@ -15,7 +15,7 @@
 
 static ALLEGRO_COLOR WHITE = al_map_rgb_f(1,1,1);
 static ALLEGRO_COLOR BLACK = al_map_rgb_f(0,0,0);
-static ALLEGRO_COLOR CLEAR = al_map_rgba_f(0,0.5,0.5,1);
+static ALLEGRO_COLOR CLEAR = al_map_rgba_f(0,0,0,0);
 static ALLEGRO_COLOR BLUE = al_map_rgb_f(0,0,1);
 
 struct window

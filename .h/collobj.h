@@ -19,5 +19,5 @@ public:
 
     void process(double delta);
 
-    virtual void collision_process();
+    virtual void collision_process(double delta);
 };

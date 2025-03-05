@@ -6,6 +6,7 @@
 #include <box2d/box2d.h>
 
 #include <vector>
+#include <thread>
 
 class Process;
 class DrawObj;
@@ -27,7 +28,7 @@ struct game
     bool running = true;
 
     int fps = 60;
-    double spf = 1.0 / (double)fps;
+    double spf = 1.0 / double(fps);
 
     int velocity_iterations = 6;
     int position_iterations = 2;

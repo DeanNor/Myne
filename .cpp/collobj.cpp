@@ -19,7 +19,7 @@ void CollObj::process(double delta)
     }
 }
 
-void CollObj::collision_process()
+void CollObj::collision_process(double delta)
 {
     b2Vec2 body_pos = collision_body->GetPosition();
     pos offset = {};

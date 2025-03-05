@@ -23,7 +23,7 @@ protected:
 public:
     Tileset()
     {
-        tilemap = al_create_bitmap(100,100);
+        tilemap = al_create_bitmap(500,500);
     }
 
     void draw()
@@ -80,7 +80,6 @@ class StaticObj : public CollObj
 public:
     StaticObj()
     {
-        collision_def.position.Set(0,0);
         collision_body = get_current_coll_world()->CreateBody(&collision_def);
 
         b2Vec2 points[] = {{0.0, 0.0},{0.1, 0.0}, {0.0,500.0}};
@@ -106,28 +105,36 @@ public:
     }
 };
 
+#define size 6
+
 class DynamObj : public CollObj
 {
 public:
     DynamObj()
     {
-        collision_def.position.Set(150,0);
         collision_def.type = b2_dynamicBody;
-        collision_body = get_current_coll_world()->CreateBody(&collision_def);
+        collision_def.allowSleep = true;
 
-        collision_def.bullet = true;
+        collision_body = get_current_coll_world()->CreateBody(&collision_def);
 
         b2CircleShape box;
         box.m_p.Set(0,0);
-        box.m_radius = 2;
+        box.m_radius = size;
         
         b2FixtureDef fixtureDef;
         fixtureDef.shape = &box;
-        fixtureDef.density = 1;
-        fixtureDef.friction = 0;
-        fixtureDef.restitution = 1;
+        fixtureDef.density = 0.1;
+        fixtureDef.friction = 1;
+        fixtureDef.restitution = 0;
 
         collision_body->CreateFixture(&fixtureDef);
+    }
+
+    void collision_process(double delta)
+    {
+        CollObj::collision_process(delta);
+
+        collision_body->ApplyTorque(200000,false);
     }
 };
 
@@ -143,27 +150,24 @@ int main()
 
     gameplay->root->add_child(new StaticObj);
 
-    pos a = {200,250};
-
-    double size = 80000;
-
-    ALLEGRO_BITMAP* bitmap = al_create_bitmap(4,4);
-
-    al_set_target_bitmap(bitmap);
-
-    al_draw_filled_circle(2,2,2,al_map_rgb_f(1,1,1));
-
-    for (double x = 0; x < size; ++x)
+    pos position = {200,250};
+    
+    for (int x = 0; x < 100; x++)
     {
-        DynamObj* dynam = new DynamObj;
-        gameplay->root->add_child(dynam);
+        DynamObj* obj = new DynamObj;
+        DrawObj* spr = new DrawObj;
 
-        dynam->set_position(a + pos(x * 8,0));
+        ALLEGRO_BITMAP* bmp = al_create_bitmap(2 * size,2 * size);
 
-        DrawObj* spr = new DrawObj();
+        al_set_target_bitmap(bmp);
+        al_draw_circle(size,size,size,WHITE,1);
 
-        spr->set_sprite(bitmap);
-        dynam->add_child(spr);
+        spr->set_sprite(bmp);
+
+        obj->add_child(spr);
+        gameplay->root->add_child(obj);
+
+        obj->set_position(position + pos(size * 2 * x,0));
     }
 
     gameplay->start();

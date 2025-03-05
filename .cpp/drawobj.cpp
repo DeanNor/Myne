@@ -13,13 +13,11 @@ void DrawObj::draw()
     if (sprite != nullptr)
     {
         pos computed = global_position.compute();
-        
-        if ((computed).within(screen->center - screen->half_size - center, screen->center + screen->half_size + center))
-        {
-            double global_angle = global_position.compute_angle();
+        double global_angle = global_position.compute_angle();
+        double pi = ALLEGRO_PI;
 
-            al_draw_scaled_rotated_bitmap(sprite, center.x, center.y, computed.x, computed.y, scale.x, scale.y, global_angle, 0);
-        }
+        al_draw_scaled_rotated_bitmap(sprite, center.x, center.y, computed.x, computed.y, scale.x, scale.y, modf(global_angle,&pi), 0);
+
     }
 }
 

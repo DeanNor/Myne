@@ -7,10 +7,7 @@ window::window(pos window_size, ALLEGRO_EVENT_QUEUE* event_queue, std::string na
     center = size / 2.0;
     half_size = size / 2;
 
-    al_set_render_state(ALLEGRO_DEPTH_TEST,1);
-    al_set_render_state(ALLEGRO_ALPHA_FUNCTION,1);
-
-    al_set_new_display_flags(ALLEGRO_OPENGL_3_0 + ALLEGRO_GENERATE_EXPOSE_EVENTS);
+    al_set_new_display_flags(ALLEGRO_OPENGL_3_0);
 
     display = al_create_display(size.x, size.y);
 
@@ -37,7 +34,7 @@ void window::push_screen()
 {
     al_set_target_backbuffer(display);
     al_draw_bitmap(background, 0, 0, 0);
-    al_draw_bitmap(foreground, 0, 0, 0);
+    //al_draw_bitmap(foreground, 0, 0, 0);
 
     al_flip_display();
     al_clear_to_color(CLEAR);

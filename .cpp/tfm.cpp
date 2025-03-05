@@ -19,6 +19,11 @@ bool tfm::has_changed()
 
     if (parent != nullptr)
     {
+        if (parent->transform != past_parent)
+        {
+            return true;
+        }
+
         return parent->has_changed();
     }
 
@@ -35,7 +40,9 @@ pos tfm::compute()
         {
             transform = position->rotated(*parent->angle);
 
-            transform += parent->compute();
+            past_parent = parent->compute();
+            
+            transform += past_parent;
         }
 
         else
