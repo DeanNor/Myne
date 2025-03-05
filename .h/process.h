@@ -19,6 +19,10 @@ public:
 
     void process_children(double delta);
 
+    virtual void eof();
+
+    void eof_children();
+
     void add_child(Process* child);
 
     virtual void set_parent(Process* new_parent);
