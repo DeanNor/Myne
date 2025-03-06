@@ -5,7 +5,7 @@
 
 struct tfm
 {
-public:
+protected:
     pos transform;
     double transform_angle = 0;
 
