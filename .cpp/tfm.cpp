@@ -63,7 +63,7 @@ bool tfm::angle_changed()
 
     else if (parent != nullptr)
     {
-        if (parent->global_ != past_parent)
+        if (parent->transform_angle != past_par_angle)
         {
             return true;
         }
@@ -84,7 +84,9 @@ double tfm::compute_angle()
 
         if (parent != nullptr)
         {
-            transform_angle += parent->compute_angle();
+            past_par_angle = parent->compute_angle();
+
+            transform_angle += past_par_angle:
         }
     }
 
