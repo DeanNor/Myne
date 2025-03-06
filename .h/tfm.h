@@ -13,6 +13,7 @@ public:
     double past_angle = 0;
 
     pos past_parent;
+    double past_par_angle = 0;
 
 public:
     pos* position = nullptr;
