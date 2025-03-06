@@ -63,6 +63,11 @@ bool tfm::angle_changed()
 
     else if (parent != nullptr)
     {
+        if (parent->global_ != past_parent)
+        {
+            return true;
+        }
+        
         return parent->angle_changed();
     }
 
