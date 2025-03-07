@@ -5,6 +5,8 @@
 
 #include <box2d/box2d.h>
 
+#define B2_SCALE 100.f // Difference between b2 positions and my positions
+
 class CollObj : public Object
 {
 protected:

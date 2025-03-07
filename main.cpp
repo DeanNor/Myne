@@ -73,39 +73,25 @@ pos to_tileset(pos value, pos tile_size)
     return tile_number * tile_size;
 }
 
-class DynamObj;
+#define HUH 9000
 
 class StaticObj : public CollObj
 {
 public:
     StaticObj()
     {
+        collision_def.type = b2_staticBody;
         collision_body = get_current_coll_world()->CreateBody(&collision_def);
 
-        b2Vec2 points[] = {{0.0, 0.0},{0.1, 0.0}, {0.0,500.0}};
-
-        b2PolygonShape roundedTriangle;
-        roundedTriangle.Set(points,3);
+        b2PolygonShape box;
+        box.SetAsBox(HUH / B2_SCALE,HUH / B2_SCALE);
         
-        collision_body->CreateFixture(&roundedTriangle,0.0);
-
-        b2Vec2 points2[] = {{0,-500}, {10000,-500}, {10000,0}, {0,0}};
-
-        b2PolygonShape sqr;
-        sqr.Set(points2,4);
-        
-        collision_body->CreateFixture(&sqr,0.0);
-
-        b2Vec2 points3[] = {{0,500}, {10000,500}, {10000,600}, {0,600}};
-
-        b2PolygonShape sqr2;
-        sqr2.Set(points3,4);
-        
-        collision_body->CreateFixture(&sqr2,0.0);
+        collision_body->CreateFixture(&box,0.0);
     }
 };
 
 #define size 6
+#define b2size size / B2_SCALE
 
 class DynamObj : public CollObj
 {
@@ -119,13 +105,13 @@ public:
 
         b2CircleShape box;
         box.m_p.Set(0,0);
-        box.m_radius = size;
+        box.m_radius = b2size;
         
         b2FixtureDef fixtureDef;
         fixtureDef.shape = &box;
         fixtureDef.density = 1;
         fixtureDef.friction = 0;
-        fixtureDef.restitution = 1;
+        fixtureDef.restitution = 0.25;
 
         collision_body->CreateFixture(&fixtureDef);
     }
@@ -143,13 +129,13 @@ public:
 
         b2CircleShape box;
         box.m_p.Set(0,0);
-        box.m_radius = 30;
+        box.m_radius = 30 / B2_SCALE;
         
         b2FixtureDef fixtureDef;
         fixtureDef.shape = &box;
         fixtureDef.density = 50;
         fixtureDef.friction = 1;
-        fixtureDef.restitution = 2;
+        fixtureDef.restitution = 0.5;
 
         collision_body->CreateFixture(&fixtureDef);
     }
@@ -162,7 +148,9 @@ public:
         int src_x,src_y;
         al_get_window_position(get_current_game()->game_window->display,&src_x,&src_y);
 
-        position = pos(x - src_x, y - src_y);
+        pos glo_pos = global_position.compute();
+
+        collision_body->SetLinearVelocity(b2Vec2((x - src_x - glo_pos.x) * 60 / B2_SCALE, (y - src_y - glo_pos.y) * 60 / B2_SCALE));
 
         CollObj::process(delta);
     }
@@ -170,7 +158,7 @@ public:
 
 int main()
 {
-    b2World* coll_world = new b2World(b2Vec2(-100.0,0));
+    b2World* coll_world = new b2World(b2Vec2(-100.0 / B2_SCALE,0));
     set_current_coll_world(coll_world);
 
     game* gameplay = new game;
@@ -178,12 +166,35 @@ int main()
 
     gameplay->coll_world = coll_world;
 
-    gameplay->root->add_child(new StaticObj);
-    gameplay->root->add_child(new Mouse);
+    Mouse* mse = new Mouse;
+    DrawObj* spri = new DrawObj;
+
+    ALLEGRO_BITMAP* bimp = al_create_bitmap(2 * 30,2 * 30);
+
+    al_set_target_bitmap(bimp);
+    al_draw_circle(30,30,30,WHITE,1);
+
+    spri->set_sprite(bimp);
+
+    mse->add_child(spri);
+
+    gameplay->root->add_child(mse);
+
+    StaticObj* huh1 = new StaticObj;
+    huh1->set_position(pos(-HUH,HUH));
+    gameplay->root->add_child(huh1);
+
+    StaticObj* huh2 = new StaticObj;
+    huh2->set_position(pos(HUH,-HUH));
+    gameplay->root->add_child(huh2);
+
+    StaticObj* huh3 = new StaticObj;
+    huh3->set_position(pos(HUH,500 + HUH));
+    gameplay->root->add_child(huh3);
 
     pos position = {200,250};
     
-    for (int x = 0; x < 1000; x++)
+    for (int x = 0; x < 2000; x++)
     {
         DynamObj* obj = new DynamObj;
         DrawObj* spr = new DrawObj;

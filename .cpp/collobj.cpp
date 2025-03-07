@@ -12,26 +12,21 @@ void CollObj::process(double delta)
     
     pos computed = global_position.compute();
 
-    collision_body->SetTransform(computed.to_b2Vec2(),global_position.compute_angle());
+    collision_body->SetTransform((computed / B2_SCALE).to_b2Vec2(),global_position.compute_angle());
 }
 
 void CollObj::collision_process(double delta)
 {
-    b2Vec2 body_pos = collision_body->GetTransform().p;
+    b2Vec2 body_b2pos = collision_body->GetTransform().p;
+    pos body_pos(body_b2pos.x * B2_SCALE, body_b2pos.y * B2_SCALE);
     pos offset = {0, 0};
     
-    if (parent != nullptr)
-    {
-        Object* p = dynamic_cast<Object*>(parent);
-        
-        if (p != nullptr)
-        {
-            offset = p->get_global_position();
-        }
+    if (global_position.parent != nullptr)
+    {        
+        offset = global_position.parent->compute();
     }
     
-    position.x = body_pos.x - offset.x;
-    position.y = body_pos.y - offset.y;
+    position = body_pos - offset;
 
     angle = collision_body->GetAngle();
 }

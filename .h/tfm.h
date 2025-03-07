@@ -19,7 +19,7 @@ public:
     pos* position = nullptr;
     double* angle = nullptr;
 
-    tfm* parent = nullptr;
+    tfm* parent = nullptr; // Parent transform obj, also a good notifier if the parent is an object instead of a process
 
     tfm(pos* new_position, double* new_angle);
     tfm(pos* new_position, double* new_angle, tfm* new_parent);

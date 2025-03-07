@@ -85,8 +85,10 @@ bool game::frame()
     if (redraw)
     {
         process();
-
+        
+        double tim = al_get_time();
         collision_process();
+        std::cout << al_get_time() - tim << std::endl;
 
         al_set_target_bitmap(game_window->background);
         draw();

@@ -86,7 +86,7 @@ double tfm::compute_angle()
         {
             past_par_angle = parent->compute_angle();
 
-            transform_angle += past_par_angle:
+            transform_angle += past_par_angle;
         }
     }
 
