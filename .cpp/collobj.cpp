@@ -4,6 +4,7 @@
 CollObj::CollObj()
 {
     get_current_game()->collisions.push_back(this);
+    collision_def.userData = this;
 }
 
 void CollObj::process(double delta)
