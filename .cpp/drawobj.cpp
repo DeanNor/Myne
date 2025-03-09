@@ -1,5 +1,5 @@
 
-#include "drawobj.h"
+#include "drawobj.hpp"
 
 DrawObj::DrawObj()
 {
@@ -12,11 +12,10 @@ void DrawObj::draw()
 {
     if (sprite != nullptr)
     {
-        pos computed = global_position.compute();
-        double global_angle = global_position.compute_angle();
-        double pi = ALLEGRO_PI;
+        pos computed = global_position;
+        double global_angle = global_position;
 
-        al_draw_scaled_rotated_bitmap(sprite, center.x, center.y, computed.x, computed.y, scale.x, scale.y, modf(global_angle,&pi), 0);
+        al_draw_scaled_rotated_bitmap(sprite, center.x, center.y, computed.x, computed.y, scale.x, scale.y, global_angle, 0);
 
     }
 }

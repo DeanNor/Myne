@@ -1,7 +1,7 @@
 
 #pragma once
 
-#include "object.h"
+#include "object.hpp"
 
 #include <box2d/box2d.h>
 

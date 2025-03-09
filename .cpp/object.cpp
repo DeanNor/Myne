@@ -1,5 +1,5 @@
 
-#include "object.h"
+#include "object.hpp"
 
 void Object::set_parent(Process* new_parent)
 {
@@ -20,7 +20,7 @@ tfm* Object::get_tfm()
 
 pos Object::get_global_position()
 {
-    return global_position.compute();
+    return global_position;
 }
 
 void Object::set_position(pos new_pos)
@@ -45,5 +45,5 @@ double Object::get_angle()
 
 double Object::get_global_angle()
 {
-    return global_position.compute_angle();
+    return global_position;
 }

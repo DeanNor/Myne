@@ -1,9 +1,9 @@
 
 #pragma once
 
-#include "object.h"
+#include "object.hpp"
 
-#include "window.h"
+#include "window.hpp"
 
 class DrawObj : public Object
 {

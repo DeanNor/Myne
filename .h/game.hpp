@@ -1,7 +1,7 @@
 
 #pragma once
 
-#include "window.h"
+#include "window.hpp"
 
 #include <box2d/box2d.h>
 
@@ -30,8 +30,8 @@ struct game
     int fps = 60;
     double spf = 1.0 / double(fps);
 
-    int velocity_iterations = 3;
-    int position_iterations = 3;
+    int velocity_iterations = 12;
+    int position_iterations = 6;
 
     game();
 

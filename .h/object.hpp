@@ -4,9 +4,9 @@
 #ifndef OBJ_H
 #define OBJ_H
 
-#include "process.h"
+#include "process.hpp"
 
-#include "tfm.h"
+#include "tfm.hpp"
 
 #include <vector>
 
@@ -14,7 +14,7 @@ class Object: public Process
 {
 protected:
     pos position;
-    double angle = 0;
+    rad angle = 0;
 
     tfm global_position = {&position, &angle};
 

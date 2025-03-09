@@ -1,5 +1,5 @@
 
-#include "process.h"
+#include "process.hpp"
 
 void Process::process(double delta)
 {

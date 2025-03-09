@@ -11,7 +11,7 @@
 #include <string>
 #include <iostream>
 
-#include "pos.h"
+#include "pos.hpp"
 
 static ALLEGRO_COLOR WHITE = al_map_rgb_f(1,1,1);
 static ALLEGRO_COLOR BLACK = al_map_rgb_f(0,0,0);

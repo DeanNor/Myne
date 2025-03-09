@@ -1,9 +1,9 @@
 #include <iostream>
 #include <vector>
 
-#include "game.h"
-#include "drawobj.h"
-#include "collobj.h"
+#include "game.hpp"
+#include "drawobj.hpp"
+#include "collobj.hpp"
 
 pos to_tileset(pos value, pos tile_size);
 
@@ -73,6 +73,8 @@ pos to_tileset(pos value, pos tile_size)
     return tile_number * tile_size;
 }
 
+
+// USER DEFINED STUFF ISH
 #define HUH 9000
 
 class StaticObj : public CollObj
@@ -110,10 +112,20 @@ public:
         b2FixtureDef fixtureDef;
         fixtureDef.shape = &box;
         fixtureDef.density = 1;
-        fixtureDef.friction = 0;
+        fixtureDef.friction = 1;
         fixtureDef.restitution = 0.25;
 
         collision_body->CreateFixture(&fixtureDef);
+    }
+
+    void collision_process(double delta)
+    {
+        CollObj::collision_process(delta);
+
+        if (position.x < 0)
+        {
+            std::printf("LOST %f\n", position.x);
+        }
     }
 };
 
@@ -123,19 +135,17 @@ public:
     Mouse()
     {
         collision_def.type = b2_kinematicBody;
-        collision_def.bullet = true;
 
         collision_body = get_current_coll_world()->CreateBody(&collision_def);
 
-        b2CircleShape box;
-        box.m_p.Set(0,0);
-        box.m_radius = 30 / B2_SCALE;
+        b2PolygonShape box;
+        box.SetAsBox(30.0f / B2_SCALE, 30.0f / B2_SCALE);
         
         b2FixtureDef fixtureDef;
         fixtureDef.shape = &box;
         fixtureDef.density = 50;
         fixtureDef.friction = 1;
-        fixtureDef.restitution = 0.5;
+        fixtureDef.restitution = 2;
 
         collision_body->CreateFixture(&fixtureDef);
     }
@@ -148,7 +158,7 @@ public:
         int src_x,src_y;
         al_get_window_position(get_current_game()->game_window->display,&src_x,&src_y);
 
-        pos glo_pos = global_position.compute();
+        pos glo_pos = global_position; 
 
         collision_body->SetLinearVelocity(b2Vec2((x - src_x - glo_pos.x) * 60 / B2_SCALE, (y - src_y - glo_pos.y) * 60 / B2_SCALE));
 
@@ -172,7 +182,7 @@ int main()
     ALLEGRO_BITMAP* bimp = al_create_bitmap(2 * 30,2 * 30);
 
     al_set_target_bitmap(bimp);
-    al_draw_circle(30,30,30,WHITE,1);
+    al_draw_rectangle(1,1,59,59,WHITE,1);
 
     spri->set_sprite(bimp);
 
@@ -193,8 +203,9 @@ int main()
     gameplay->root->add_child(huh3);
 
     pos position = {200,250};
-    
-    for (int x = 0; x < 2000; x++)
+    double amount = 2000;
+    double start = 0.25;
+    for (double x = 0; x < amount; x++)
     {
         DynamObj* obj = new DynamObj;
         DrawObj* spr = new DrawObj;
@@ -202,14 +213,14 @@ int main()
         ALLEGRO_BITMAP* bmp = al_create_bitmap(2 * size,2 * size);
 
         al_set_target_bitmap(bmp);
-        al_draw_circle(size,size,size,WHITE,1);
-
+        al_draw_circle(size,size,size,al_map_rgb_f(start + (x / amount) * (1 - start),start + (x / amount) * (1 - start), start + (x / amount) * (1 - start)),1);
+        al_draw_line(size,size,size + size, size, al_map_rgb_f(1,1,1),1);
         spr->set_sprite(bmp);
 
         obj->add_child(spr);
         gameplay->root->add_child(obj);
 
-        obj->set_position(position + pos(size * 2 * x,0));
+        obj->set_position(position + pos(size * 2 * x + rand() % 50 - 25,rand() % 50 - 25));
     }
 
     gameplay->start();

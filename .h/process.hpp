@@ -1,9 +1,9 @@
 
 #pragma once
 
-#include "game.h"
+#include "game.hpp"
 
-#include "pos.h"
+#include "pos.hpp"
 
 class Process
 {

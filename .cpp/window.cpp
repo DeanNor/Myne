@@ -1,5 +1,5 @@
 
-#include "window.h"
+#include "window.hpp"
 
 window::window(pos window_size, ALLEGRO_EVENT_QUEUE* event_queue, std::string name)
 {

@@ -1,5 +1,5 @@
 
-#include "pos.h"
+#include "pos.hpp"
 
 pos::pos(double new_x, double new_y)
 {

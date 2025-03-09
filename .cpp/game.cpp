@@ -1,9 +1,9 @@
 
-#include "game.h"
+#include "game.hpp"
 
-#include "process.h"
-#include "drawobj.h"
-#include "collobj.h"
+#include "process.hpp"
+#include "drawobj.hpp"
+#include "collobj.hpp"
 
 game::game()
 {
@@ -86,9 +86,7 @@ bool game::frame()
     {
         process();
         
-        double tim = al_get_time();
         collision_process();
-        std::cout << al_get_time() - tim << std::endl;
 
         al_set_target_bitmap(game_window->background);
         draw();

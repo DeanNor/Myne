@@ -1,11 +1,11 @@
 
-#include "tfm.h"
+#include "tfm.hpp"
 
-tfm::tfm(pos* new_position, double* new_angle) : position(new_position), angle(new_angle), parent(nullptr)
+tfm::tfm(pos* new_position, rad* new_angle) : position(new_position), angle(new_angle), parent(nullptr)
 {
     compute();
 }
-tfm::tfm(pos* new_position, double* new_angle, tfm* new_parent) : position(new_position), angle(new_angle), parent(new_parent)
+tfm::tfm(pos* new_position, rad* new_angle, tfm* new_parent) : position(new_position), angle(new_angle), parent(new_parent)
 {
     compute();
 }
@@ -40,7 +40,7 @@ pos tfm::compute()
         {
             transform = position->rotated(*parent->angle);
 
-            past_parent = parent->compute();
+            past_parent = *parent;
             
             transform += past_parent;
         }
@@ -74,7 +74,7 @@ bool tfm::angle_changed()
     return false;
 }
 
-double tfm::compute_angle()
+rad tfm::compute_angle()
 {
     if (angle_changed())
     {
@@ -91,4 +91,14 @@ double tfm::compute_angle()
     }
 
     return transform_angle;
+}
+
+tfm::operator pos()
+{
+    return compute();
+}
+
+tfm::operator double()
+{
+    return compute_angle();
 }
