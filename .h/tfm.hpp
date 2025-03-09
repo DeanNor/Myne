@@ -36,5 +36,7 @@ public:
     // If anyone has any complaints about me using return types, fight me
     operator pos();
 
+    operator rad();
+
     operator double();
 };

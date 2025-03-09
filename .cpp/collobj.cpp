@@ -1,10 +1,21 @@
 
 #include "collobj.hpp"
 
+struct BodyOwner : public b2BodyUserData
+{
+public:
+    CollObj* owner;
+
+    BodyOwner(CollObj* body_owner)
+    {
+        owner = body_owner;
+    }
+};
+
 CollObj::CollObj()
 {
     get_current_game()->collisions.push_back(this);
-    collision_def.userData = this;
+    collision_def.userData = BodyOwner(this);
 }
 
 void CollObj::process(double delta)

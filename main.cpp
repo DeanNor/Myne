@@ -124,7 +124,7 @@ public:
 
         if (position.x < 0)
         {
-            std::printf("LOST %f\n", position.x);
+            position = pos(250,250);
         }
     }
 };

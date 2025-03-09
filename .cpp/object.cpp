@@ -33,17 +33,17 @@ pos Object::get_position()
     return position;
 }
 
-void Object::set_angle(double new_angle)
+void Object::set_angle(rad new_angle)
 {
     angle = new_angle;
 }
 
-double Object::get_angle()
+rad Object::get_angle()
 {
     return angle;
 }
 
-double Object::get_global_angle()
+rad Object::get_global_angle()
 {
     return global_position;
 }

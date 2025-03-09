@@ -29,11 +29,11 @@ public:
 
     pos get_position();
 
-    void set_angle(double new_angle);
+    void set_angle(rad new_angle);
 
-    double get_angle();
+    rad get_angle();
 
-    double get_global_angle();
+    rad get_global_angle();
 };
 
 #endif

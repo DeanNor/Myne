@@ -98,7 +98,12 @@ tfm::operator pos()
     return compute();
 }
 
-tfm::operator double()
+tfm::operator rad()
 {
     return compute_angle();
+}
+
+tfm::operator double()
+{
+    return (double)compute_angle();
 }
