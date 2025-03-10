@@ -33,10 +33,5 @@ public:
 
     rad compute_angle();
 
-    // If anyone has any complaints about me using return types, fight me
     operator pos();
-
-    operator rad();
-
-    operator double();
 };
