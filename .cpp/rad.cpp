@@ -38,22 +38,22 @@ rad::operator double()
 
 bool rad::operator> (rad compare)
 {
-    return constrain_rad(radian + PI) < compare.radian && radian > compare.radian;
+    return radian > constrain_rad(compare.radian + PI) || radian > compare.radian;
 }
 
 bool rad::operator< (rad compare)
 {
-    return constrain_rad(radian - PI) > compare.radian && radian < compare.radian;
+    return radian < constrain_rad(compare.radian + PI) || radian < compare.radian;
 }
 
 bool rad::operator>= (rad compare)
 {
-    return constrain_rad(radian + PI) <= compare.radian && radian >= compare.radian;
+    return radian >= constrain_rad(compare.radian + PI) || radian >= compare.radian;
 }
 
 bool rad::operator<= (rad compare)
 {
-    return constrain_rad(radian - PI) > compare.radian && radian < compare.radian;
+    return radian <= constrain_rad(compare.radian + PI) || radian <= compare.radian;
 }
 
 bool rad::operator== (rad compare)
