@@ -11,6 +11,16 @@ double constrain_rad(double amount)
     return amount;
 }
 
+rad constrain_rad(rad amount)
+{
+    if (amount.radian > PI || amount.radian <= -PI)
+    {
+        return PI - fmod(amount.radian, PI);
+    }
+
+    return amount.radian;
+}
+
 rad::rad(double val) : radian(constrain_rad(val))
 {
 
@@ -28,22 +38,22 @@ rad::operator double()
 
 bool rad::operator> (rad compare)
 {
-    return radian > compare.radian;
+    return constrain_rad(radian + PI) < compare.radian && radian > compare.radian;
 }
 
 bool rad::operator< (rad compare)
 {
-    return radian < compare.radian;
+    return constrain_rad(radian - PI) > compare.radian && radian < compare.radian;
 }
 
 bool rad::operator>= (rad compare)
 {
-    return radian >= compare.radian;
+    return constrain_rad(radian + PI) <= compare.radian && radian >= compare.radian;
 }
 
 bool rad::operator<= (rad compare)
 {
-    return radian <= compare.radian;
+    return constrain_rad(radian - PI) > compare.radian && radian < compare.radian;
 }
 
 bool rad::operator== (rad compare)
