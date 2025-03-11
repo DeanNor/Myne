@@ -58,7 +58,7 @@ public:
     // ----- /
     rad operator/ (rad amount);
 
-    double operator/ (double amount);
+    rad operator/ (double amount);
 
     // ----- /=
     rad& operator/= (rad amount);
