@@ -65,5 +65,3 @@ public:
 
     rad& operator/= (double amount);
 };
-
-rad operator rad(double amount);
