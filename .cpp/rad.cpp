@@ -1,4 +1,3 @@
-
 #include "rad.hpp"
 
 #define PI 3.14159
@@ -59,10 +58,19 @@ rad rad::operator+ (rad amount)
 
 rad rad::operator+ (double amount)
 {
-    return rad(amount.radian + radian);
+    return rad(amount + radian);
 }
 
 rad& rad::operator+= (rad amount)
+{
+    radian = radian + amount;
+
+    radian = constrain_rad(radian);
+
+    return *this;
+}
+
+rad& rad::operator+= (double amount)
 {
     radian = radian + amount;
 
@@ -76,7 +84,21 @@ rad rad::operator- (rad amount)
     return amount.radian - radian;
 }
 
+rad rad::operator- (double amount)
+{
+    return rad(radian - amount);
+}
+
 rad& rad::operator-= (rad amount)
+{
+    radian = radian - amount;
+
+    radian = constrain_rad(radian);
+
+    return *this;
+}
+
+rad& rad::operator-= (double amount)
 {
     radian = radian - amount;
 
@@ -90,7 +112,21 @@ rad rad::operator* (rad amount)
     return amount.radian * radian;
 }
 
+rad rad::operator* (double amount)
+{
+    return rad(radian * amount);
+}
+
 rad& rad::operator*= (rad amount)
+{
+    radian = radian * amount;
+
+    radian = constrain_rad(radian);
+
+    return *this;
+}
+
+rad& rad::operator*= (double amount)
 {
     radian = radian * amount;
 
@@ -104,7 +140,21 @@ rad rad::operator/ (rad amount)
     return amount.radian / radian;
 }
 
+rad rad::operator/ (double amount)
+{
+    return rad(radian / amount);
+}
+
 rad& rad::operator/= (rad amount)
+{
+    radian = radian / amount;
+
+    radian = constrain_rad(radian);
+
+    return *this;
+}
+
+rad& rad::operator/= (double amount)
 {
     radian = radian / amount;
 
