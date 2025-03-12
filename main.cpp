@@ -143,11 +143,13 @@ public:
         
         b2FixtureDef fixtureDef;
         fixtureDef.shape = &box;
-        fixtureDef.density = 50;
+        fixtureDef.density = 10;
         fixtureDef.friction = 1;
-        fixtureDef.restitution = 2;
+        fixtureDef.restitution = 0.25;
 
         collision_body->CreateFixture(&fixtureDef);
+
+        collision_body->SetAngularVelocity(500.0f / B2_SCALE);
     }
 
     void process(double delta)

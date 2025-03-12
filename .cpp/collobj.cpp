@@ -24,7 +24,7 @@ void CollObj::process(double delta)
     
     pos computed = global_position;
 
-    collision_body->SetTransform((computed / B2_SCALE).to_b2Vec2(),global_position);
+    collision_body->SetTransform((computed / B2_SCALE),global_position.compute_angle());
 }
 
 void CollObj::collision_process(double delta)

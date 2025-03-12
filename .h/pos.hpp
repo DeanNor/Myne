@@ -18,6 +18,8 @@ public:
 
     pos(const pos& past_pos);
 
+    operator b2Vec2();
+
     double size();
 
     double direction();
@@ -43,8 +45,6 @@ public:
     pos ceil();
 
     pos round();
-
-    b2Vec2 to_b2Vec2();
 
     pos& operator= (const pos& convert);
 

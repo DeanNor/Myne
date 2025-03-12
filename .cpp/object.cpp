@@ -45,5 +45,5 @@ rad Object::get_angle()
 
 rad Object::get_global_angle()
 {
-    return global_position;
+    return global_position.compute_angle();
 }

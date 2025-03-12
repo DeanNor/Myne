@@ -1,11 +1,23 @@
 #include "rad.hpp"
 
-#define PI 3.14159
+#include <iostream>
+
+const double PI = 3.14159265358979323846;
+double rad_constraint(double amount)
+{
+    if (amount > 0)
+    {
+        return fmod(amount, PI) - PI;
+    }
+    
+    return fmod(amount, PI) + PI;
+}
+
 double constrain_rad(double amount)
 {
     if (amount > PI || amount <= -PI)
     {
-        return PI - fmod(amount, PI);
+        return rad_constraint(amount);
     }
 
     return amount;
@@ -15,7 +27,7 @@ rad constrain_rad(rad amount)
 {
     if (amount.radian > PI || amount.radian <= -PI)
     {
-        return PI - fmod(amount.radian, PI);
+        return rad_constraint(amount.radian);
     }
 
     return amount.radian;
@@ -38,22 +50,22 @@ rad::operator double()
 
 bool rad::operator> (rad compare)
 {
-    return radian > constrain_rad(compare.radian + PI) || radian > compare.radian;
+    return constrain_rad(radian - compare.radian) > 0;
 }
 
 bool rad::operator< (rad compare)
 {
-    return radian < constrain_rad(compare.radian + PI) || radian < compare.radian;
+    return constrain_rad(radian - compare.radian) < 0;
 }
 
 bool rad::operator>= (rad compare)
 {
-    return radian >= constrain_rad(compare.radian + PI) || radian >= compare.radian;
+    return constrain_rad(radian - compare.radian) >= 0;
 }
 
 bool rad::operator<= (rad compare)
 {
-    return radian <= constrain_rad(compare.radian + PI) || radian <= compare.radian;
+    return constrain_rad(radian - compare.radian) <= 0;
 }
 
 bool rad::operator== (rad compare)

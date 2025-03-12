@@ -19,6 +19,11 @@ pos::pos(const pos& past_pos)
     y = past_pos.y;
 }
 
+pos::operator b2Vec2()
+{
+    return b2Vec2(x,y);
+}
+
 double pos::size()
 {
     double sum = std::abs(x) + std::abs(y);
@@ -163,11 +168,6 @@ pos pos::round()
     temp_pos.y = std::round(temp_pos.y);
 
     return temp_pos;
-}
-
-b2Vec2 pos::to_b2Vec2()
-{
-    return b2Vec2(x,y);
 }
 
 pos& pos::operator= (const pos& convert)

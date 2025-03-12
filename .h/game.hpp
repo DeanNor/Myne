@@ -30,8 +30,8 @@ struct game
     int fps = 60;
     double spf = 1.0 / double(fps);
 
-    int velocity_iterations = 12;
-    int position_iterations = 6;
+    int velocity_iterations = 2;
+    int position_iterations = 1;
 
     game();
 
