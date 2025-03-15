@@ -212,15 +212,17 @@ int main()
         DynamObj* obj = new DynamObj;
         DrawObj* spr = new DrawObj;
 
-        ALLEGRO_BITMAP* bmp = al_create_bitmap(2 * size,2 * size);
+        ALLEGRO_BITMAP* bmp = al_create_bitmap(2 * size, 2 * size);
 
         al_set_target_bitmap(bmp);
-        al_draw_circle(size,size,size,al_map_rgb_f(start + (x / amount) * (1 - start),start + (x / amount) * (1 - start), start + (x / amount) * (1 - start)),1);
+        al_draw_circle(size,size,size,al_premul_rgba_f(1, 1, 1, x / amount),1);
         al_draw_line(size,size,size + size, size, al_map_rgb_f(1,1,1),1);
+
         spr->set_sprite(bmp);
 
         obj->add_child(spr);
         gameplay->root->add_child(obj);
+        
 
         obj->set_position(position + pos(size * 2 * x + rand() % 50 - 25,rand() % 50 - 25));
     }

@@ -20,6 +20,7 @@ struct game
     ALLEGRO_EVENT_QUEUE* queue = nullptr;
 
     Process* root = nullptr;
+
     std::vector<DrawObj*> draws = {};
     std::vector<CollObj*> collisions = {};
 
@@ -31,7 +32,7 @@ struct game
     double spf = 1.0 / double(fps);
 
     int velocity_iterations = 2;
-    int position_iterations = 1;
+    int position_iterations = 2;
 
     game();
 

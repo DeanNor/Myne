@@ -26,10 +26,6 @@ target_link_libraries(${PROJECT_NAME} PUBLIC
     allegro
     allegro_primitives
     allegro_image
-    allegro_audio
 
     box2d
     )
-
-
-

@@ -12,13 +12,15 @@ public:
     double x = 0;
     double y = 0;
 
-    pos(double new_x, double new_y);
+    pos(const double& new_x, const double& new_y);
 
     pos();
 
     pos(const pos& past_pos);
 
     operator b2Vec2();
+
+    pos(const b2Vec2& convert);
 
     double size();
 

@@ -1,7 +1,5 @@
 #include "rad.hpp"
 
-#include <iostream>
-
 const double PI = 3.14159265358979323846;
 double rad_constraint(double amount)
 {

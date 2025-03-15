@@ -88,9 +88,13 @@ bool game::frame()
         
         collision_process();
 
-       al_hold_bitmap_drawing(true); al_set_target_bitmap(game_window->background);
+        double tim = al_get_time();
+        al_set_target_bitmap(game_window->background);
+        al_hold_bitmap_drawing(true);
         draw();
+        al_hold_bitmap_drawing(false);
         al_set_target_bitmap(nullptr);
+        std::cout << al_get_time() - tim << std::endl;
 
         game_window->push_screen();
     }

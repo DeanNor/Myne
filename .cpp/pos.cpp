@@ -1,7 +1,7 @@
 
 #include "pos.hpp"
 
-pos::pos(double new_x, double new_y)
+pos::pos(const double& new_x, const double& new_y)
 {
     x = new_x;
     y = new_y;
@@ -22,6 +22,12 @@ pos::pos(const pos& past_pos)
 pos::operator b2Vec2()
 {
     return b2Vec2(x,y);
+}
+
+pos::pos(const b2Vec2& convert)
+{
+    x = convert.x;
+    y = convert.y;
 }
 
 double pos::size()
