@@ -88,7 +88,7 @@ bool game::frame()
         
         collision_process();
 
-        al_set_target_bitmap(game_window->background);
+       al_hold_bitmap_drawing(true); al_set_target_bitmap(game_window->background);
         draw();
         al_set_target_bitmap(nullptr);
 
