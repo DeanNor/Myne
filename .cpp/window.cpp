@@ -35,6 +35,7 @@ void window::push_screen()
     al_set_target_backbuffer(display);
     al_draw_bitmap(background, 0, 0, 0);
     //al_draw_bitmap(foreground, 0, 0, 0);
+    al_hold_bitmap_drawing(false);
 
     al_flip_display();
     al_clear_to_color(CLEAR);
