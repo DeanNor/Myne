@@ -3,14 +3,14 @@
 
 #include "object.hpp"
 
-#include "window.hpp"
+#include "display.hpp"
 
 class DrawObj : public Object
 {
 protected:
-    window* screen = nullptr;
+    display* window = nullptr;
 
-    ALLEGRO_BITMAP* sprite = nullptr;
+    SDL_Texture* sprite = nullptr;
     pos center;
 
     pos scale = {1,1};
@@ -22,15 +22,15 @@ public:
 
     virtual void draw();
 
-    void set_sprite(ALLEGRO_BITMAP* bitmap);
+    void set_sprite(SDL_Texture* bitmap);
 
-    ALLEGRO_BITMAP* get_sprite();
+    SDL_Texture* get_sprite();
 
     void set_z(int new_z);
 
     int get_z();
 
-    void set_window(window* new_screen);
+    void set_display(display* new_display);
 
-    window* get_window();
+    display* get_display();
 };

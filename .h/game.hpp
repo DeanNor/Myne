@@ -1,7 +1,7 @@
 
 #pragma once
 
-#include "window.hpp"
+#include "display.hpp"
 
 #include <box2d/box2d.h>
 
@@ -14,10 +14,7 @@ class CollObj;
 
 struct game
 {
-    window* game_window = nullptr;
-    
-    ALLEGRO_TIMER* timer = nullptr;
-    ALLEGRO_EVENT_QUEUE* queue = nullptr;
+    display* game_window = nullptr;
 
     Process* root = nullptr;
 
@@ -30,6 +27,9 @@ struct game
 
     int fps = 60;
     double spf = 1.0 / double(fps);
+    Uint64 fpsticks = 1000 / fps;
+
+    Uint64 total_ticks = 0;
 
     int velocity_iterations = 2;
     int position_iterations = 2;

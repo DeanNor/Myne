@@ -3,32 +3,41 @@
 
 DrawObj::DrawObj()
 {
-    screen = get_current_game()->game_window;
+    game* current_game = get_current_game();
+    window = current_game->game_window;
 
-    get_current_game()->draws.push_back(this);
+    current_game->draws.push_back(this);
 }
 
 void DrawObj::draw()
 {
+    //std::cout << sprite << std::endl;
     if (sprite != nullptr)
     {
         pos computed = global_position;
         rad global_angle = global_position.compute_angle();
 
-        al_draw_scaled_rotated_bitmap(sprite, center.x, center.y, computed.x, computed.y, scale.x, scale.y, global_angle, 0);
+        SDL_FRect pos_rect = pos::make_SDL_FRect(computed, center);
 
+        SDL_FPoint pos_point = computed;
+
+        SDL_RenderTextureRotated(window->renderer, sprite, nullptr, &pos_rect, global_angle, &pos_point, SDL_FLIP_NONE);
     }
 }
 
-void DrawObj::set_sprite(ALLEGRO_BITMAP* bitmap)
+void DrawObj::set_sprite(SDL_Texture* bitmap)
 {
     sprite = bitmap;
 
-    center.x = al_get_bitmap_width(sprite) / 2.0;
-    center.y = al_get_bitmap_height(sprite) / 2.0;
+    float x,y;
+
+    SDL_GetTextureSize(sprite, &x, &y);
+
+    center.x = x / 2.0;
+    center.y = y / 2.0;
 }
 
-ALLEGRO_BITMAP* DrawObj::get_sprite()
+SDL_Texture* DrawObj::get_sprite()
 {
     return sprite;
 }
@@ -43,12 +52,12 @@ int DrawObj::get_z()
     return z;
 }
 
-void DrawObj::set_window(window* new_screen)
+void DrawObj::set_display(display* new_display)
 {
-    screen = new_screen;
+    window = new_display;
 }
 
-window* DrawObj::get_window()
+display* DrawObj::get_display()
 {
-    return screen;
+    return window;
 }

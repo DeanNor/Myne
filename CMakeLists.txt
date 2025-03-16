@@ -1,5 +1,10 @@
+
 cmake_minimum_required(VERSION 3.10)
-project(Game VERSION 0.1.0 LANGUAGES C CXX)
+project(Game)
+
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
+
+find_package(SDL3 REQUIRED CONFIG REQUIRED COMPONENTS SDL3-shared)
 
 add_executable(Game main.cpp
     .cpp/drawobj.cpp
@@ -7,7 +12,7 @@ add_executable(Game main.cpp
     .cpp/object.cpp
     .cpp/pos.cpp
     .cpp/process.cpp
-    .cpp/window.cpp
+    .cpp/display.cpp
     .cpp/collobj.cpp
     .cpp/tfm.cpp
     .cpp/rad.cpp
@@ -15,17 +20,6 @@ add_executable(Game main.cpp
 
 include_directories(.h)
 
-include(CTest)
-enable_testing()
-
-set(CPACK_PROJECT_NAME ${PROJECT_NAME})
-set(CPACK_PROJECT_VERSION ${PROJECT_VERSION})
-include(CPack)
-
-target_link_libraries(${PROJECT_NAME} PUBLIC
-    allegro
-    allegro_primitives
-    allegro_image
-
-    box2d
-    )
+target_link_libraries(Game PUBLIC
+    SDL3::SDL3
+    box2d)

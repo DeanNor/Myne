@@ -5,6 +5,7 @@
 #include <iostream>
 
 #include <box2d/b2_math.h>
+#include <SDL3/SDL_rect.h>
 
 struct pos
 {
@@ -21,6 +22,12 @@ public:
     operator b2Vec2();
 
     pos(const b2Vec2& convert);
+
+    operator SDL_FPoint();
+
+    pos(const SDL_FPoint& convert);
+
+    static SDL_FRect make_SDL_FRect(const pos& center, const pos& offset);
 
     double size();
 

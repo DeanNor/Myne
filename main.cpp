@@ -5,7 +5,8 @@
 #include "drawobj.hpp"
 #include "collobj.hpp"
 
-pos to_tileset(pos value, pos tile_size);
+// Whenever I want to convert this to SDL, I will
+/*pos to_tileset(pos value, pos tile_size);
 
 class Tileset : public DrawObj
 {
@@ -72,6 +73,7 @@ pos to_tileset(pos value, pos tile_size)
     tile_number = tile_number.round();
     return tile_number * tile_size;
 }
+*/
 
 
 // USER DEFINED STUFF ISH
@@ -154,11 +156,11 @@ public:
 
     void process(double delta)
     {
-        int x,y;
-        al_get_mouse_cursor_position(&x,&y);
+        float x,y;
+        SDL_GetMouseState(&x,&y);
 
         int src_x,src_y;
-        al_get_window_position(get_current_game()->game_window->display,&src_x,&src_y);
+        SDL_GetWindowPosition(get_current_game()->game_window->window,&src_x,&src_y);
 
         pos glo_pos = global_position; 
 
@@ -181,10 +183,11 @@ int main()
     Mouse* mse = new Mouse;
     DrawObj* spri = new DrawObj;
 
-    ALLEGRO_BITMAP* bimp = al_create_bitmap(2 * 30,2 * 30);
-
-    al_set_target_bitmap(bimp);
-    al_draw_rectangle(1,1,59,59,WHITE,1);
+    SDL_Texture* bimp = SDL_CreateTexture(gameplay->game_window->renderer, SDL_PIXELFORMAT_ABGR128_FLOAT, SDL_TEXTUREACCESS_TARGET, 30,30);
+    SDL_SetRenderTarget(gameplay->game_window->renderer, bimp);
+    SDL_FRect rext = pos::make_SDL_FRect(pos(30,30), pos(15,15));
+    SDL_RenderRect(gameplay->game_window->renderer, &rext);
+    SDL_SetRenderTarget(gameplay->game_window->renderer, nullptr);
 
     spri->set_sprite(bimp);
 
@@ -204,25 +207,21 @@ int main()
     huh3->set_position(pos(HUH,500 + HUH));
     gameplay->root->add_child(huh3);
 
+    SDL_Surface* texture = SDL_LoadBMP("sample.bmp");
+    SDL_Texture* bmp = SDL_CreateTextureFromSurface(gameplay->game_window->renderer, texture);
+
     pos position = {200,250};
-    double amount = 2000;
+    double amount = 10000;
     double start = 0.25;
     for (double x = 0; x < amount; x++)
     {
         DynamObj* obj = new DynamObj;
         DrawObj* spr = new DrawObj;
 
-        ALLEGRO_BITMAP* bmp = al_create_bitmap(2 * size, 2 * size);
-
-        al_set_target_bitmap(bmp);
-        al_draw_circle(size,size,size,al_premul_rgba_f(1, 1, 1, x / amount),1);
-        al_draw_line(size,size,size + size, size, al_map_rgb_f(1,1,1),1);
-
         spr->set_sprite(bmp);
 
         obj->add_child(spr);
         gameplay->root->add_child(obj);
-        
 
         obj->set_position(position + pos(size * 2 * x + rand() % 50 - 25,rand() % 50 - 25));
     }

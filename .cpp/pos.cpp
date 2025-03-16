@@ -30,6 +30,22 @@ pos::pos(const b2Vec2& convert)
     y = convert.y;
 }
 
+pos::operator SDL_FPoint()
+{
+    return SDL_FPoint{(float)x,(float)y};
+}
+
+pos::pos(const SDL_FPoint& convert)
+{
+    x = convert.x;
+    y = convert.y;
+}
+
+SDL_FRect pos::make_SDL_FRect(const pos& center, const pos& offset)
+{
+    return SDL_FRect{(float)center.x, (float)center.y, (float)offset.x, (float)offset.y};
+}
+
 double pos::size()
 {
     double sum = std::abs(x) + std::abs(y);

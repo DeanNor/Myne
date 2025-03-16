@@ -9,41 +9,13 @@ game::game()
 {
     bool error = false;
 
-    if (!al_init())
+    if (!SDL_Init(SDL_INIT_VIDEO))
     {
-        error = true;
-        std::cout << "Could not initalize Allegro";
+        std::cout << "HUH INIT FAIL?" << std::endl;
+        // ? If this happens, blow up your computer
     }
 
-    if (!al_init_primitives_addon())
-    {
-        error = true;
-        std::cout << "Could not initalize Allegro Primitives";
-    }
-
-    if (!al_init_image_addon())
-    {
-        error = true;
-        std::cout << "Could not initalize Allegro Images";
-    }
-
-    if (!al_install_mouse())
-    {
-        error = true;
-        std::cout << "Could not install the Mouse Drivers";
-    }
-
-    if (!error)
-    {
-        timer = al_create_timer(1.0 / 60.0);
-        queue = al_create_event_queue();
-
-        al_register_event_source(queue, al_get_timer_event_source(timer));
-
-        al_start_timer(timer);
-
-        game_window = new window(pos(500,500), queue, "SOMETHING");
-    }
+    game_window = new display({500, 500}, "HUH", 0);
 
     root = new Process;
 }
@@ -53,51 +25,40 @@ game::~game()
     if (game_window != nullptr)
     {
         delete game_window;
+        game_window = nullptr;
     }
-
-    al_unregister_event_source(queue,al_get_timer_event_source(timer));
-
-    al_destroy_timer(timer);
-
-    al_destroy_event_queue(queue);
 }
 
 bool game::frame()
 {
     bool redraw = true;
 
-    while(!al_is_event_queue_empty(queue))
-    {
-        ALLEGRO_EVENT event;
-        al_wait_for_event(queue, &event);
+    SDL_Event event;
 
-        if (event.type == ALLEGRO_EVENT_DISPLAY_CLOSE)
+    while(SDL_PollEvent(&event))
+    {
+        if (event.type == SDL_EVENT_WINDOW_CLOSE_REQUESTED)
         {
             return false;
         }
-
-        if (event.type == ALLEGRO_EVENT_TIMER)
-        {
-            redraw = true;
-        }
     }
 
-    if (redraw)
+    Uint64 ticks = SDL_GetTicks() - total_ticks;
+    if (ticks < fpsticks)
     {
-        process();
-        
-        collision_process();
-
-        double tim = al_get_time();
-        al_set_target_bitmap(game_window->background);
-        al_hold_bitmap_drawing(true);
-        draw();
-        al_hold_bitmap_drawing(false);
-        al_set_target_bitmap(nullptr);
-        std::cout << al_get_time() - tim << std::endl;
-
-        game_window->push_screen();
+        //Wait remaining time
+        SDL_Delay(fpsticks - ticks);
     }
+
+    total_ticks = SDL_GetTicks();
+    
+    process();
+    
+    collision_process();
+
+    draw();
+
+    game_window->push_screen();
 
     return running;
 }
@@ -142,8 +103,8 @@ void game::draw()
     }
 }
 
-b2World* coll_world;
-game* gameplay;
+b2World* coll_world = nullptr;
+game* gameplay = nullptr;
 
 void set_current_coll_world(b2World* world)
 {
