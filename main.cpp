@@ -187,7 +187,7 @@ int main()
     SDL_SetRenderTarget(gameplay->game_window->renderer, bimp);
     SDL_FRect rext = pos::make_SDL_FRect(pos(30,30), pos(15,15));
     SDL_RenderRect(gameplay->game_window->renderer, &rext);
-    SDL_SetRenderTarget(gameplay->game_window->renderer, nullptr);
+   Sdl_RenderPresent(gameplay->game_window->renderer); SDL_SetRenderTarget(gameplay->game_window->renderer, nullptr);
 
     spri->set_sprite(bimp);
 
