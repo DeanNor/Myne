@@ -12,7 +12,6 @@ class CollObj : public Object
 protected:
     b2Shape* collision_shape = nullptr;
     b2Body* collision_body = nullptr;
-    b2BodyDef collision_def;
 
 public:
     CollObj();
