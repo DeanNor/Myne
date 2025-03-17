@@ -87,10 +87,18 @@ public:
         collision_def.type = b2_staticBody;
         collision_body = get_current_coll_world()->CreateBody(&collision_def);
 
-        b2PolygonShape box;
-        box.SetAsBox(HUH / B2_SCALE,HUH / B2_SCALE);
+        b2PolygonShape box1;
+        box1.SetAsBox(HUH / B2_SCALE,HUH / B2_SCALE, pos(-HUH / B2_SCALE, HUH / B2_SCALE), 0.0f);
+
+        b2PolygonShape box2;
+        box2.SetAsBox(HUH / B2_SCALE,HUH / B2_SCALE, pos(HUH / B2_SCALE, -HUH / B2_SCALE), 0.0f);
+
+        b2PolygonShape box3;
+        box3.SetAsBox(HUH / B2_SCALE,HUH / B2_SCALE, pos(HUH / B2_SCALE, (500 + HUH) / B2_SCALE), 0.0f);
         
-        collision_body->CreateFixture(&box,0.0);
+        collision_body->CreateFixture(&box1,0.0);
+        collision_body->CreateFixture(&box2,0.0);
+        collision_body->CreateFixture(&box3,0.0);
     }
 };
 
@@ -128,10 +136,12 @@ public:
         {
             position = pos(250,250);
         }
+
+        //std::cout << position << std::endl;
     }
 };
 
-float len = 30, hgt = 60;
+float len = 30, hgt = 400;
 class Mouse : public CollObj
 {
 public:
@@ -152,7 +162,7 @@ public:
 
         collision_body->CreateFixture(&fixtureDef);
 
-        collision_body->SetAngularVelocity(300.0f / B2_SCALE);
+        collision_body->SetAngularVelocity(1000.0f / B2_SCALE);
     }
 
     void process(double delta)
@@ -171,7 +181,42 @@ public:
     }
 };
 
-#include "SDL3_GFX/SDL3_gfx/SDL3_gfxPrimitives.h"
+
+void DrawCircle(SDL_Renderer* renderer, int32_t centerX, int32_t centerY, int32_t radius) {
+    int32_t x = radius;
+    int32_t y = 0;
+    int32_t diameter = (radius * 2);
+    int32_t dx = 1;
+    int32_t dy = 1;
+    int32_t delta = 1 - radius;
+
+    while (x >= y) {
+        SDL_RenderPoint(renderer, centerX + x, centerY - y);
+        SDL_RenderPoint(renderer, centerX + x, centerY + y);
+        SDL_RenderPoint(renderer, centerX - x, centerY - y);
+        SDL_RenderPoint(renderer, centerX - x, centerY + y);
+        SDL_RenderPoint(renderer, centerX + y, centerY - x);
+        SDL_RenderPoint(renderer, centerX + y, centerY + x);
+        SDL_RenderPoint(renderer, centerX - y, centerY - x);
+        SDL_RenderPoint(renderer, centerX - y, centerY + x);
+
+        if (delta < 0) {
+            delta += 2 * y + 1;
+            y++;
+        }
+        if (delta > 0) {
+            delta -= 2 * x + 1;
+            x--;
+        }
+        if (delta == 0) {
+            delta += 2 * (y - x + 1);
+            x--;
+            y++;
+        }
+        dx = 1;
+        dy = 1;
+    }
+}
 
 int main()
 {
@@ -203,19 +248,10 @@ int main()
     gameplay->root->add_child(mse);
 
     StaticObj* huh1 = new StaticObj;
-    huh1->set_position(pos(-HUH,HUH));
     gameplay->root->add_child(huh1);
 
-    StaticObj* huh2 = new StaticObj;
-    huh2->set_position(pos(HUH,-HUH));
-    gameplay->root->add_child(huh2);
-
-    StaticObj* huh3 = new StaticObj;
-    huh3->set_position(pos(HUH,500 + HUH));
-    gameplay->root->add_child(huh3);
-
     pos position = {40,250};
-    double amount = 2000;
+    double amount = 1000;
     double start = 0.25;
     for (double x = 0; x < amount; x++)
     {
@@ -223,11 +259,12 @@ int main()
         DrawObj* spr = new DrawObj;
 
         SDL_Texture* bmp = SDL_CreateTexture(gameplay->game_window->renderer, SDL_PIXELFORMAT_ABGR64_FLOAT, SDL_TEXTUREACCESS_TARGET, size * 2 + 1, size * 2 + 1);
-        SDL_SetRenderDrawColor(gameplay->game_window->renderer, rand() % 255, rand() % 255, rand() % 255, SDL_ALPHA_OPAQUE);
+        std::cout << bmp << std::endl;
+        SDL_SetRenderDrawColor(gameplay->game_window->renderer, 0, 0, 255, SDL_ALPHA_OPAQUE);
         SDL_SetRenderTarget(gameplay->game_window->renderer, bmp);
-    
-        circleColor(gameplay->game_window->renderer, size, size, size, 0x0000FF);
-    
+
+        DrawCircle(gameplay->game_window->renderer, size, size, size);
+
         SDL_SetRenderTarget(gameplay->game_window->renderer, nullptr);
         SDL_SetRenderDrawColor(gameplay->game_window->renderer, 0, 0, 0, SDL_ALPHA_OPAQUE);
 

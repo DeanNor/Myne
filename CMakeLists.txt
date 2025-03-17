@@ -1,5 +1,5 @@
 
-cmake_minimum_required(VERSION 3.10)
+cmake_minimum_required(VERSION 3.16)
 project(Game)
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
@@ -20,8 +20,8 @@ add_executable(${PROJECT_NAME} main.cpp
 
 include_directories(.h)
 
-add_subdirectory(SDL3_gfx Inc-Builds)
-
 target_link_libraries(${PROJECT_NAME} PUBLIC
     SDL3::SDL3
-    box2d)
+
+    box2d
+    )
