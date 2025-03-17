@@ -166,9 +166,16 @@ public:
         collision_body->SetLinearVelocity(b2Vec2((x - glo_pos.x - src_x) * 60 / B2_SCALE, (y - glo_pos.y - src_y) * 60 / B2_SCALE));
         
         rad reangle = pos(x - glo_pos.x - src_x,y - glo_pos.y - src_y).direction();
-        std::cout << reangle << std::endl;
 
-        collision_body->SetAngularVelocity(reangle * 100.0);
+        if (reangle != 0)
+        {
+            collision_body->SetAngularVelocity((angle - reangle) * 100.0);
+        }
+
+        else
+        {
+            collision_body->SetAngularVelocity(0);
+        }
 
         CollObj::process(delta);
     }
@@ -195,6 +202,52 @@ void DrawCircle(SDL_Renderer *renderer, int cx, int cy, int r) {
             y--;
             d += 4 * (x - y) + 10;
         }
+    }
+}
+
+void DrawSmileyFace(SDL_Renderer *renderer, int cx, int cy, int r) {
+    // Draw the face
+    int x = 0, y = r, d = 3 - 2 * r;
+    while (y >= x) {
+        SDL_RenderPoint(renderer, cx + x, cy + y);
+        SDL_RenderPoint(renderer, cx + x, cy - y);
+        SDL_RenderPoint(renderer, cx - x, cy + y);
+        SDL_RenderPoint(renderer, cx - x, cy - y);
+        SDL_RenderPoint(renderer, cx + y, cy + x);
+        SDL_RenderPoint(renderer, cx + y, cy - x);
+        SDL_RenderPoint(renderer, cx - y, cy + x);
+        SDL_RenderPoint(renderer, cx - y, cy - x);
+
+        if (d < 0) {
+            x++;
+            d += 4 * x + 6;
+        } else {
+            x++;
+            y--;
+            d += 4 * (x - y) + 10;
+        }
+    }
+
+    // Draw the eyes
+    int eye_radius = r / 5;
+    int eye_offset_x = r / 3;
+    int eye_offset_y = r / 3;
+    for (int i = 0; i < 360; i++) {
+        double angle = i * M_PI / 180;
+        int ex = eye_radius * cos(angle);
+        int ey = eye_radius * sin(angle);
+        SDL_RenderPoint(renderer, cx - eye_offset_x + ex, cy - eye_offset_y + ey);
+        SDL_RenderPoint(renderer, cx + eye_offset_x + ex, cy - eye_offset_y + ey);
+    }
+
+    // Draw the mouth
+    int mouth_radius = r / 2;
+    int mouth_offset_y = r / 4;
+    for (int i = 0; i < 180; i++) {
+        double angle = i * M_PI / 180;
+        int mx = mouth_radius * cos(angle);
+        int my = mouth_radius * sin(angle);
+        SDL_RenderPoint(renderer, cx + mx, cy + mouth_offset_y + my);
     }
 }
 
@@ -243,8 +296,8 @@ int main()
     SDL_SetRenderDrawColor(gameplay->game_window->renderer, 0, 100, 255, SDL_ALPHA_OPAQUE);
     SDL_SetRenderTarget(gameplay->game_window->renderer, bmp);
 
-    DrawCircle(gameplay->game_window->renderer, size, size, size);
-    SDL_RenderLine(gameplay->game_window->renderer, 6, 6, 12, 6);
+    DrawSmileyFace(gameplay->game_window->renderer, size, size, size);
+    //SDL_RenderLine(gameplay->game_window->renderer, 6, 6, 12, 6);
 
     SDL_SetRenderTarget(gameplay->game_window->renderer, nullptr);
     SDL_SetRenderDrawColor(gameplay->game_window->renderer, 0, 0, 0, SDL_ALPHA_OPAQUE);
