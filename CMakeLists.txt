@@ -20,6 +20,8 @@ add_executable(${PROJECT_NAME} main.cpp
 
 include_directories(.h)
 
+add_subdirectory(SDL3_gfx Inc-Builds)
+
 target_link_libraries(${PROJECT_NAME} PUBLIC
     SDL3::SDL3
     box2d)
