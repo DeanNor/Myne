@@ -11,17 +11,14 @@ DrawObj::DrawObj()
 
 void DrawObj::draw()
 {
-    //std::cout << sprite << std::endl;
     if (sprite != nullptr)
     {
         pos computed = global_position;
         rad global_angle = global_position.compute_angle();
 
-        SDL_FRect pos_rect = pos::make_SDL_FRect(computed, center);
+        SDL_FRect pos_rect = pos::make_SDL_FRect(global_position, center);
 
-        SDL_FPoint pos_point = computed;
-
-        SDL_RenderTextureRotated(window->renderer, sprite, nullptr, &pos_rect, global_angle, &pos_point, SDL_FLIP_NONE);
+        SDL_RenderTextureRotated(window->renderer, sprite, nullptr, &pos_rect, global_angle.deg(), nullptr, SDL_FLIP_NONE);
     }
 }
 

@@ -9,16 +9,17 @@ display::display(pos display_size, const char* name, SDL_WindowFlags flags)
 
     window = SDL_CreateWindow(name, size.x, size.y, flags);
     renderer = SDL_CreateRenderer(window, nullptr);
+    SDL_SetRenderDrawColor(renderer, 0, 0, 0, SDL_ALPHA_OPAQUE);
 }
 
 display::~display()
 {
-    // :( sdl does everything I want it to
+    SDL_DestroyWindow(window);
+    SDL_DestroyRenderer(renderer);
 }
 
 void display::prepare_screen()
 {
-    SDL_SetRenderDrawColor(renderer, 0, 0, 0, SDL_ALPHA_OPAQUE);
     SDL_RenderClear(renderer);
 }
 

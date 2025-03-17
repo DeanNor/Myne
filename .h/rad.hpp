@@ -8,6 +8,8 @@ struct rad
 public:
     double radian = 0;
 
+    double deg();
+
     rad(double val);
 
     rad();

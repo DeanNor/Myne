@@ -7,6 +7,8 @@
 #include <box2d/b2_math.h>
 #include <SDL3/SDL_rect.h>
 
+#include "rad.hpp"
+
 struct pos
 {
 public:
@@ -31,15 +33,15 @@ public:
 
     double size();
 
-    double direction();
+    rad direction();
 
     pos ratio();
 
     double len();
 
-    pos rotated(double angle);
+    pos rotated(rad angle);
 
-    double angle_to(pos target);
+    rad angle_to(pos target);
 
     pos limited(double limit);
 

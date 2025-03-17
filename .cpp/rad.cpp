@@ -1,6 +1,8 @@
 #include "rad.hpp"
 
 const double PI = 3.14159265358979323846;
+const double TO_DEG = 180.0 / PI;
+
 double rad_constraint(double amount)
 {
     if (amount > 0)
@@ -29,6 +31,11 @@ rad constrain_rad(rad amount)
     }
 
     return amount.radian;
+}
+
+double rad::deg()
+{
+    return radian * TO_DEG;
 }
 
 rad::rad(double val) : radian(constrain_rad(val))

@@ -31,10 +31,7 @@ game::~game()
 
 bool game::frame()
 {
-    bool redraw = true;
-
     SDL_Event event;
-
     while(SDL_PollEvent(&event))
     {
         if (event.type == SDL_EVENT_WINDOW_CLOSE_REQUESTED)
@@ -49,15 +46,14 @@ bool game::frame()
         //Wait remaining time
         SDL_Delay(fpsticks - ticks);
     }
-
     total_ticks = SDL_GetTicks();
     
     process();
     
     collision_process();
 
+    game_window->prepare_screen();
     draw();
-
     game_window->push_screen();
 
     return running;

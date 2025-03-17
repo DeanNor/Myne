@@ -131,6 +131,7 @@ public:
     }
 };
 
+float len = 30, hgt = 60;
 class Mouse : public CollObj
 {
 public:
@@ -141,7 +142,7 @@ public:
         collision_body = get_current_coll_world()->CreateBody(&collision_def);
 
         b2PolygonShape box;
-        box.SetAsBox(30.0f / B2_SCALE, 30.0f / B2_SCALE);
+        box.SetAsBox(len / 2.0f / B2_SCALE, hgt / 2.0f / B2_SCALE);
         
         b2FixtureDef fixtureDef;
         fixtureDef.shape = &box;
@@ -150,25 +151,52 @@ public:
         fixtureDef.restitution = 0.25;
 
         collision_body->CreateFixture(&fixtureDef);
-
-        collision_body->SetAngularVelocity(500.0f / B2_SCALE);
     }
 
     void process(double delta)
     {
         float x,y;
-        SDL_GetMouseState(&x,&y);
+        SDL_GetGlobalMouseState(&x,&y);
 
-        int src_x,src_y;
-        SDL_GetWindowPosition(get_current_game()->game_window->window,&src_x,&src_y);
+        pos glo_pos = global_position;
+        
+        int src_x, src_y;
+        SDL_GetWindowPosition(get_current_game()->game_window->window, &src_x, &src_y);
 
-        pos glo_pos = global_position; 
+        collision_body->SetLinearVelocity(b2Vec2((x - glo_pos.x - src_x) * 60 / B2_SCALE, (y - glo_pos.y - src_y) * 60 / B2_SCALE));
+        
+        rad reangle = pos(x - glo_pos.x - src_x,y - glo_pos.y - src_y).direction();
+        std::cout << reangle << std::endl;
 
-        collision_body->SetLinearVelocity(b2Vec2((x - src_x - glo_pos.x) * 60 / B2_SCALE, (y - src_y - glo_pos.y) * 60 / B2_SCALE));
+        collision_body->SetAngularVelocity(reangle * 100.0);
 
         CollObj::process(delta);
     }
 };
+
+void DrawCircle(SDL_Renderer *renderer, int cx, int cy, int r) {
+    int x = 0, y = r, d = 3 - 2 * r;
+
+    while (y >= x) {
+        SDL_RenderPoint(renderer, cx + x, cy + y);
+        SDL_RenderPoint(renderer, cx + x, cy - y);
+        SDL_RenderPoint(renderer, cx - x, cy + y);
+        SDL_RenderPoint(renderer, cx - x, cy - y);
+        SDL_RenderPoint(renderer, cx + y, cy + x);
+        SDL_RenderPoint(renderer, cx + y, cy - x);
+        SDL_RenderPoint(renderer, cx - y, cy + x);
+        SDL_RenderPoint(renderer, cx - y, cy - x);
+
+        if (d < 0) {
+            x++;
+            d += 4 * x + 6;
+        } else {
+            x++;
+            y--;
+            d += 4 * (x - y) + 10;
+        }
+    }
+}
 
 int main()
 {
@@ -183,11 +211,15 @@ int main()
     Mouse* mse = new Mouse;
     DrawObj* spri = new DrawObj;
 
-    SDL_Texture* bimp = SDL_CreateTexture(gameplay->game_window->renderer, SDL_PIXELFORMAT_ABGR128_FLOAT, SDL_TEXTUREACCESS_TARGET, 30,30);
+    SDL_Texture* bimp = SDL_CreateTexture(gameplay->game_window->renderer, SDL_PIXELFORMAT_ABGR128_FLOAT, SDL_TEXTUREACCESS_TARGET, len,hgt);
+    SDL_SetRenderDrawColor(gameplay->game_window->renderer, 255, 255, 255, SDL_ALPHA_OPAQUE);
     SDL_SetRenderTarget(gameplay->game_window->renderer, bimp);
-    SDL_FRect rext = pos::make_SDL_FRect(pos(30,30), pos(15,15));
+    
+    SDL_FRect rext = pos::make_SDL_FRect(pos(len / 2.0,hgt / 2.0), pos(len / 2.0,hgt / 2.0));
     SDL_RenderRect(gameplay->game_window->renderer, &rext);
-   Sdl_RenderPresent(gameplay->game_window->renderer); SDL_SetRenderTarget(gameplay->game_window->renderer, nullptr);
+
+    SDL_SetRenderTarget(gameplay->game_window->renderer, nullptr);
+    SDL_SetRenderDrawColor(gameplay->game_window->renderer, 0, 0, 0, SDL_ALPHA_OPAQUE);
 
     spri->set_sprite(bimp);
 
@@ -207,11 +239,18 @@ int main()
     huh3->set_position(pos(HUH,500 + HUH));
     gameplay->root->add_child(huh3);
 
-    SDL_Surface* texture = SDL_LoadBMP("sample.bmp");
-    SDL_Texture* bmp = SDL_CreateTextureFromSurface(gameplay->game_window->renderer, texture);
+    SDL_Texture* bmp = SDL_CreateTexture(gameplay->game_window->renderer, SDL_PIXELFORMAT_ABGR128_FLOAT, SDL_TEXTUREACCESS_TARGET, size * 2 + 1, size * 2 + 1);
+    SDL_SetRenderDrawColor(gameplay->game_window->renderer, 0, 100, 255, SDL_ALPHA_OPAQUE);
+    SDL_SetRenderTarget(gameplay->game_window->renderer, bmp);
+
+    DrawCircle(gameplay->game_window->renderer, size, size, size);
+    SDL_RenderLine(gameplay->game_window->renderer, 6, 6, 12, 6);
+
+    SDL_SetRenderTarget(gameplay->game_window->renderer, nullptr);
+    SDL_SetRenderDrawColor(gameplay->game_window->renderer, 0, 0, 0, SDL_ALPHA_OPAQUE);
 
     pos position = {200,250};
-    double amount = 10000;
+    double amount = 2000;
     double start = 0.25;
     for (double x = 0; x < amount; x++)
     {

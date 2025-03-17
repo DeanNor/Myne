@@ -43,7 +43,7 @@ pos::pos(const SDL_FPoint& convert)
 
 SDL_FRect pos::make_SDL_FRect(const pos& center, const pos& offset)
 {
-    return SDL_FRect{(float)center.x, (float)center.y, (float)offset.x, (float)offset.y};
+    return SDL_FRect{(float)(center.x - offset.x), (float)(center.y - offset.y), (float)(offset.x * 2.0f), (float)(offset.y * 2.0f)};
 }
 
 double pos::size()
@@ -52,9 +52,9 @@ double pos::size()
     return sum;
 }
 
-double pos::direction()
+rad pos::direction()
 {
-    double dir = pos(0,0).angle_to(*this);
+    rad dir = pos(0,0).angle_to(*this);
     return dir;
 }
 
@@ -85,7 +85,7 @@ double pos::len()
     return length;
 }
 
-pos pos::rotated(double angle)
+pos pos::rotated(rad angle)
 {
     if (angle != 0)
     {
@@ -107,9 +107,9 @@ pos pos::rotated(double angle)
     }
 }
 
-double pos::angle_to(pos target)
+rad pos::angle_to(pos target)
 {
-    double new_angle = atan2(target.y - y,target.x - x);
+    rad new_angle = atan2(target.y - y,target.x - x);
     return new_angle;
 }
 
