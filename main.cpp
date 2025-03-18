@@ -84,6 +84,7 @@ class StaticObj : public CollObj
 public:
     StaticObj()
     {
+        b2BodyDef collision_def;
         collision_def.type = b2_staticBody;
         collision_body = get_current_coll_world()->CreateBody(&collision_def);
 
@@ -110,6 +111,7 @@ class DynamObj : public CollObj
 public:
     DynamObj()
     {
+        b2BodyDef collision_def;
         collision_def.type = b2_dynamicBody;
         collision_def.allowSleep = true;
 
@@ -134,10 +136,8 @@ public:
 
         if (position.x < 0)
         {
-            position = pos(250,250);
+            start_delete();
         }
-
-        //std::cout << position << std::endl;
     }
 };
 
@@ -147,6 +147,7 @@ class Mouse : public CollObj
 public:
     Mouse()
     {
+        b2BodyDef collision_def;
         collision_def.type = b2_kinematicBody;
 
         collision_body = get_current_coll_world()->CreateBody(&collision_def);
@@ -158,11 +159,11 @@ public:
         fixtureDef.shape = &box;
         fixtureDef.density = 10;
         fixtureDef.friction = 1;
-        fixtureDef.restitution = 0.25;
+        fixtureDef.restitution = 0;
 
         collision_body->CreateFixture(&fixtureDef);
 
-        collision_body->SetAngularVelocity(1000.0f / B2_SCALE);
+        collision_body->SetAngularVelocity(100.0f / B2_SCALE);
     }
 
     void process(double delta)
@@ -241,7 +242,7 @@ int main()
     SDL_SetRenderTarget(gameplay->game_window->renderer, nullptr);
     SDL_SetRenderDrawColor(gameplay->game_window->renderer, 0, 0, 0, SDL_ALPHA_OPAQUE);
 
-    spri->set_sprite(bimp);
+    spri->set_sprite(bimp, true);
 
     mse->add_child(spri);
 
@@ -249,6 +250,10 @@ int main()
 
     StaticObj* huh1 = new StaticObj;
     gameplay->root->add_child(huh1);
+
+    SDL_Surface* smp = SDL_LoadBMP("sample2.bmp");
+    SDL_Texture* bmp = SDL_CreateTextureFromSurface(gameplay->game_window->renderer,smp);
+    SDL_DestroySurface(smp);
 
     pos position = {40,250};
     double amount = 1000;
@@ -258,17 +263,7 @@ int main()
         DynamObj* obj = new DynamObj;
         DrawObj* spr = new DrawObj;
 
-        SDL_Texture* bmp = SDL_CreateTexture(gameplay->game_window->renderer, SDL_PIXELFORMAT_ABGR64_FLOAT, SDL_TEXTUREACCESS_TARGET, size * 2 + 1, size * 2 + 1);
-        std::cout << bmp << std::endl;
-        SDL_SetRenderDrawColor(gameplay->game_window->renderer, 0, 0, 255, SDL_ALPHA_OPAQUE);
-        SDL_SetRenderTarget(gameplay->game_window->renderer, bmp);
-
-        DrawCircle(gameplay->game_window->renderer, size, size, size);
-
-        SDL_SetRenderTarget(gameplay->game_window->renderer, nullptr);
-        SDL_SetRenderDrawColor(gameplay->game_window->renderer, 0, 0, 0, SDL_ALPHA_OPAQUE);
-
-        spr->set_sprite(bmp);
+        spr->set_sprite(bmp, false);
 
         obj->add_child(spr);
         gameplay->root->add_child(obj);

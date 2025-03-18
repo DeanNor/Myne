@@ -20,12 +20,16 @@ protected:
 
     int z = 0; // Draw depth
 
+    bool ownership = false;
+
 public:
     DrawObj();
 
+    ~DrawObj();
+
     virtual void draw();
 
-    void set_sprite(SDL_Texture* bitmap);
+    void set_sprite(SDL_Texture* bitmap, bool owns_sprite);
 
     SDL_Texture* get_sprite();
 

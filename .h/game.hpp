@@ -20,6 +20,7 @@ struct game
 
     std::vector<DrawObj*> draws = {};
     std::vector<CollObj*> collisions = {};
+    std::vector<Process*> deletes = {};
 
     b2World* coll_world = nullptr;
 
@@ -47,6 +48,8 @@ struct game
     void collision_process();
 
     void draw();
+
+    void end_delete();
 };
 
 void set_current_coll_world(b2World* world);

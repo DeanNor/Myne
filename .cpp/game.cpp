@@ -15,9 +15,12 @@ game::game()
         // ? If this happens, blow up your computer
     }
 
-    game_window = new display({500, 500}, "HUH", 0);
+    game_window = new display({500, 500}, "HUH", SDL_WINDOW_RESIZABLE);
 
     root = new Process;
+
+    std::cout.setf(std::ios::fixed | std::ios::showpoint);
+    std::cout.precision(10);
 }
 
 game::~game()
@@ -55,6 +58,8 @@ bool game::frame()
     game_window->prepare_screen();
     draw();
     game_window->push_screen();
+
+    end_delete();
 
     return running;
 }
@@ -96,6 +101,19 @@ void game::draw()
     for (DrawObj* object : draws)
     {
         object->draw();
+    }
+}
+
+void game::end_delete()
+{
+    if (deletes.size() > 0)
+    {
+        for (Process* to_delete : deletes)
+        {
+            delete to_delete;
+        }
+
+        deletes.clear();
     }
 }
 

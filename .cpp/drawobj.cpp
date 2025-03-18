@@ -9,6 +9,28 @@ DrawObj::DrawObj()
     current_game->draws.push_back(this);
 }
 
+DrawObj::~DrawObj()
+{
+    if (ownership == true && sprite != nullptr)
+    {
+        SDL_DestroyTexture(sprite);
+    }
+
+    std::vector<DrawObj*>& draws = get_current_game()->draws;
+
+    std::vector<DrawObj*>::iterator index = std::find(draws.begin(), draws.end(), this);
+
+    if (index != draws.end())
+    {
+        draws.erase(index);
+    }
+
+    else
+    {
+        std::cout << "HUH Draws" << std::endl;// Error, object seems already deleted and has no draw calls
+    }
+}
+
 void DrawObj::draw()
 {
     if (sprite != nullptr)
@@ -22,9 +44,10 @@ void DrawObj::draw()
     }
 }
 
-void DrawObj::set_sprite(SDL_Texture* bitmap)
+void DrawObj::set_sprite(SDL_Texture* bitmap, bool owns_sprite)
 {
     sprite = bitmap;
+    ownership = owns_sprite;
 
     float x,y;
 

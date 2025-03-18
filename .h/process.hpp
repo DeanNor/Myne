@@ -5,6 +5,8 @@
 
 #include "pos.hpp"
 
+#include <algorithm>
+
 class Process
 {
 protected:
@@ -13,13 +15,17 @@ protected:
     std::vector<Process*> children = {};
 
 public:
-    virtual ~Process(){};
+    virtual ~Process();
+
+    void start_delete();
 
     virtual void process(double delta);
 
     void process_children(double delta);
 
     void add_child(Process* child);
+
+    void remove_child(Process* child);
 
     virtual void set_parent(Process* new_parent);
 
