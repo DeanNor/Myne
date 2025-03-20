@@ -5,12 +5,13 @@
 
 #include <box2d/box2d.h>
 
-#define B2_SCALE 100.f // Difference between b2 positions and my positions
+const float B2_SCALE = 1.0f / 5.f; // Difference between b2 positions and my positions
 
 class CollObj : public Object
 {
 protected:
-    b2Body* collision_body = nullptr;
+    b2BodyId collision_body;
+    b2BodyDef collision_def;
 
 public:
     CollObj();
@@ -19,5 +20,7 @@ public:
 
     void process(double delta);
 
-    virtual void collision_process(double delta);
+    virtual void collision_process();
+
+    virtual void collide_with(CollObj* other);
 };

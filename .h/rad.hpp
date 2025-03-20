@@ -3,6 +3,8 @@
 
 #include <cmath>
 
+#include <box2d/math_functions.h>
+
 struct rad
 {
 public:
@@ -10,11 +12,15 @@ public:
 
     double deg();
 
-    rad(double val);
+    rad(const double& val);
+
+    rad(const b2Rot& val);
 
     rad();
 
     operator double();
+
+    operator b2Rot();
 
     // ----- ?
     bool operator> (rad compare);

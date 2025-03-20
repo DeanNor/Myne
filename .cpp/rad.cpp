@@ -38,7 +38,12 @@ double rad::deg()
     return radian * TO_DEG;
 }
 
-rad::rad(double val) : radian(constrain_rad(val))
+rad::rad(const double& val) : radian(constrain_rad(val))
+{
+
+}
+
+rad::rad(const b2Rot& val) : radian(b2Rot_GetAngle(val))
 {
 
 }
@@ -51,6 +56,11 @@ rad::rad()
 rad::operator double()
 {
     return radian;
+}
+
+rad::operator b2Rot()
+{
+    return b2MakeRot(radian);
 }
 
 bool rad::operator> (rad compare)

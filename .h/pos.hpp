@@ -4,7 +4,7 @@
 #include <cmath>
 #include <iostream>
 
-#include <box2d/b2_math.h>
+#include <box2d/math_functions.h>
 #include <SDL3/SDL_rect.h>
 
 #include "rad.hpp"

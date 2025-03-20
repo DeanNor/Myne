@@ -77,62 +77,54 @@ pos to_tileset(pos value, pos tile_size)
 
 
 // USER DEFINED STUFF ISH
-#define HUH 9000
+#define HUH 250
 
 class StaticObj : public CollObj
 {
 public:
     StaticObj()
     {
-        b2BodyDef collision_def;
         collision_def.type = b2_staticBody;
-        collision_body = get_current_coll_world()->CreateBody(&collision_def);
+        collision_body = b2CreateBody(get_current_coll_world(), &collision_def);
 
-        b2PolygonShape box1;
-        box1.SetAsBox(HUH / B2_SCALE,HUH / B2_SCALE, pos(-HUH / B2_SCALE, HUH / B2_SCALE), 0.0f);
+        b2Polygon box1 = b2MakeOffsetBox(HUH,HUH, pos(-HUH, HUH), b2MakeRot(0));
 
-        b2PolygonShape box2;
-        box2.SetAsBox(HUH / B2_SCALE,HUH / B2_SCALE, pos(HUH / B2_SCALE, -HUH / B2_SCALE), 0.0f);
+        b2Polygon box2 = b2MakeOffsetBox(HUH,HUH, pos(HUH, -HUH), b2MakeRot(0));
 
-        b2PolygonShape box3;
-        box3.SetAsBox(HUH / B2_SCALE,HUH / B2_SCALE, pos(HUH / B2_SCALE, (500 + HUH) / B2_SCALE), 0.0f);
+        b2Polygon box3 = b2MakeOffsetBox(HUH,HUH, pos(HUH, 500 + HUH), b2MakeRot(0));
+
+        b2ShapeDef shapedef = b2DefaultShapeDef();
         
-        collision_body->CreateFixture(&box1,0.0);
-        collision_body->CreateFixture(&box2,0.0);
-        collision_body->CreateFixture(&box3,0.0);
+        b2CreatePolygonShape(collision_body, &shapedef, &box1);
+        b2CreatePolygonShape(collision_body, &shapedef, &box2);
+        b2CreatePolygonShape(collision_body, &shapedef, &box3);
     }
 };
 
 #define size 6
-#define b2size size / B2_SCALE
 
 class DynamObj : public CollObj
 {
 public:
     DynamObj()
     {
-        b2BodyDef collision_def;
         collision_def.type = b2_dynamicBody;
-        collision_def.allowSleep = true;
 
-        collision_body = get_current_coll_world()->CreateBody(&collision_def);
+        collision_body = b2CreateBody(get_current_coll_world(), &collision_def);
 
-        b2CircleShape box;
-        box.m_p.Set(0,0);
-        box.m_radius = b2size;
+        b2Polygon box = b2MakeBox(size, size);
         
-        b2FixtureDef fixtureDef;
-        fixtureDef.shape = &box;
+        b2ShapeDef fixtureDef = b2DefaultShapeDef();
         fixtureDef.density = 1;
         fixtureDef.friction = 1;
         fixtureDef.restitution = 0.25;
 
-        collision_body->CreateFixture(&fixtureDef);
+        b2CreatePolygonShape(collision_body, &fixtureDef, &box);
     }
 
-    void collision_process(double delta)
+    void collision_process()
     {
-        CollObj::collision_process(delta);
+        CollObj::collision_process();
 
         if (position.x < 0)
         {
@@ -147,23 +139,18 @@ class Mouse : public CollObj
 public:
     Mouse()
     {
-        b2BodyDef collision_def;
         collision_def.type = b2_kinematicBody;
 
-        collision_body = get_current_coll_world()->CreateBody(&collision_def);
+        collision_body = b2CreateBody(get_current_coll_world(), &collision_def);
 
-        b2PolygonShape box;
-        box.SetAsBox(len / 2.0f / B2_SCALE, hgt / 2.0f / B2_SCALE);
+        b2Polygon box = b2MakeBox(len / 2.0f, hgt / 2.0f);
         
-        b2FixtureDef fixtureDef;
-        fixtureDef.shape = &box;
+        b2ShapeDef fixtureDef = b2DefaultShapeDef();
         fixtureDef.density = 10;
         fixtureDef.friction = 1;
         fixtureDef.restitution = 0;
 
-        collision_body->CreateFixture(&fixtureDef);
-
-        collision_body->SetAngularVelocity(100.0f / B2_SCALE);
+        b2CreatePolygonShape(collision_body, &fixtureDef, &box);
     }
 
     void process(double delta)
@@ -176,53 +163,23 @@ public:
         int src_x, src_y;
         SDL_GetWindowPosition(get_current_game()->game_window->window, &src_x, &src_y);
 
-        collision_body->SetLinearVelocity(b2Vec2((x - glo_pos.x - src_x) * 60 / B2_SCALE, (y - glo_pos.y - src_y) * 60 / B2_SCALE));
+        b2Vec2 target = {(float)(x - glo_pos.x - src_x) * 60.0f, (float)(y - glo_pos.y - src_y) * 60.0f};
+        b2Body_SetLinearVelocity(collision_body, target);
+
+        b2Body_SetAngularVelocity(collision_body, 5.0f);
 
         CollObj::process(delta);
     }
 };
 
-
-void DrawCircle(SDL_Renderer* renderer, int32_t centerX, int32_t centerY, int32_t radius) {
-    int32_t x = radius;
-    int32_t y = 0;
-    int32_t diameter = (radius * 2);
-    int32_t dx = 1;
-    int32_t dy = 1;
-    int32_t delta = 1 - radius;
-
-    while (x >= y) {
-        SDL_RenderPoint(renderer, centerX + x, centerY - y);
-        SDL_RenderPoint(renderer, centerX + x, centerY + y);
-        SDL_RenderPoint(renderer, centerX - x, centerY - y);
-        SDL_RenderPoint(renderer, centerX - x, centerY + y);
-        SDL_RenderPoint(renderer, centerX + y, centerY - x);
-        SDL_RenderPoint(renderer, centerX + y, centerY + x);
-        SDL_RenderPoint(renderer, centerX - y, centerY - x);
-        SDL_RenderPoint(renderer, centerX - y, centerY + x);
-
-        if (delta < 0) {
-            delta += 2 * y + 1;
-            y++;
-        }
-        if (delta > 0) {
-            delta -= 2 * x + 1;
-            x--;
-        }
-        if (delta == 0) {
-            delta += 2 * (y - x + 1);
-            x--;
-            y++;
-        }
-        dx = 1;
-        dy = 1;
-    }
-}
-
 int main()
 {
-    b2World* coll_world = new b2World(b2Vec2(-100.0 / B2_SCALE,0));
+    b2WorldDef coll_def = b2DefaultWorldDef();
+    coll_def.gravity = b2Vec2{-100.0f,0.0f};
+    b2WorldId coll_world = b2CreateWorld(&coll_def);
     set_current_coll_world(coll_world);
+
+    b2SetLengthUnitsPerMeter(B2_SCALE);
 
     game* gameplay = new game;
     set_current_game(gameplay);
@@ -244,6 +201,8 @@ int main()
 
     spri->set_sprite(bimp, true);
 
+    mse->set_position(pos(250,250));
+
     mse->add_child(spri);
 
     gameplay->root->add_child(mse);
@@ -251,24 +210,24 @@ int main()
     StaticObj* huh1 = new StaticObj;
     gameplay->root->add_child(huh1);
 
-    SDL_Surface* smp = SDL_LoadBMP("sample2.bmp");
-    SDL_Texture* bmp = SDL_CreateTextureFromSurface(gameplay->game_window->renderer,smp);
-    SDL_DestroySurface(smp);
-
-    pos position = {40,250};
-    double amount = 1000;
-    double start = 0.25;
-    for (double x = 0; x < amount; x++)
+    pos center(250,250);
+    const int count = 2000;
+    for (int iterx = 0; iterx < count; ++iterx)
     {
         DynamObj* obj = new DynamObj;
-        DrawObj* spr = new DrawObj;
+        DrawObj* sprite = new DrawObj;
+        
+        SDL_Surface* surf = SDL_LoadBMP("sample2.bmp");
+        SDL_Texture* bmp = SDL_CreateTextureFromSurface(gameplay->game_window->renderer, surf);
+        SDL_DestroySurface(surf);
+    
+        sprite->set_sprite(bmp, true);
 
-        spr->set_sprite(bmp, false);
-
-        obj->add_child(spr);
+        obj->set_position(center + pos(iterx * size * 3, 0));
+    
+        obj->add_child(sprite);
+    
         gameplay->root->add_child(obj);
-
-        obj->set_position(position + pos(size * 2 * x + rand() % 50 - 25,rand() % 50 - 25));
     }
 
     gameplay->start();

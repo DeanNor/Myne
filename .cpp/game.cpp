@@ -15,7 +15,7 @@ game::game()
         // ? If this happens, blow up your computer
     }
 
-    game_window = new display({500, 500}, "HUH", SDL_WINDOW_RESIZABLE);
+    game_window = new display({1000, 500}, "HUH", SDL_WINDOW_RESIZABLE);
 
     root = new Process;
 
@@ -88,11 +88,11 @@ void game::process()
 
 void game::collision_process()
 {
-    coll_world->Step(spf,velocity_iterations,position_iterations);
+    b2World_Step(coll_world, spf, coll_iterations);
 
     for (CollObj* collision : collisions)
     {
-        collision->collision_process(spf);
+        collision->collision_process();
     }
 }
 
@@ -117,15 +117,15 @@ void game::end_delete()
     }
 }
 
-b2World* coll_world = nullptr;
+b2WorldId coll_world;
 game* gameplay = nullptr;
 
-void set_current_coll_world(b2World* world)
+void set_current_coll_world(b2WorldId world)
 {
     coll_world = world;
 }
 
-b2World* get_current_coll_world()
+b2WorldId get_current_coll_world()
 {
     return coll_world;
 }

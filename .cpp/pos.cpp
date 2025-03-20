@@ -21,7 +21,7 @@ pos::pos(const pos& past_pos)
 
 pos::operator b2Vec2()
 {
-    return b2Vec2(x,y);
+    return b2Vec2{(float)x,(float)y};
 }
 
 pos::pos(const b2Vec2& convert)

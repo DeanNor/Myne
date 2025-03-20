@@ -14,8 +14,8 @@ add_executable(${PROJECT_NAME} main.cpp
     .cpp/process.cpp
     .cpp/display.cpp
     .cpp/collobj.cpp
-    .cpp/tfm.cpp
     .cpp/rad.cpp
+    .cpp/tfm.cpp
     )
 
 include_directories(.h)

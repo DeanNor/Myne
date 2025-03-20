@@ -22,7 +22,7 @@ struct game
     std::vector<CollObj*> collisions = {};
     std::vector<Process*> deletes = {};
 
-    b2World* coll_world = nullptr;
+    b2WorldId coll_world;
 
     bool running = true;
 
@@ -32,8 +32,7 @@ struct game
 
     Uint64 total_ticks = 0;
 
-    int velocity_iterations = 2;
-    int position_iterations = 2;
+    int coll_iterations = 4;
 
     game();
 
@@ -52,8 +51,8 @@ struct game
     void end_delete();
 };
 
-void set_current_coll_world(b2World* world);
-b2World* get_current_coll_world();
+void set_current_coll_world(b2WorldId world);
+b2WorldId get_current_coll_world();
 
 void set_current_game(game* new_world);
 game* get_current_game();
