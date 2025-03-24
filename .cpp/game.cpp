@@ -51,6 +51,7 @@ bool game::frame()
     }
     total_ticks = SDL_GetTicks();
     
+    //                                      Uint64 tim = SDL_GetTicksNS();
     process();
     
     collision_process();
@@ -60,6 +61,7 @@ bool game::frame()
     game_window->push_screen();
 
     end_delete();
+    //                                      std::cout << 1 / ((double)(SDL_GetTicksNS() - tim) / 1000000000) << std::endl; // Potential FPS
 
     return running;
 }
@@ -89,6 +91,34 @@ void game::process()
 void game::collision_process()
 {
     b2World_Step(coll_world, spf, coll_iterations);
+
+    b2SensorEvents sensors = b2World_GetSensorEvents(coll_world);
+
+    for (int x = 0; x < sensors.beginCount; ++x)
+    {
+        b2SensorBeginTouchEvent* event = sensors.beginEvents + x;
+        CollObj::SensorBegin(event->sensorShapeId, event->visitorShapeId);
+    }
+
+    for (int y = 0; y < sensors.endCount; ++y)
+    {
+        b2SensorEndTouchEvent* event = sensors.endEvents + y;
+        CollObj::SensorEnd(event->sensorShapeId, event->visitorShapeId);
+    }
+
+    b2ContactEvents contacts = b2World_GetContactEvents(coll_world);
+
+    for (int x = 0; x < contacts.beginCount; ++x)
+    {
+        b2ContactBeginTouchEvent* event = contacts.beginEvents + x;
+        CollObj::CollisionBegin(event->shapeIdA, event->shapeIdB);
+    }
+
+    for (int y = 0; y < contacts.endCount; ++y)
+    {
+        b2ContactEndTouchEvent* event = contacts.endEvents + y;
+        CollObj::CollisionEnd(event->shapeIdA, event->shapeIdB);
+    }
 
     for (CollObj* collision : collisions)
     {

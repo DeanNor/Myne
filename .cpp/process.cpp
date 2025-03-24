@@ -103,3 +103,13 @@ bool Process::is_to_delete()
 {
     return to_delete;
 }
+
+void Process::set_name(std::string new_name)
+{
+    name = new_name;
+}
+
+std::string Process::get_name()
+{
+    return name;
+}

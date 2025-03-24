@@ -41,12 +41,12 @@ pos::pos(const SDL_FPoint& convert)
     y = convert.y;
 }
 
-SDL_FRect pos::make_SDL_FRect(const pos& center, const pos& offset)
+SDL_FRect pos::Make_SDL_FRect(const pos& center, const pos& offset)
 {
     return SDL_FRect{(float)(center.x - offset.x), (float)(center.y - offset.y), (float)(offset.x * 2.0f), (float)(offset.y * 2.0f)};
 }
 
-double pos::size()
+double pos::sum()
 {
     double sum = std::abs(x) + std::abs(y);
     return sum;
@@ -61,33 +61,24 @@ rad pos::direction()
 pos pos::ratio()
 {
     pos x_to_y = {0,0};
-    double threshold = 2;
 
-    double scale = size();
+    double scale = sum();
 
-    if (scale >= threshold)
-    {
-        x_to_y.x = x / scale;
-        x_to_y.y = y / scale;
-    }
-
-    else
-    {
-        stop();
-    }
+    x_to_y.x = x / scale;
+    x_to_y.y = y / scale;
 
     return x_to_y;
 }
 
 double pos::len()
 {
-    double length = std::sqrt(pow(x,2) + pow(y,2));
+    double length = std::sqrt(std::pow(x,2) + std::pow(y,2));
     return length;
 }
 
 pos pos::rotated(rad angle)
 {
-    if (angle != 0)
+    if (angle != rad(0.0))
     {
         double cosine = cos(angle);
         double sine = sin(angle);

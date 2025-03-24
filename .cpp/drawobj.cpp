@@ -35,12 +35,9 @@ void DrawObj::draw()
 {
     if (sprite != nullptr)
     {
-        pos computed = global_position;
-        rad global_angle = global_position.compute_angle();
+        SDL_FRect pos_rect = pos::Make_SDL_FRect(global_position, center);
 
-        SDL_FRect pos_rect = pos::make_SDL_FRect(global_position, center);
-
-        SDL_RenderTextureRotated(window->renderer, sprite, nullptr, &pos_rect, global_angle.deg(), nullptr, SDL_FLIP_NONE);
+        SDL_RenderTextureRotated(window->renderer, sprite, nullptr, &pos_rect, global_position.compute_angle().deg(), nullptr, SDL_FLIP_NONE);
     }
 }
 

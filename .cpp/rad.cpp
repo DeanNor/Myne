@@ -88,6 +88,11 @@ bool rad::operator== (rad compare)
     return radian == compare.radian;
 }
 
+bool rad::operator!= (rad compare)
+{
+    return radian != compare.radian;
+}
+
 rad rad::operator+ (rad amount)
 {
     return amount.radian + radian;

@@ -33,6 +33,8 @@ public:
 
     bool operator== (rad compare);
 
+    bool operator!= (rad compare);
+
     // ----- +
     rad operator+ (rad amount);
 

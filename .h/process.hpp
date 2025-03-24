@@ -42,4 +42,8 @@ public:
     void start_delete();
 
     bool is_to_delete();
+
+    void set_name(std::string new_name);
+
+    std::string get_name();
 };

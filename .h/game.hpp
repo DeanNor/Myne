@@ -32,7 +32,7 @@ struct game
 
     Uint64 total_ticks = 0;
 
-    int coll_iterations = 4;
+    int coll_iterations = 10;
 
     game();
 

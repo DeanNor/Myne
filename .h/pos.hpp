@@ -29,9 +29,9 @@ public:
 
     pos(const SDL_FPoint& convert);
 
-    static SDL_FRect make_SDL_FRect(const pos& center, const pos& offset);
+    static SDL_FRect Make_SDL_FRect(const pos& center, const pos& offset);
 
-    double size();
+    double sum();
 
     rad direction();
 
