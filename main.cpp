@@ -77,7 +77,7 @@ pos to_tileset(pos value, pos tile_size)
 
 
 // USER DEFINED STUFF ISH
-#define HUH 1000
+#define HUH 10000
 
 class StaticObj : public CollObj
 {
@@ -118,10 +118,6 @@ public:
         box.radius = diam;
         
         b2ShapeDef fixtureDef = b2DefaultShapeDef();
-        fixtureDef.enableContactEvents = true;
-        fixtureDef.density = 1;
-        fixtureDef.friction = 1;
-        fixtureDef.restitution = 0.5f;
         fixtureDef.isSensor = true;
 
         b2CreateCircleShape(collision_body, &fixtureDef, &box);
@@ -142,10 +138,7 @@ public:
         b2Body_SetLinearVelocity(collision_body, (pos(x,y) - glob) * 60.0);
     }
 
-    void sensor_begin(CollObj* other)
-    {
-        other->start_delete();
-    }
+    void sensor_begin(CollObj* other) override;
 };
 
 class DynamObj : public CollObj
@@ -162,7 +155,7 @@ public:
         b2ShapeDef fixtureDef = b2DefaultShapeDef();
         fixtureDef.density = 1;
         fixtureDef.friction = 1;
-        fixtureDef.restitution = 0.5f;
+        fixtureDef.restitution = 0.4;
 
         b2CreatePolygonShape(collision_body, &fixtureDef, &box);
         
@@ -178,33 +171,34 @@ public:
             start_delete();
         }
     }
-
-    void collide_begin(CollObj* other)
-    {
-        Mouse* mse_other = dynamic_cast<Mouse*>(other);
-
-        if (mse_other != nullptr)
-        {
-            start_delete();
-        }
-    }
 };
+
+void Mouse::sensor_begin(CollObj* other)
+{
+    DynamObj* conv_other = dynamic_cast<DynamObj*>(other);
+
+    if (conv_other != nullptr)
+    {
+        conv_other->start_delete();
+    }
+}
 
 int main()
 {
-    b2WorldDef world_def = b2DefaultWorldDef();
-    world_def.gravity = pos(-100, 0);
+    b2Init();
+
+    b2WorldDef world_def = WorldDef(pos(-100,0));
 
     b2WorldId coll_world = b2CreateWorld(&world_def);
     set_current_coll_world(coll_world);
-
-    b2SetLengthUnitsPerMeter(B2_SCALE);
-    b2World_SetMaximumLinearSpeed(coll_world, B2_MAX_MOVEMENT);
 
     game* gameplay = new game;
     set_current_game(gameplay);
 
     gameplay->coll_world = coll_world;
+
+    StaticObj* obj = new StaticObj;
+    gameplay->root->add_child(obj);
 
     Mouse* mse = new Mouse;
     DrawObj* spri = new DrawObj;
@@ -226,7 +220,7 @@ int main()
 
     pos center(250,250);
 
-    const int total = 1000;
+    const int total = 8000;
     for (int x = 0; x < total; ++x)
     {
         DynamObj* obj = new DynamObj;

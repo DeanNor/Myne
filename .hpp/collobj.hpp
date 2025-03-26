@@ -3,10 +3,7 @@
 
 #include "object.hpp"
 
-#include <box2d/box2d.h>
-
-const float B2_SCALE = 50.0f; // Difference between b2 positions and my positions
-const float B2_MAX_MOVEMENT = 5000.0f;
+#include "b2.h"
 
 class CollObj : public Object
 {

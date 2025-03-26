@@ -11,6 +11,8 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
 find_package(SDL3 REQUIRED CONFIG REQUIRED COMPONENTS SDL3-shared)
 
 add_executable(${PROJECT_NAME} main.cpp
+    .privatecpp/_jointobj.cpp
+
     .cpp/drawobj.cpp
     .cpp/game.cpp
     .cpp/object.cpp
@@ -22,7 +24,7 @@ add_executable(${PROJECT_NAME} main.cpp
     .cpp/tfm.cpp
     )
 
-include_directories(.h)
+include_directories(.hpp .privatehpp)
 
 target_link_libraries(${PROJECT_NAME} PUBLIC
     SDL3::SDL3

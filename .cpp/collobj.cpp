@@ -5,8 +5,7 @@ CollObj::CollObj()
 {
     get_current_game()->collisions.push_back(this);
 
-    collision_def = b2DefaultBodyDef();
-    collision_def.userData = this;
+    collision_def = BodyDef(this);
 }
 
 CollObj::~CollObj()
