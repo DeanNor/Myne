@@ -10,10 +10,7 @@ CollObj::CollObj()
 
 CollObj::~CollObj()
 {
-    if (b2Body_IsValid(collision_body))
-    {
-        b2DestroyBody(collision_body);
-    }
+    delete_body();
 
     std::vector<CollObj*>& collisions = get_current_game()->collisions;
 
@@ -52,6 +49,49 @@ void CollObj::collision_process()
 
     angle = b2Body_GetRotation(collision_body);
 }
+
+void CollObj::set_collision_body(b2BodyId new_body, bool ownership)
+{
+    delete_body();
+
+    body_ownership = ownership;
+    collision_body = new_body;
+}
+
+b2BodyId CollObj::get_collision_body()
+{
+    return collision_body;
+}
+
+void CollObj::set_collision_def(b2BodyDef new_def) // Does NOTHING to the body
+{
+    collision_def = new_def;
+}
+
+b2BodyDef CollObj::get_collision_def()
+{
+    return collision_def;
+}
+
+void CollObj::set_body_ownership(bool ownership)
+{
+    body_ownership = ownership;
+}
+
+bool CollObj::owns_body()
+{
+    return body_ownership;
+}
+
+void CollObj::delete_body()
+{
+    if (body_ownership && b2Body_IsValid(collision_body))
+    {
+        b2DestroyBody(collision_body);
+    }
+}
+
+// Collision Callbacks
 
 CollObj* obj_from_shape(b2ShapeId shape)
 {

@@ -183,6 +183,8 @@ void Mouse::sensor_begin(CollObj* other)
     }
 }
 
+#include "joint.hpp"
+
 int main()
 {
     b2Init();
