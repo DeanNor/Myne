@@ -9,7 +9,7 @@ display::display(pos display_size, const char* name, SDL_WindowFlags flags)
 
     window = SDL_CreateWindow(name, size.x, size.y, flags);
     renderer = SDL_CreateRenderer(window, nullptr);
-    SDL_SetRenderDrawColor(renderer, 0, 0, 0, SDL_ALPHA_OPAQUE);
+    SDL_SetRenderDrawColor(renderer, 255, 0, 255, SDL_ALPHA_OPAQUE);
     //SDL_SetRenderVSync(renderer, true);
 }
 

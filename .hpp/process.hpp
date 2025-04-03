@@ -5,8 +5,6 @@
 
 #include "pos.hpp"
 
-#include <algorithm>
-
 class Process
 {
 protected:
@@ -20,6 +18,8 @@ protected:
 
 public:
     virtual ~Process();
+
+    virtual void _process(double delta);
 
     virtual void process(double delta);
 

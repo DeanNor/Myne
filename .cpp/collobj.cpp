@@ -12,24 +12,12 @@ CollObj::~CollObj()
 {
     delete_body();
 
-    std::vector<CollObj*>& collisions = get_current_game()->collisions;
-
-    std::vector<CollObj*>::iterator index = std::find(collisions.begin(), collisions.end(), this);
-
-    if (index != collisions.end())
-    {
-        collisions.erase(index);
-    }
-
-    else
-    {
-        std::cout << "HUH Collision" << std::endl; // Error, object seems already deleted and has no draw calls
-    }
+    get_current_game()->remove_from_collisions(this);
 }
 
-void CollObj::process(double delta)
+void CollObj::_process(double delta)
 {
-    Object::process(delta);
+    Object::_process(delta);
 
     b2Body_SetTransform(collision_body,global_position.compute(),global_position.compute_angle());
 }

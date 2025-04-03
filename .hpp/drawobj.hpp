@@ -5,9 +5,6 @@
 
 #include "display.hpp"
 
-const rad RIGHT(0);
-const rad DOWN(-1.5707963267948965579990);
-
 class DrawObj : public Object
 {
 protected:

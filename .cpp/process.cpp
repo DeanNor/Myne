@@ -9,16 +9,23 @@ Process::~Process()
     }
 }
 
+void Process::_process(double delta)
+{
+    process(delta);
+
+    process_children(delta);
+}
+
 void Process::process(double delta)
 {
-    process_children(delta);
+    return;
 }
 
 void Process::process_children(double delta)
 {
     for (Process* child : children)
     {
-        child->process(delta);
+        child->_process(delta);
     }
 }
 

@@ -3,78 +3,8 @@
 
 #include "game.hpp"
 #include "drawobj.hpp"
+#include "blendobj.hpp"
 #include "collobj.hpp"
-
-// Whenever I want to convert this to SDL, I will
-/*pos to_tileset(pos value, pos tile_size);
-
-class Tileset : public DrawObj
-{
-protected:
-    std::vector<pos> tiles;
-
-    ALLEGRO_BITMAP* tilemap = nullptr;
-
-    pos tile_size = {10, 10};
-
-    ALLEGRO_COLOR tilecol = al_map_rgb_f(1,1,1);
-
-    bool redraw = false;
-
-public:
-    Tileset()
-    {
-        tilemap = al_create_bitmap(500,500);
-    }
-
-    void draw()
-    {
-        if (redraw)
-        {
-            update_map();
-        }
-
-        al_draw_bitmap(tilemap,position.x,position.y,0);
-    }
-
-    void update_map()
-    {
-        ALLEGRO_BITMAP* main_bitmap = al_get_target_bitmap();
-        
-        al_set_target_bitmap(tilemap);
-
-        for (pos tile : tiles)
-        {
-            al_draw_bitmap(sprite,tile.x,tile.y,0);
-        }
-
-        al_set_target_bitmap(main_bitmap);
-    }
-
-    bool tile_used(pos tile_position)
-    {
-        tile_position = to_tileset(tile_position, tile_size);
-
-        for (pos tile : tiles)
-        {
-            if (tile_position == tile)
-            {
-                return true;
-            }
-        }
-
-        return false;
-    }
-};
-
-pos to_tileset(pos value, pos tile_size)
-{
-    pos tile_number = value / tile_size;
-    tile_number = tile_number.round();
-    return tile_number * tile_size;
-}
-*/
-
 
 // USER DEFINED STUFF ISH
 #define HUH 10000
@@ -87,7 +17,7 @@ public:
         collision_def.type = b2_staticBody;
         collision_body = b2CreateBody(get_current_coll_world(), &collision_def);
 
-        b2Polygon box1 = b2MakeOffsetBox(HUH,HUH, pos(-HUH, HUH), b2MakeRot(0));
+        b2Polygon box1 = b2MakeOffsetBox(HUH,HUH, pos(-HUH + 100, HUH), b2MakeRot(0));
 
         b2Polygon box2 = b2MakeOffsetBox(HUH,HUH, pos(HUH, -HUH), b2MakeRot(0));
 
@@ -101,45 +31,7 @@ public:
     }
 };
 
-#define size 6
-
-float diam = 100;
-class Mouse : public CollObj
-{
-public:
-    Mouse()
-    {
-        collision_def.type = b2_kinematicBody;
-
-        collision_body = b2CreateBody(get_current_coll_world(), &collision_def);
-
-        b2Circle box;
-        box.center = pos(diam / 2, diam / 2);
-        box.radius = diam;
-        
-        b2ShapeDef fixtureDef = b2DefaultShapeDef();
-        fixtureDef.isSensor = true;
-
-        b2CreateCircleShape(collision_body, &fixtureDef, &box);
-
-        name = "Mouse";
-    }
-
-    void process(double delta)
-    {
-        CollObj::process(delta);
-
-        float x,y;
-
-        SDL_GetMouseState(&x,&y);
-
-        pos glob = global_position;
-
-        b2Body_SetLinearVelocity(collision_body, (pos(x,y) - glob) * 60.0);
-    }
-
-    void sensor_begin(CollObj* other) override;
-};
+float size = 6.0f;
 
 class DynamObj : public CollObj
 {
@@ -161,27 +53,38 @@ public:
         
         name = "Box";
     }
-
-    void collision_process()
-    {
-        CollObj::collision_process();
-
-        if (position.x < 0)
-        {
-            start_delete();
-        }
-    }
 };
 
-void Mouse::sensor_begin(CollObj* other)
+float radi = 20;
+class Mouse : public CollObj
 {
-    DynamObj* conv_other = dynamic_cast<DynamObj*>(other);
-
-    if (conv_other != nullptr)
+public:
+    Mouse()
     {
-        conv_other->start_delete();
+        collision_def.type = b2_kinematicBody;
+        collision_def.isBullet = true;
+
+        collision_body = b2CreateBody(get_current_coll_world(), &collision_def);
+
+        b2Circle circ;
+        circ.radius = radi;
+
+        b2ShapeDef def = b2DefaultShapeDef();
+
+        b2CreateCircleShape(collision_body, &def, &circ);
+
+        name = "Mouse";
     }
-}
+
+    void process(double delta)
+    {
+        float x,y;
+
+        SDL_GetMouseState(&x,&y);
+
+        b2Body_SetLinearVelocity(collision_body, b2Vec2{(x - (float)position.x) * 60.0f, (y - (float)position.y) * 60.0f});
+    }
+};
 
 #include "joint.hpp"
 
@@ -198,6 +101,35 @@ int main()
     set_current_game(gameplay);
 
     gameplay->coll_world = coll_world;
+
+    BlendObj* drawer2 = new BlendObj;
+    drawer2->set_position({100,100});
+
+    BLImage img2(480, 480, BL_FORMAT_PRGB32);
+    BLContext ctx2(img2);
+  
+    ctx2.clearAll();
+  
+    // Coordinates can be specified now or changed
+    // later via BLGradient accessors.
+    BLGradient linear2(BLLinearGradientValues(0, 0, 480, 480));
+  
+    // Color stops can be added in any order.
+    linear2.addStop(0.0, BLRgba32(0xFF32aaFF));
+    linear2.addStop(0.5, BLRgba32(0x225FAFDF));
+    linear2.addStop(1.0, BLRgba32(0xFF2F5FDF));
+  
+    // `setFillStyle()` can be used for both colors
+    // and styles. Alternatively, a color or style
+    // can be passed explicitly to a render function.
+    ctx2.setFillStyle(linear2);
+  
+    // Rounded rect will be filled with the linear
+    // gradient.
+    ctx2.fillRoundRect(40.0, 40.0, 400.0, 400.0, 45.5);
+    ctx2.end();
+
+    drawer2->set_image(img2);
 
     StaticObj* obj = new StaticObj;
     gameplay->root->add_child(obj);
@@ -217,12 +149,18 @@ int main()
 
     gameplay->root->add_child(mse);
 
-    StaticObj* huh1 = new StaticObj;
-    gameplay->root->add_child(huh1);
-
     pos center(250,250);
 
-    const int total = 8000;
+    std::vector<distance_j*> joints;
+
+    CollObj* past = nullptr;
+
+    b2DistanceJointDef j_def = b2DefaultDistanceJointDef();
+    j_def.localAnchorA = pos(size, 0);
+    j_def.localAnchorB = pos(-size,0);
+    j_def.length = 1;
+
+    const int total = 80;
     for (int x = 0; x < total; ++x)
     {
         DynamObj* obj = new DynamObj;
@@ -235,9 +173,18 @@ int main()
         obj->add_child(sprite);
     
         gameplay->root->add_child(obj);
+
+        if (past != nullptr)
+        {
+            joints.push_back(new distance_j(past, obj, j_def));
+        }
+
+        past = obj;
     }
 
     gameplay->start();
+
+    delete gameplay;
 
     return 0;
 }

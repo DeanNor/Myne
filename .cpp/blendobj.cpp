@@ -1,0 +1,56 @@
+
+#include "blendobj.hpp"
+
+BlendObj::BlendObj()
+{
+    game* current_game = get_current_game();
+    window = current_game->game_window;
+
+    current_game->overlay_draws.push_back(this);
+}
+
+BlendObj::~BlendObj()
+{
+    if (texture != nullptr)
+    {
+        SDL_DestroyTexture(texture);
+    }
+
+    get_current_game()->remove_from_overlay_draws(this);
+}
+
+void BlendObj::draw_overlay()
+{
+    if (texture != nullptr)
+    {
+        pos glo_pos = global_position;
+        SDL_FRect pos_rect{(float)glo_pos.x,(float)glo_pos.y, (float)size.x, (float)size.y};
+
+        SDL_RenderTexture(window->renderer, texture, nullptr, &pos_rect);
+    }
+}
+
+void BlendObj::update_sprite()
+{
+    BLImageData data;
+    image.getData(&data);
+
+    SDL_UpdateTexture(texture, NULL, data.pixelData, data.stride);
+}
+
+void BlendObj::set_image(BLImage new_image)
+{
+    image = new_image;
+
+    size.x = image.width();
+    size.y = image.height();
+
+    texture = SDL_CreateTexture(window->renderer, SDL_FORMAT, SDL_TEXTUREACCESS_STATIC, size.x, size.y);
+
+    update_sprite();
+}
+
+BLImage BlendObj::get_image()
+{
+    return image;
+}

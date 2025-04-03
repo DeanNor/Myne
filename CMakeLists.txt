@@ -12,6 +12,7 @@ find_package(SDL3 REQUIRED CONFIG REQUIRED COMPONENTS SDL3-shared)
 
 add_executable(${PROJECT_NAME} main.cpp
     .cpp/drawobj.cpp
+    .cpp/blendobj.cpp
     .cpp/game.cpp
     .cpp/object.cpp
     .cpp/pos.cpp
@@ -25,8 +26,12 @@ add_executable(${PROJECT_NAME} main.cpp
 
 include_directories(.hpp)
 
+find_library(blend2d NAMES blend2d PATHS /usr/local/lib64/) # Find shared blend2d library
+
 target_link_libraries(${PROJECT_NAME} PUBLIC
     SDL3::SDL3
 
     box2d
+    
+    ${blend2d}
     )

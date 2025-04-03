@@ -18,7 +18,7 @@ public:
     
     ~CollObj();
 
-    void process(double delta);
+    void _process(double delta);
 
     virtual void collision_process();
 

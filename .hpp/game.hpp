@@ -10,6 +10,7 @@
 
 class Process;
 class DrawObj;
+class BlendObj;
 class CollObj;
 
 struct game
@@ -19,6 +20,7 @@ struct game
     Process* root = nullptr;
 
     std::vector<DrawObj*> draws = {};
+    std::vector<BlendObj*> overlay_draws = {};
     std::vector<CollObj*> collisions = {};
     std::vector<Process*> deletes = {};
 
@@ -26,13 +28,13 @@ struct game
 
     bool running = true;
 
-    int fps = 60;
-    double spf = 1.0 / double(fps);
-    Uint64 fpsticks = 1000 / fps;
+    double fps = 60;
+    double spf = 1.0 / fps; // Seconds between ticks
+    Uint64 fpsticks = 1000 / fps; // MSeconds between ticks
 
-    Uint64 total_ticks = 0;
+    Uint64 total_ticks = 0; // Internal clock
 
-    int coll_iterations = 10;
+    int coll_iterations = 4;
 
     game();
 
@@ -48,7 +50,15 @@ struct game
 
     void draw();
 
+    void draw_overlay();
+
     void end_delete();
+
+    void remove_from_draws(DrawObj* who);
+
+    void remove_from_overlay_draws(BlendObj* who);
+
+    void remove_from_collisions(CollObj* who);
 };
 
 void set_current_coll_world(b2WorldId world);

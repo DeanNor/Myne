@@ -16,19 +16,7 @@ DrawObj::~DrawObj()
         SDL_DestroyTexture(sprite);
     }
 
-    std::vector<DrawObj*>& draws = get_current_game()->draws;
-
-    std::vector<DrawObj*>::iterator index = std::find(draws.begin(), draws.end(), this);
-
-    if (index != draws.end())
-    {
-        draws.erase(index);
-    }
-
-    else
-    {
-        std::cout << "HUH Draws" << std::endl;// Error, object seems already deleted and has no draw calls
-    }
+    get_current_game()->remove_from_draws(this);
 }
 
 void DrawObj::draw()

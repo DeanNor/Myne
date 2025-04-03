@@ -3,7 +3,10 @@
 
 #include "process.hpp"
 #include "drawobj.hpp"
+#include "blendobj.hpp"
 #include "collobj.hpp"
+
+#include <algorithm>
 
 game::game()
 {
@@ -30,6 +33,8 @@ game::~game()
         delete game_window;
         game_window = nullptr;
     }
+
+    SDL_Quit();
 }
 
 bool game::frame()
@@ -58,7 +63,10 @@ bool game::frame()
 
     game_window->prepare_screen();
     draw();
+
+    draw_overlay();
     game_window->push_screen();
+
 
     end_delete();
     //                                      std::cout << 1 / ((double)(SDL_GetTicksNS() - tim) / 1000000000) << std::endl; // Potential FPS
@@ -78,7 +86,7 @@ void game::process()
 {
     if (root != nullptr)
     {
-        root->process(spf);
+        root->_process(spf);
     }
 
     else
@@ -134,6 +142,14 @@ void game::draw()
     }
 }
 
+void game::draw_overlay()
+{
+    for (BlendObj* object : overlay_draws)
+    {
+        object->draw_overlay();
+    }
+}
+
 void game::end_delete()
 {
     if (deletes.size() > 0)
@@ -147,6 +163,52 @@ void game::end_delete()
     }
 }
 
+void game::remove_from_draws(DrawObj* who)
+{
+    std::vector<DrawObj*>::iterator index = std::find(draws.begin(), draws.end(), who);
+
+    if (index != draws.end())
+    {
+        draws.erase(index);
+    }
+
+    else
+    {
+        std::cout << "HUH Draws" << std::endl; // Error, object seems already deleted and has no draw calls
+    }
+}
+
+void game::remove_from_overlay_draws(BlendObj* who)
+{
+    std::vector<BlendObj*>::iterator index = std::find(overlay_draws.begin(), overlay_draws.end(), who);
+
+    if (index != overlay_draws.end())
+    {
+        overlay_draws.erase(index);
+    }
+
+    else
+    {
+        std::cout << "HUH Overlay Draws" << std::endl; // Error, object seems already deleted and has no draw calls
+    }
+}
+
+void game::remove_from_collisions(CollObj* who)
+{
+    std::vector<CollObj*>::iterator index = std::find(collisions.begin(), collisions.end(), who);
+
+    if (index != collisions.end())
+    {
+        collisions.erase(index);
+    }
+
+    else
+    {
+        std::cout << "HUH Collision" << std::endl; // Error, object seems already deleted and has no draw calls
+    }
+}
+
+// -------------------------------------- Storage of current stuffs
 b2WorldId coll_world;
 game* gameplay = nullptr;
 
