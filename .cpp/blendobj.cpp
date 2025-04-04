@@ -30,7 +30,7 @@ void BlendObj::draw_overlay()
     }
 }
 
-void BlendObj::update_sprite()
+void BlendObj::update_image()
 {
     BLImageData data;
     image.getData(&data);
@@ -42,15 +42,25 @@ void BlendObj::set_image(BLImage new_image)
 {
     image = new_image;
 
-    size.x = image.width();
-    size.y = image.height();
+    image_size.x = image.width();
+    image_size.y = image.height();
 
-    texture = SDL_CreateTexture(window->renderer, SDL_FORMAT, SDL_TEXTUREACCESS_STATIC, size.x, size.y);
+    texture = SDL_CreateTexture(window->renderer, SDL_FORMAT, SDL_TEXTUREACCESS_STREAMING, image_size.x, image_size.y);
 
-    update_sprite();
+    update_image();
 }
 
 BLImage BlendObj::get_image()
 {
     return image;
+}
+
+void BlendObj::set_size(pos new_size)
+{
+    size = new_size;
+}
+
+pos BlendObj::get_size()
+{
+    return size;
 }

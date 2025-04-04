@@ -20,7 +20,7 @@ public:
 
     _joint(CollObj* a, CollObj* b, b2BodyId id_a, b2BodyId id_b);
 
-    _joint();
+    _joint() = default;
 
     virtual void remove();
 

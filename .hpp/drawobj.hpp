@@ -15,8 +15,6 @@ protected:
 
     pos scale = {1,1};
 
-    int z = 0; // Draw depth
-
     bool ownership = false;
 
 public:
@@ -29,10 +27,6 @@ public:
     void set_sprite(SDL_Texture* bitmap, bool owns_sprite);
 
     SDL_Texture* get_sprite();
-
-    void set_z(int new_z);
-
-    int get_z();
 
     void set_display(display* new_display);
 

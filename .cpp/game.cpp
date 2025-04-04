@@ -59,7 +59,10 @@ bool game::frame()
     //                                      Uint64 tim = SDL_GetTicksNS();
     process();
     
-    collision_process();
+    if (physics)
+    {
+        collision_process();
+    }
 
     game_window->prepare_screen();
     draw();

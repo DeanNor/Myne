@@ -90,97 +90,40 @@ public:
 
 int main()
 {
-    b2Init();
-
-    b2WorldDef world_def = WorldDef(pos(-100,0));
-
-    b2WorldId coll_world = b2CreateWorld(&world_def);
-    set_current_coll_world(coll_world);
-
     game* gameplay = new game;
     set_current_game(gameplay);
+    gameplay->physics = false;
 
-    gameplay->coll_world = coll_world;
+    BlendObj* drawer = new BlendObj;
+    drawer->set_position({100,100});
 
-    BlendObj* drawer2 = new BlendObj;
-    drawer2->set_position({100,100});
+    BLImage img(480, 480, BLEND_FORMAT);
 
-    BLImage img2(480, 480, BL_FORMAT_PRGB32);
-    BLContext ctx2(img2);
+    // Attach a rendering context into `img`.
+    BLContext ctx(img);
+    ctx.clearAll();
+
+    // First shape filled with a radial gradient.
+    // By default, SRC_OVER composition is used.
+    BLGradient radial(
+    BLRadialGradientValues(180, 180, 180, 180, 180));
+    radial.addStop(0.0, BLRgba32(0xFFFFFFFF));
+    radial.addStop(1.0, BLRgba32(0xFFFF6F3F));
+    ctx.fillCircle(180, 180, 160, radial);
   
-    ctx2.clearAll();
+    // Second shape filled with a linear gradient.
+    BLGradient linear(
+    BLLinearGradientValues(195, 195, 470, 470));
+    linear.addStop(0.0, BLRgba32(0xFFFFFFFF));
+    linear.addStop(1.0, BLRgba32(0xFF3F9FFF));
   
-    // Coordinates can be specified now or changed
-    // later via BLGradient accessors.
-    BLGradient linear2(BLLinearGradientValues(0, 0, 480, 480));
-  
-    // Color stops can be added in any order.
-    linear2.addStop(0.0, BLRgba32(0xFF32aaFF));
-    linear2.addStop(0.5, BLRgba32(0x225FAFDF));
-    linear2.addStop(1.0, BLRgba32(0xFF2F5FDF));
-  
-    // `setFillStyle()` can be used for both colors
-    // and styles. Alternatively, a color or style
-    // can be passed explicitly to a render function.
-    ctx2.setFillStyle(linear2);
-  
-    // Rounded rect will be filled with the linear
-    // gradient.
-    ctx2.fillRoundRect(40.0, 40.0, 400.0, 400.0, 45.5);
-    ctx2.end();
+    // Use 'setCompOp()' to change a composition operator.
+    ctx.setCompOp(BL_COMP_OP_DIFFERENCE);
+    ctx.fillRoundRect(
+      BLRoundRect(195, 195, 270, 270, 25), linear);
 
-    drawer2->set_image(img2);
-
-    StaticObj* obj = new StaticObj;
-    gameplay->root->add_child(obj);
-
-    Mouse* mse = new Mouse;
-    DrawObj* spri = new DrawObj;
-
-    SDL_Surface* surf = SDL_LoadBMP("sample2.bmp");
-    SDL_Texture* bmp = SDL_CreateTextureFromSurface(gameplay->game_window->renderer, surf);
-    SDL_DestroySurface(surf);
-
-    spri->set_sprite(bmp, false);
-
-    mse->set_position(pos(250,250));
-
-    mse->add_child(spri);
-
-    gameplay->root->add_child(mse);
-
-    pos center(250,250);
-
-    std::vector<distance_j*> joints;
-
-    CollObj* past = nullptr;
-
-    b2DistanceJointDef j_def = b2DefaultDistanceJointDef();
-    j_def.localAnchorA = pos(size, 0);
-    j_def.localAnchorB = pos(-size,0);
-    j_def.length = 1;
-
-    const int total = 80;
-    for (int x = 0; x < total; ++x)
-    {
-        DynamObj* obj = new DynamObj;
-        DrawObj* sprite = new DrawObj;
-    
-        sprite->set_sprite(bmp, false);
-
-        obj->set_position(center + pos(x * size * 3, 0));
-    
-        obj->add_child(sprite);
-    
-        gameplay->root->add_child(obj);
-
-        if (past != nullptr)
-        {
-            joints.push_back(new distance_j(past, obj, j_def));
-        }
-
-        past = obj;
-    }
+    drawer->set_image(img);
+    drawer->set_size({500,200});
 
     gameplay->start();
 

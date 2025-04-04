@@ -25,6 +25,7 @@ struct game
     std::vector<Process*> deletes = {};
 
     b2WorldId coll_world;
+    bool physics = true;
 
     bool running = true;
 

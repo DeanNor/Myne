@@ -47,16 +47,6 @@ SDL_Texture* DrawObj::get_sprite()
     return sprite;
 }
 
-void DrawObj::set_z(int new_z)
-{
-    z = new_z;
-}
-
-int DrawObj::get_z()
-{
-    return z;
-}
-
 void DrawObj::set_display(display* new_display)
 {
     window = new_display;
