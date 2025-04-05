@@ -3,7 +3,7 @@
 #include <box2d/box2d.h>
 
 const float B2_SCALE = 6.0f; // Difference between b2 positions and my positions
-const float B2_MAX_MOVEMENT = 50000.0f;
+const float B2_MAX_MOVEMENT = 500.0f;
 
 inline void b2Init()
 {

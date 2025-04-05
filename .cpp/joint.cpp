@@ -14,7 +14,7 @@ _joint::_joint(CollObj* a, CollObj* b, b2BodyId id_a, b2BodyId id_b)
 
 void _joint::remove()
 {
-    if (b2Joint_IsValid(collision_joint))
+    if (bool())
     {
         b2DestroyJoint(collision_joint);
     }

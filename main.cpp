@@ -6,6 +6,8 @@
 #include "blendobj.hpp"
 #include "collobj.hpp"
 
+#include "joint.hpp"
+
 // USER DEFINED STUFF ISH
 #define HUH 10000
 
@@ -55,7 +57,6 @@ public:
     }
 };
 
-float radi = 20;
 class Mouse : public CollObj
 {
 public:
@@ -67,7 +68,7 @@ public:
         collision_body = b2CreateBody(get_current_coll_world(), &collision_def);
 
         b2Circle circ;
-        circ.radius = radi;
+        circ.radius = size;
 
         b2ShapeDef def = b2DefaultShapeDef();
 
@@ -82,17 +83,15 @@ public:
 
         SDL_GetMouseState(&x,&y);
 
-        b2Body_SetLinearVelocity(collision_body, b2Vec2{(x - (float)position.x) * 60.0f, (y - (float)position.y) * 60.0f});
+        if (x != NULL && y != NULL) b2Body_SetLinearVelocity(collision_body, b2Vec2{(x - (float)position.x) * 60.0f, (y - (float)position.y) * 60.0f});
     }
 };
-
-#include "joint.hpp"
 
 int main()
 {
     b2Init();
 
-    b2WorldDef world_def = WorldDef(pos(-100,0));
+    b2WorldDef world_def = WorldDef(pos(0,100));
 
     b2WorldId coll_world = b2CreateWorld(&world_def);
     set_current_coll_world(coll_world);
@@ -103,35 +102,108 @@ int main()
     gameplay->coll_world = coll_world;
 
     BlendObj* drawer = new BlendObj;
-    drawer->set_position({100,100});
+    drawer->set_position({0,0});
 
     BLImage img(480, 480, BLEND_FORMAT);
 
-    // Attach a rendering context into `img`.
     BLContext ctx(img);
     ctx.clearAll();
 
-    // First shape filled with a radial gradient.
-    // By default, SRC_OVER composition is used.
-    BLGradient radial(
-    BLRadialGradientValues(180, 180, 180, 180, 180));
-    radial.addStop(0.0, BLRgba32(0xFFFFFFFF));
-    radial.addStop(1.0, BLRgba32(0xFFFF6F3F));
-    ctx.fillCircle(180, 180, 160, radial);
-  
-    // Second shape filled with a linear gradient.
     BLGradient linear(
-    BLLinearGradientValues(195, 195, 470, 470));
-    linear.addStop(0.0, BLRgba32(0xFFFFFFFF));
-    linear.addStop(1.0, BLRgba32(0xFF3F9FFF));
-  
-    // Use 'setCompOp()' to change a composition operator.
-    ctx.setCompOp(BL_COMP_OP_DIFFERENCE);
+    BLLinearGradientValues(0, 0, 480, 480));
+    linear.addStop(0.0, BLRgba32(0x22FF00FF));
+    linear.addStop(1.0, BLRgba32(0xFF00FF00));
+
     ctx.fillRoundRect(
     BLRoundRect(195, 195, 270, 270, 25), linear);
 
     drawer->set_image(img);
-    drawer->set_size({500,200});
+    drawer->set_size({1000,500});
+
+    StaticObj* obj = new StaticObj;
+    gameplay->root->add_child(obj);
+
+    Mouse* mse = new Mouse;
+    DrawObj* spri = new DrawObj;
+
+    mse->set_position({500,500});
+
+    SDL_Surface* surf = SDL_LoadBMP("sample2.bmp");
+    SDL_Texture* bmp = SDL_CreateTextureFromSurface(gameplay->game_window->renderer, surf);
+    SDL_DestroySurface(surf);
+
+    spri->set_sprite(bmp, false);
+
+    mse->add_child(spri);
+
+    gameplay->root->add_child(mse);
+
+    pos center(250,250);
+
+    for (int x = 0; x < 53; ++x)
+    {
+        DynamObj* ball = new DynamObj;
+        DrawObj* spri = new DrawObj;
+    
+        ball->set_position({500,500});
+    
+        spri->set_sprite(bmp, false);
+    
+        ball->set_position(pos(250,10));
+    
+        ball->add_child(spri);
+    
+        gameplay->root->add_child(ball);
+    }
+
+    std::vector<distance_j> joints;
+
+    CollObj* past = mse;
+
+    b2DistanceJointDef j_def = b2DefaultDistanceJointDef();
+    j_def.localAnchorA = pos(0, 0);
+    j_def.localAnchorB = pos(0,0);
+    j_def.length = size + 1;
+
+    const int total = 50;
+    for (int x = 0; x < total; ++x)
+    {
+        DynamObj* object = new DynamObj;
+        DrawObj* sprite = new DrawObj;
+    
+        sprite->set_sprite(bmp, false);
+
+        object->set_position(center + pos(x * size * 3, 0));
+    
+        object->add_child(sprite);
+    
+        gameplay->root->add_child(object);
+
+        distance_j joint = distance_j(past, object, j_def);
+        joints.push_back(joint);
+
+        past = object;
+    }
+
+    b2DistanceJointDef j_def2 = b2DefaultDistanceJointDef();
+    j_def.localAnchorA = pos(0, 0);
+    j_def.localAnchorB = pos(100,250);
+    j_def.length = size * 2;
+    j_def.collideConnected = true;
+    distance_j joint = distance_j(past, obj, j_def);
+    joints.push_back(joint);
+
+    std::cout << joints.size() << std::endl;
+    int count = 0;
+
+    for (_joint j : joints)
+    {
+        if (j)
+        {
+            count++;
+        }
+    }
+    std::cout << count << std::endl;
 
     gameplay->start();
 
