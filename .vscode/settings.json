@@ -1,0 +1,15 @@
+{
+    "files.associations": {
+        "atomic": "cpp",
+        "bitset": "cpp",
+        "charconv": "cpp",
+        "memory": "cpp",
+        "optional": "cpp",
+        "format": "cpp",
+        "istream": "cpp",
+        "ostream": "cpp",
+        "stop_token": "cpp",
+        "system_error": "cpp",
+        "functional": "cpp"
+    }
+}

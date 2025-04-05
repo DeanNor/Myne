@@ -20,9 +20,9 @@ void _joint::remove()
     }
 }
 
-_joint::~_joint()
+_joint::operator bool()
 {
-    remove();
+    return b2Joint_IsValid(collision_joint);
 }
 
 revolute_j::revolute_j(CollObj* a, CollObj* b, b2RevoluteJointDef joint_def) : joint_def(joint_def)

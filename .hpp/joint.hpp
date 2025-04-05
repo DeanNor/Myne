@@ -24,7 +24,7 @@ public:
 
     virtual void remove();
 
-    ~_joint();
+    operator bool();
 };
 
 struct revolute_j : public _joint

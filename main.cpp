@@ -90,9 +90,17 @@ public:
 
 int main()
 {
+    b2Init();
+
+    b2WorldDef world_def = WorldDef(pos(-100,0));
+
+    b2WorldId coll_world = b2CreateWorld(&world_def);
+    set_current_coll_world(coll_world);
+
     game* gameplay = new game;
     set_current_game(gameplay);
-    gameplay->physics = false;
+
+    gameplay->coll_world = coll_world;
 
     BlendObj* drawer = new BlendObj;
     drawer->set_position({100,100});
@@ -120,7 +128,7 @@ int main()
     // Use 'setCompOp()' to change a composition operator.
     ctx.setCompOp(BL_COMP_OP_DIFFERENCE);
     ctx.fillRoundRect(
-      BLRoundRect(195, 195, 270, 270, 25), linear);
+    BLRoundRect(195, 195, 270, 270, 25), linear);
 
     drawer->set_image(img);
     drawer->set_size({500,200});
