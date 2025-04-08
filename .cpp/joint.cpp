@@ -3,6 +3,24 @@
 
 #include "collobj.hpp"
 
+JointId::JointId(b2CollisionJoint joint) : joint(joint)
+{
+
+}
+
+JointId::~JointId()
+{
+    if (b2Joint_IsValid(collision_joint))
+    {
+        b2DestroyJoint(collision_joint);
+    }
+}
+
+JointId::operator b2CollisionJoint()
+{
+    return joint;
+}
+
 _joint::_joint(CollObj* a, CollObj* b, b2BodyId id_a, b2BodyId id_b)
 {
     obj_a = a;
@@ -10,14 +28,6 @@ _joint::_joint(CollObj* a, CollObj* b, b2BodyId id_a, b2BodyId id_b)
 
     body_a = id_a;
     body_b = id_b;
-}
-
-void _joint::remove()
-{
-    if (bool())
-    {
-        b2DestroyJoint(collision_joint);
-    }
 }
 
 _joint::operator bool()
