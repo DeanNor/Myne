@@ -10,7 +10,7 @@ class CollObj;
 struct _joint // Parent Joint Struct
 {
 public:
-    b2JointId collision_joint;
+    std::shared_ptr<b2JointId> collision_joint;
 
     CollObj* obj_a;
     b2BodyId body_a;
