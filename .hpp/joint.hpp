@@ -7,10 +7,22 @@
 
 class CollObj;
 
+struct JointId
+{
+public:
+    b2JointId joint;
+
+    JointId(b2CollisionJoint joint);
+
+    ~JointId();
+
+    operator b2CollisionJoint();
+};
+
 struct _joint // Parent Joint Struct
 {
 public:
-    std::shared_ptr<b2JointId> collision_joint;
+    std::shared_ptr<JointId> collision_joint;
 
     CollObj* obj_a;
     b2BodyId body_a;
@@ -21,8 +33,6 @@ public:
     _joint(CollObj* a, CollObj* b, b2BodyId id_a, b2BodyId id_b);
 
     _joint() = default;
-
-    virtual void remove();
 
     operator bool();
 };
