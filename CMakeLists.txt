@@ -22,6 +22,7 @@ add_executable(${PROJECT_NAME} main.cpp
     .cpp/rad.cpp
     .cpp/tfm.cpp
     .cpp/joint.cpp
+    .cpp/ref.cpp
     )
 
 include_directories(.hpp)
