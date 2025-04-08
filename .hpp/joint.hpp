@@ -5,6 +5,8 @@
 
 #include "game.hpp"
 
+#include <memory>
+
 class CollObj;
 
 struct JointId
