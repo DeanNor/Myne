@@ -5,7 +5,7 @@
 
 #include "game.hpp"
 
-#include <memory>
+#include "ref.hpp"
 
 class CollObj;
 
@@ -24,7 +24,7 @@ public:
 struct _joint // Parent Joint Struct
 {
 public:
-    std::shared_ptr<JointId> collision_joint;
+    REF<JointId> collision_joint;
 
     CollObj* obj_a;
     b2BodyId body_a;
