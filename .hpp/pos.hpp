@@ -31,6 +31,8 @@ public:
 
     static SDL_FRect Make_SDL_FRect(const pos& center, const pos& offset);
 
+    static SDL_Rect Make_SDL_Rect(const pos& center, const pos& offset);
+
     double sum();
 
     rad direction();

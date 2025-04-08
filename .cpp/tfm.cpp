@@ -19,11 +19,6 @@ bool tfm::has_changed()
 
     if (parent != nullptr)
     {
-        if (parent->transform != past_parent)
-        {
-            return true;
-        }
-
         return parent->has_changed();
     }
 
@@ -39,10 +34,8 @@ pos tfm::compute()
         if (parent != nullptr)
         {
             transform = position->rotated(*parent->angle);
-
-            past_parent = *parent;
             
-            transform += past_parent;
+            transform += parent->compute();
         }
 
         else
@@ -62,12 +55,7 @@ bool tfm::angle_changed()
     }
 
     else if (parent != nullptr)
-    {
-        if (parent->transform_angle != past_par_angle)
-        {
-            return true;
-        }
-        
+    {        
         return parent->angle_changed();
     }
 
@@ -84,9 +72,7 @@ rad tfm::compute_angle()
 
         if (parent != nullptr)
         {
-            past_par_angle = parent->compute_angle();
-
-            transform_angle += past_par_angle;
+            transform_angle += parent->compute_angle();
         }
     }
 

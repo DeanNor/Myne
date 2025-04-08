@@ -10,6 +10,12 @@
         "ostream": "cpp",
         "stop_token": "cpp",
         "system_error": "cpp",
-        "functional": "cpp"
+        "functional": "cpp",
+        "array": "cpp",
+        "string_view": "cpp",
+        "initializer_list": "cpp",
+        "span": "cpp",
+        "string": "cpp",
+        "cstddef": "cpp"
     }
 }

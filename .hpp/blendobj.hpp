@@ -22,7 +22,7 @@ public:
 
     ~BlendObj();
 
-    virtual void draw_overlay();
+    virtual void draw_overlay(pos origin);
 
     void update_image();
 

@@ -5,26 +5,12 @@
 
 #include "game.hpp"
 
-#include "ref.hpp"
-
 class CollObj;
-
-struct JointId
-{
-public:
-    b2JointId joint;
-
-    JointId(b2CollisionJoint joint);
-
-    ~JointId();
-
-    operator b2CollisionJoint();
-};
 
 struct _joint // Parent Joint Struct
 {
 public:
-    REF<JointId> collision_joint;
+    b2JointId collision_joint;
 
     CollObj* obj_a;
     b2BodyId body_a;

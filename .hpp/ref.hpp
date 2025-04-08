@@ -1,18 +1,22 @@
 
 #pragma once
 
-template<typename T> class REF
+#include <cstddef>
+
+template<typename T> class ref
 {
 public:
     T* internal_data = nullptr;
 
     size_t* refs = nullptr;
 
-    REF() = default;
+    ref() = default;
 
-    REF(T* type);
+    ref(T* type);
 
-    constexpr REF<T>& operator=(const REF<T>& other);
+    constexpr ref<T>& operator=(const ref<T>& other);
 
-    ~REF();
+    ~ref();
+
+    T operator *();
 };

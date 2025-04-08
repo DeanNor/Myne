@@ -25,4 +25,6 @@ struct display
     void prepare_screen();
 
     void push_screen();
+
+    void update_size();
 };

@@ -46,6 +46,11 @@ SDL_FRect pos::Make_SDL_FRect(const pos& center, const pos& offset)
     return SDL_FRect{(float)(center.x - offset.x), (float)(center.y - offset.y), (float)(offset.x * 2.0f), (float)(offset.y * 2.0f)};
 }
 
+SDL_Rect pos::Make_SDL_Rect(const pos& center, const pos& offset)
+{
+    return SDL_Rect{(int)(center.x - offset.x), (int)(center.y - offset.y), (int)(offset.x * 2.0f), (int)(offset.y * 2.0f)};
+}
+
 double pos::sum()
 {
     double sum = std::abs(x) + std::abs(y);
@@ -133,7 +138,7 @@ pos pos::scaled(pos start, pos end)
 {
     pos temp_pos = *this;
 
-    temp_pos *= end / start;
+    temp_pos *= end/start;
     
     return temp_pos;
 }

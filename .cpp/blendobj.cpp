@@ -19,11 +19,11 @@ BlendObj::~BlendObj()
     get_current_game()->remove_from_overlay_draws(this);
 }
 
-void BlendObj::draw_overlay()
+void BlendObj::draw_overlay(pos origin)
 {
     if (texture != nullptr)
     {
-        pos glo_pos = global_position;
+        pos glo_pos = global_position.compute() - origin;
         SDL_FRect pos_rect{(float)glo_pos.x,(float)glo_pos.y, (float)size.x, (float)size.y};
 
         SDL_RenderTexture(window->renderer, texture, nullptr, &pos_rect);

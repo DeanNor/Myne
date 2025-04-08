@@ -22,7 +22,7 @@ public:
 
     ~DrawObj();
 
-    virtual void draw();
+    virtual void draw(pos origin);
 
     void set_sprite(SDL_Texture* bitmap, bool owns_sprite);
 

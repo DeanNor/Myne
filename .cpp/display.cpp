@@ -28,3 +28,12 @@ void display::push_screen()
 {
     SDL_RenderPresent(renderer);
 }
+
+void display::update_size()
+{
+    int size_x, size_y;
+    SDL_GetWindowSizeInPixels(window, &size_x, &size_y);
+    size = {(double)size_x, (double)size_y};
+
+    half_size = size / 2.0;
+}

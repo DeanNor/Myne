@@ -46,6 +46,11 @@ bool game::frame()
         {
             return false;
         }
+
+        if (event.type = SDL_EVENT_WINDOW_RESIZED)
+        {
+            game_window->update_size();
+        }
     }
 
     Uint64 ticks = SDL_GetTicks() - total_ticks;
@@ -139,17 +144,19 @@ void game::collision_process()
 
 void game::draw()
 {
+    pos origin = game_window->center - game_window->half_size;
     for (DrawObj* object : draws)
     {
-        object->draw();
+        object->draw(origin);
     }
 }
 
 void game::draw_overlay()
 {
+    pos origin = game_window->center - game_window->half_size;
     for (BlendObj* object : overlay_draws)
     {
-        object->draw_overlay();
+        object->draw_overlay(origin);
     }
 }
 
