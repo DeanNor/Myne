@@ -112,6 +112,7 @@ public:
 #include <fstream>
 #include <filesystem>
 #include <map>
+#include <unordered_set>
 
 namespace AUTOGEN
 {
@@ -132,7 +133,7 @@ namespace AUTOGEN
 
     std::string get_class_in_file(std::string file, std::string search_term, size_t& end, size_t start = 0ul);
     
-    void create_domain_file(std::vector<std::string> type_names); // Creates a file that contains creator functions for all classes in the project
+    void create_domain_file(std::unordered_set<std::string> type_names); // Creates a file that contains creator functions for all classes in the project
 
     void create_include_file(std::vector<std::string> files); // Creates a file that contains the includes for the domain file
 
@@ -140,12 +141,12 @@ namespace AUTOGEN
     {
         std::vector<std::string> names;
         std::vector<std::ifstream> search_files = recursive_find_files(std::filesystem::current_path(), names);
-        std::vector<std::string> classes;
+        std::unordered_set<std::string> classes;
 
         size_t end = 0ul, end2 = 0ul;
-        while (false) // for search files
+        for (std::ifstream& file : search_files)
         {
-            std::string file_contents = "HI"; // Read file into file_contents
+            std::string file_contents = std::string((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
             
             while (!(end == file_contents.npos && end2 == file_contents.npos))
             {
@@ -158,15 +159,13 @@ namespace AUTOGEN
 
                 if (class_string.size() != 0ul)
                 {
-                    classes.push_back(class_string);
+                    classes.emplace(class_string);
                 }
             }
 
             end = 0ul;
             end2 = 0ul;
         }
-
-        // Remove duplicates from classes
 
         std::filesystem::create_directory(".autogen");
 
@@ -198,6 +197,7 @@ namespace AUTOGEN
 
             else if (entry_filename.extension() == ".hpp")
             {
+                names.push_back(entry.path());
                 search_files.push_back(std::ifstream(entry.path()));
             }
         }
@@ -229,7 +229,7 @@ namespace AUTOGEN
         return class_name;
     }
     
-    void create_domain_file(std::vector<std::string> type_names) // Creates a file that contains creator functions for all classes in the project
+    void create_domain_file(std::unordered_set<std::string> type_names) // Creates a file that contains creator functions for all classes in the project
     {
         std::ofstream header_file(".autogen/domain.hpp");
 
@@ -253,6 +253,8 @@ namespace AUTOGEN
     void create_include_file(std::vector<std::string> files) // Creates a file that contains the includes for the domain file
     {
         std::ofstream include_file(".autogen/include.hpp");
+
+        include_file << "#pragma once\n";
 
         for (std::string file : files)
         {
