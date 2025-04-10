@@ -7,7 +7,7 @@
 
 class CollObj;
 
-struct _joint // Parent Joint Struct
+struct _joint /* Parent Joint Struct */
 {
 public:
     b2JointId collision_joint;

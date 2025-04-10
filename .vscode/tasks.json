@@ -1,0 +1,72 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "type": "shell",
+            "label": "Clean",
+            "command": "C:\\CMake\\bin\\cmake.EXE --build ${workspaceFolder}\\build --config Release --target clean",
+            "group": "build",
+            "problemMatcher": [],
+            "detail": "CMake template clean task"
+        },
+        {
+            "type": "cmake",
+            "label": "CMake: clean",
+            "command": "clean",
+            "targets": [
+                "clean"
+            ],
+            "group": "build",
+            "problemMatcher": [],
+            "detail": "CMake template clean task"
+        },
+        {
+            "type": "shell",
+            "label": "Incredibuild build Solution",
+            "command": "buildconsole /command='C:\\CMake\\bin\\cmake.EXE --build ${workspaceFolder}\\build --config Release --target ALL_BUILD -j 100'",
+            "group": "build",
+            "problemMatcher": [],
+            "detail": "CMake template build task"
+        },
+        {
+            "type": "cmake",
+            "label": "CMake: build",
+            "command": "build",
+            "targets": [
+                "ALL_BUILD"
+            ],
+            "group": "build",
+            "problemMatcher": [],
+            "detail": "CMake template build task"
+        },
+        {
+            "type": "shell",
+            "label": "Incredibuild build Project",
+            "command": "buildconsole /command='C:\\CMake\\bin\\cmake.EXE --build ${workspaceFolder}\\build --config Release --target BlendThumb -j 100'",
+            "group": "build",
+            "problemMatcher": [],
+            "detail": "CMake template build task"
+        },
+        {
+            "type": "cmake",
+            "label": "CMake: build",
+            "command": "build",
+            "targets": [
+                "BlendThumb"
+            ],
+            "group": "build",
+            "problemMatcher": [],
+            "detail": "CMake template build task"
+        },
+        {
+            "label": "Incredibuild Rebuild Solution",
+            "dependsOrder": "sequence",
+            "dependsOn": ["Clean", "Incredibuild build Solution"]
+        },
+        {
+            "label": "Incredibuild Rebuild Project",
+            "dependsOrder": "sequence",
+            "dependsOn": ["Clean", "Incredibuild build Project"]
+        }
+    ] 
+}

@@ -109,11 +109,167 @@ public:
     }
 };
 
+#include <fstream>
+#include <filesystem>
+#include <map>
+
+namespace AUTOGEN
+{
+    /*
+    Finds any .hpp file with a class or struct in it, to comment out a class or struct, put a comment flag around it, such as
+        class //
+        A
+    or
+        class / ** /
+        B
+    */
+
+    void find_and_create_domain();
+
+    std::vector<std::ifstream> recursive_find_files(std::filesystem::path path, std::vector<std::string>& names);
+
+    void recursive_find_files(std::vector<std::ifstream>& search_files, std::filesystem::path path, std::vector<std::string>& names);
+
+    std::string get_class_in_file(std::string file, std::string search_term, size_t& end, size_t start = 0ul);
+    
+    void create_domain_file(std::vector<std::string> type_names); // Creates a file that contains creator functions for all classes in the project
+
+    void create_include_file(std::vector<std::string> files); // Creates a file that contains the includes for the domain file
+
+    void find_and_create_domain()
+    {
+        std::vector<std::string> names;
+        std::vector<std::ifstream> search_files = recursive_find_files(std::filesystem::current_path(), names);
+        std::vector<std::string> classes;
+
+        size_t end = 0ul, end2 = 0ul;
+        while (false) // for search files
+        {
+            std::string file_contents = "HI"; // Read file into file_contents
+            
+            while (!(end == file_contents.npos && end2 == file_contents.npos))
+            {
+                std::string class_string = get_class_in_file(file_contents, "class ", end, end);
+            
+                if (end == file_contents.npos)
+                {
+                    class_string = get_class_in_file(file_contents, "struct ", end2, end2);
+                }
+
+                if (class_string.size() != 0ul)
+                {
+                    classes.push_back(class_string);
+                }
+            }
+
+            end = 0ul;
+            end2 = 0ul;
+        }
+
+        // Remove duplicates from classes
+
+        std::filesystem::create_directory(".autogen");
+
+        create_include_file(names);
+        create_domain_file(classes);
+    }
+
+    std::vector<std::ifstream> recursive_find_files(std::filesystem::path path, std::vector<std::string>& names)
+    {
+        std::vector<std::ifstream> files;
+
+        recursive_find_files(files, path, names);
+
+        return files;
+    }
+
+    void recursive_find_files(std::vector<std::ifstream>& search_files, std::filesystem::path path, std::vector<std::string>& names)
+    {
+        for (const std::filesystem::__cxx11::directory_entry& entry : std::filesystem::directory_iterator(path))
+        {
+            std::filesystem::__cxx11::path entry_filename = entry.path().filename();
+            if (entry.is_directory())
+            {
+                if (!(entry_filename == "build" || entry_filename == ".git" || entry_filename == ".vscode" || entry_filename == ".autogen"))
+                {
+                    recursive_find_files(search_files, entry.path(), names);
+                }
+            }
+
+            else if (entry_filename.extension() == ".hpp")
+            {
+                search_files.push_back(std::ifstream(entry.path()));
+            }
+        }
+    }
+
+    std::string get_class_in_file(std::string file, std::string search_term, size_t& end, size_t start)
+    {
+        end = file.find(search_term, start);
+        
+        std::string class_name;
+        if (end != file.npos)
+        {
+            end += search_term.size();
+            char at = file.at(end++);
+
+            while (at != '{' && at != ':' && at != ';' && at != '/' && end != file.size())
+            {
+                if (at != '\n' && at != ' ')
+                {
+                    class_name += at;
+                }
+
+                at = file.at(end);
+
+                ++end;
+            }
+        }
+
+        return class_name;
+    }
+    
+    void create_domain_file(std::vector<std::string> type_names) // Creates a file that contains creator functions for all classes in the project
+    {
+        std::ofstream header_file(".autogen/domain.hpp");
+
+        std::ofstream cpp_file(".autogen/domain.cpp");
+
+        header_file << "#pragma once\n#include \"include.hpp\"\n";
+        cpp_file << "#include \"domain.hpp\"\n";
+
+        for (std::string class_name : type_names)
+        {
+            std::string function_def = class_name + "* get_" + class_name + "()";
+            header_file << function_def << ";\n";
+
+            cpp_file << function_def << "{return new " << class_name << ";}\n";
+        }
+
+        header_file.close();
+        cpp_file.close();
+    }
+
+    void create_include_file(std::vector<std::string> files) // Creates a file that contains the includes for the domain file
+    {
+        std::ofstream include_file(".autogen/include.hpp");
+
+        for (std::string file : files)
+        {
+            include_file << "#include \"" << file << "\"\n";
+        }
+
+        include_file.close();
+    }
+}
+
 int main()
 {
     game gameplay;
     set_current_game(&gameplay);
     gameplay.physics = false;
+
+    AUTOGEN::find_and_create_domain();
 
     pos window_size = gameplay.game_window->size;
 

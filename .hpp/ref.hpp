@@ -3,7 +3,7 @@
 
 #include <cstddef>
 
-template<typename T> class ref
+template<typename T> struct ref
 {
 public:
     T* internal_data = nullptr;
@@ -13,6 +13,8 @@ public:
     ref() = default;
 
     ref(T* type);
+
+    T* operator->();
 
     constexpr ref<T>& operator=(const ref<T>& other);
 
