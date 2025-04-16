@@ -6,12 +6,23 @@
 #include <box2d/box2d.h>
 
 #include <vector>
-#include <thread>
 
 class Process;
 class DrawObj;
 class BlendObj;
 class CollObj;
+
+struct mouse_state
+{
+public:
+    pos position;
+
+    bool down = false;
+
+    mouse_state() = default;
+
+    mouse_state(const mouse_state&) = delete;
+};
 
 struct game
 {
@@ -36,6 +47,8 @@ struct game
     Uint64 total_ticks = 0; // Internal clock
 
     int coll_iterations = 4;
+
+    mouse_state mouse;
 
     game();
 

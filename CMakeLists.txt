@@ -27,6 +27,8 @@ add_executable(${PROJECT_NAME} main.cpp
 
 include_directories(.hpp)
 
+include_directories(Include)
+
 find_library(blend2d NAMES blend2d PATHS /usr/local/lib64/) # Find shared blend2d library
 
 target_link_libraries(${PROJECT_NAME} PUBLIC

@@ -47,11 +47,25 @@ bool game::frame()
             return false;
         }
 
-        if (event.type = SDL_EVENT_WINDOW_RESIZED)
+        else if (event.type == SDL_EVENT_WINDOW_RESIZED)
         {
             game_window->update_size();
         }
+
+        else if (event.type == SDL_EVENT_MOUSE_BUTTON_DOWN)
+        {
+            mouse.down = true;
+        }
+
+        else if (event.type == SDL_EVENT_MOUSE_BUTTON_UP)
+        {
+            mouse.down = false;
+        }
     }
+
+    float x,y;
+    SDL_GetMouseState(&x,&y);
+    mouse.position = {x,y};
 
     Uint64 ticks = SDL_GetTicks() - total_ticks;
     if (ticks < fpsticks)
