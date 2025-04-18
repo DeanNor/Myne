@@ -176,21 +176,6 @@ public:
     }
 };
 
-#include <cereal/cereal.hpp>
-#include <cereal/archives/binary.hpp>
-#include <fstream>
-
-struct A
-{
-    int x = 5,y = 600,z = 0x432;
-
-    template <class Archive>
-    void serialize( Archive & ar )
-    {
-      ar( x, y, z );
-    }
-};
-
 int main()
 {
     game gameplay;
@@ -206,8 +191,7 @@ int main()
     BLContext ctx(img);
     ctx.clearAll();
 
-    BLGradient linear(
-    BLLinearGradientValues(0, 0, 0, 1000));
+    BLGradient linear(BLLinearGradientValues(0, 0, 0, 1000));
     linear.addStop(0.0, BLRgba32(0xFFBBDEF0));
     linear.addStop(1.0, BLRgba32(0xFF324376));
 

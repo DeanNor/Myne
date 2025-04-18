@@ -5,6 +5,8 @@
 
 #include "pos.hpp"
 
+#include <memory>
+
 class Process
 {
 protected:
