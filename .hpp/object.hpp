@@ -1,9 +1,6 @@
 
 #pragma once
 
-#ifndef OBJ_H
-#define OBJ_H
-
 #include "process.hpp"
 
 #include "tfm.hpp"
@@ -12,6 +9,8 @@
 
 class Object: public Process
 {
+REGISTER_OBJECT(Object)
+
 protected:
     pos position;
     rad angle = 0;
@@ -34,6 +33,6 @@ public:
     rad get_angle();
 
     rad get_global_angle();
-};
 
-#endif
+    ARCHIVE(Process, position, angle)
+};

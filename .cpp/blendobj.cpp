@@ -26,7 +26,7 @@ void BlendObj::draw_overlay(pos origin)
         pos glo_pos = global_position.compute() - origin;
         SDL_FRect pos_rect{(float)glo_pos.x,(float)glo_pos.y, (float)size.x, (float)size.y};
 
-        SDL_RenderTexture(window->renderer, texture, nullptr, &pos_rect);
+        SDL_RenderTextureRotated(window->renderer, texture, nullptr, &pos_rect, global_position.compute_angle().deg(), nullptr, SDL_FLIP_NONE);
     }
 }
 

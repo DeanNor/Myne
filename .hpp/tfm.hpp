@@ -15,6 +15,9 @@ private:
     pos past_pos;
     rad past_angle = 0;
 
+    pos par_pos;
+    rad par_angle = 0;
+
 public:
     pos* position = nullptr;
     rad* angle = nullptr;

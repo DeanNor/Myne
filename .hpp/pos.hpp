@@ -9,6 +9,8 @@
 
 #include "rad.hpp"
 
+#include "serial.hpp"
+
 struct pos
 {
 public:
@@ -97,5 +99,7 @@ public:
 
     bool operator!= (const pos& to_compare);
 
-    friend std::ostream& operator<< (std::ostream& os, const pos& convert);    
+    friend std::ostream& operator<< (std::ostream& os, const pos& convert);
+
+    ARCHIVE_BASE(x,y)
 };

@@ -24,6 +24,8 @@ public:
 
 class EditorObj : public BlendObj
 {
+REGISTER_OBJECT(EditorObj)
+
 public:
     std::string represents;
 
@@ -36,6 +38,8 @@ public:
     {
         return represents;
     }
+
+    ARCHIVE(BlendObj, represents);
 };
 
 class Float : public EditorObj
@@ -147,6 +151,8 @@ public:
 
 class Dragable : public EditorObj
 {
+REGISTER_OBJECT(Dragable)
+
 private:
     bool follow = false;
 
@@ -173,8 +179,14 @@ public:
         }
 
         clicked = mse.down;
+
+        angle += 0.03;
     }
+
+    ARCHIVE_INHERIT(EditorObj)
 };
+
+#include <filesystem>
 
 int main()
 {
@@ -184,7 +196,20 @@ int main()
 
     pos window_size = gameplay.game_window->size;
 
-    Dragable* drawer = new Dragable;
+    Dragable* drawer;
+
+    if (std::filesystem::exists("save.json"))
+    {
+        std::ifstream os("save.json");
+        cereal::JSONInputArchive ar(os);
+
+        ProcessFactory::loadFromArchive(ar, drawer);
+    }
+
+    else
+    {
+        drawer = new Dragable;
+    }
 
     BLImage img(500, 1000, BLEND_FORMAT);
 
@@ -205,6 +230,15 @@ int main()
     gameplay.root->add_child(drawer);
 
     gameplay.start();
+    
+    Uint64 tim = SDL_GetTicksNS();
+    {
+        std::ofstream os("save.json");
+        cereal::JSONOutputArchive ar(os);
+
+        ProcessFactory::saveToArchive(ar, drawer);
+    }
+    std::cout << SDL_GetTicksNS() - tim << std::endl;
 
     return 0;
 }

@@ -46,8 +46,13 @@ void Process::remove_child(Process* child)
 
     else
     {
-        std::cout << "Not FOUND for remove child" << std::endl;// Error, object seems already deleted, or the parent is wrong
+        std::cout << "Not FOUND for remove child" << std::endl; // Error, object seems already deleted, or the parent is wrong
     }
+}
+
+Process* Process::get_child(size_t index)
+{
+    return children.at(index);
 }
 
 size_t Process::get_total_children()
@@ -120,3 +125,5 @@ std::string Process::get_name()
 {
     return name;
 }
+
+BASE_INIT(Process)

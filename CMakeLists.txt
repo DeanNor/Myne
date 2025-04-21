@@ -23,7 +23,10 @@ add_executable(${PROJECT_NAME} main.cpp
     .cpp/tfm.cpp
     .cpp/joint.cpp
     .cpp/ref.cpp
+    .cpp/SDL3.cpp
     )
+
+# add_executable(${PROJECT_NAME} other.cpp)
 
 include_directories(.hpp)
 
@@ -31,10 +34,14 @@ include_directories(Include)
 
 find_library(blend2d NAMES blend2d PATHS /usr/local/lib64/) # Find shared blend2d library
 
+find_library(SDL3_image NAMES SDL3_image PATHS /usr/local/lib64/) # Find shared SDL3_image library
+
 target_link_libraries(${PROJECT_NAME} PUBLIC
     SDL3::SDL3
 
     box2d
     
     ${blend2d}
+    
+    ${SDL3_image}
     )

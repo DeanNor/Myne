@@ -42,9 +42,29 @@ void DrawObj::set_sprite(SDL_Texture* bitmap, bool owns_sprite)
     center.y = y / 2.0;
 }
 
+void DrawObj::set_sprite(std::string path)
+{
+    SDL_Surface* surf = IMG_Load(path.c_str());
+
+    SDL_Texture* bmp = SDL_CreateTextureFromSurface(window->renderer, surf);
+    set_sprite(bmp, true);
+
+    SDL_DestroySurface(surf);
+}
+
 SDL_Texture* DrawObj::get_sprite()
 {
     return sprite;
+}
+
+void DrawObj::set_sprite_path(std::string path)
+{
+    sprite_path = path;
+}
+
+std::string DrawObj::get_sprite_path()
+{
+    return sprite_path;
 }
 
 void DrawObj::set_display(display* new_display)

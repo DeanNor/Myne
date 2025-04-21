@@ -7,6 +7,23 @@
 
 class BlendObj : public Object
 {
+REGISTER_OBJECT(BlendObj)
+
+private:
+    friend class cereal::access;
+
+    template <class Archive>
+    void save(Archive& ar) const
+    {
+        ar(cereal::base_class<Object>(this), size, image_size);
+    }
+
+    template <class Archive>
+    void load(Archive& ar)
+    {
+        ar(cereal::base_class<Object>(this), size, image_size);
+    }
+
 protected:
     BLImage image;
 

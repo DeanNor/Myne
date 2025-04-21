@@ -5,6 +5,8 @@
 
 #include <box2d/math_functions.h>
 
+#include "serial.hpp"
+
 struct rad
 {
 public:
@@ -74,4 +76,6 @@ public:
     rad& operator/= (rad amount);
 
     rad& operator/= (double amount);
+
+    ARCHIVE_BASE(radian)
 };

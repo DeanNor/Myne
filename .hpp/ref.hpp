@@ -3,6 +3,8 @@
 
 #include <cstddef>
 
+#include "serial.hpp"
+
 template<typename T> struct ref
 {
 public:
