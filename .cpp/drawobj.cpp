@@ -76,3 +76,44 @@ display* DrawObj::get_display()
 {
     return window;
 }
+
+bool DrawObj::visible()
+{
+    pos window_zero = window->center - window->half_size;
+    pos window_max = window->center + window->half_size;
+
+    pos glo_pos = global_position;
+    if (glo_pos.within(window_zero, window_max))
+    {
+        return true;
+    }
+
+    if (glo_pos.x - center.x < window_zero.x || glo_pos.x + center.x > window_max.x)
+    {
+        return false;
+    }
+
+    if (glo_pos.y - center.y < window_zero.y || glo_pos.y + center.y > window_max.y)
+    {
+        return false;
+    }
+}
+
+bool DrawObj::fully_visible()
+{
+    pos window_zero = window->center - window->half_size;
+    pos window_max = window->center + window->half_size;
+
+    pos glo_pos = global_position;
+    if (glo_pos.x + center.x < window_zero.x || glo_pos.x - center.x > window_max.x)
+    {
+        return false;
+    }
+
+    if (glo_pos.y + center.y < window_zero.y || glo_pos.y - center.y > window_max.y)
+    {
+        return false;
+    }
+
+    return true;
+}

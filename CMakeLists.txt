@@ -24,6 +24,7 @@ add_executable(${PROJECT_NAME} main.cpp
     .cpp/joint.cpp
     .cpp/ref.cpp
     .cpp/SDL3.cpp
+    .cpp/hull.cpp
     )
 
 # add_executable(${PROJECT_NAME} other.cpp)
@@ -45,3 +46,5 @@ target_link_libraries(${PROJECT_NAME} PUBLIC
     
     ${SDL3_image}
     )
+
+target_compile_options(${PROJECT_NAME} PUBLIC -Wall -Wextra -pedantic)

@@ -106,7 +106,7 @@ typedef ObjFactory<Process> ProcessFactory;
 
 #define REGISTER_OBJECT(type) \
 public: \
-    virtual std::string _get_type_name() const { return #type; } \
+    virtual std::string _get_type_name() const { return std::string(#type); } \
 private: \
     static bool _register_##type() { \
         ProcessFactory::registerType(#type, []() -> type* { return new type(); }); \

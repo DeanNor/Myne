@@ -7,6 +7,7 @@
 
 #include "serial.hpp"
 
+// Radian type, auto looping
 struct rad
 {
 public:
@@ -79,3 +80,6 @@ public:
 
     ARCHIVE_BASE(radian)
 };
+
+// Degree to radian
+rad drad(double degree);

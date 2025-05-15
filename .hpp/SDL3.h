@@ -7,6 +7,6 @@
 
 #include <string>
 
-void save_img(SDL_Texture* texture, std::string name);
+void save_img(SDL_Texture* texture, SDL_Renderer* renderer, std::string name);
 
 void load_img(SDL_Texture* texture, SDL_Renderer* renderer, std::string name);

@@ -10,8 +10,6 @@
 
 game::game()
 {
-    bool error = false;
-
     if (!SDL_Init(SDL_INIT_VIDEO))
     {
         std::cout << "HUH INIT FAIL?" << std::endl;
@@ -63,10 +61,6 @@ bool game::frame()
         }
     }
 
-    float x,y;
-    SDL_GetMouseState(&x,&y);
-    mouse.position = {x,y};
-
     Uint64 ticks = SDL_GetTicks() - total_ticks;
     if (ticks < fpsticks)
     {
@@ -74,8 +68,13 @@ bool game::frame()
         SDL_Delay(fpsticks - ticks);
     }
     total_ticks = SDL_GetTicks();
+
+    float x,y;
+    SDL_GetMouseState(&x,&y);
+    mouse.position = {x,y};
+
+    //                                          Uint64 tim = SDL_GetTicksNS();
     
-    //                                      Uint64 tim = SDL_GetTicksNS();
     process();
     
     if (physics)
@@ -87,11 +86,13 @@ bool game::frame()
     draw();
 
     draw_overlay();
+
+    //                                          std::cout << 1 / ((double)(SDL_GetTicksNS() - tim) / 1000000000) << std::endl; // Potential FPS
+
     game_window->push_screen();
 
 
     end_delete();
-    //                                      std::cout << 1 / ((double)(SDL_GetTicksNS() - tim) / 1000000000) << std::endl; // Potential FPS
 
     return running;
 }
@@ -102,6 +103,12 @@ void game::start()
 
     delete game_window;
     game_window = nullptr;
+
+    #ifdef DEL_ON_END
+    // Delete all currently active objects
+    root->start_delete();
+    end_delete();
+    #endif
 }
 
 void game::process()

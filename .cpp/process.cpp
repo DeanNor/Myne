@@ -16,7 +16,7 @@ void Process::_process(double delta)
     process_children(delta);
 }
 
-void Process::process(double delta)
+void Process::process(double)
 {
     return;
 }

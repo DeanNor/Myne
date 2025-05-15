@@ -55,6 +55,11 @@ BLImage BlendObj::get_image()
     return image;
 }
 
+SDL_Texture* BlendObj::get_texture()
+{
+    return texture;
+}
+
 void BlendObj::set_size(pos new_size)
 {
     size = new_size;

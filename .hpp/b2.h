@@ -1,8 +1,10 @@
 #pragma once
 
 #include <box2d/box2d.h>
+#include <box2d/types.h>
+#include <box2d/math_functions.h>
 
-const float B2_SCALE = 6.0f; // Difference between b2 positions and my positions
+const float B2_SCALE = 6.0f; // Scale between b2 positions and object positions
 const float B2_MAX_MOVEMENT = 500.0f;
 
 inline void b2Init()

@@ -47,6 +47,8 @@ public:
 
     BLImage get_image();
 
+    SDL_Texture* get_texture();
+
     void set_size(pos new_size);
 
     pos get_size();

@@ -204,3 +204,8 @@ rad& rad::operator/= (double amount)
 
     return *this;
 }
+
+rad drad(double degree)
+{
+    return rad(degree / TO_DEG);
+}

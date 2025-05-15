@@ -9,12 +9,11 @@ class DrawObj : public Object
 {
 REGISTER_OBJECT(DrawObj)
 
-private:
-    friend class cereal::access;
-
+public:
     template <class Archive>
     void load(Archive& ar)
     {
+        ar(cereal::base_class<Object>(this));
         ar(center, scale, ownership);
 
         if (ownership)
@@ -28,6 +27,7 @@ private:
     template <class Archive>
     void save(Archive& ar) const
     {
+        ar(cereal::base_class<Object>(this));
         ar(center, scale, ownership);
 
         if (ownership)
@@ -67,4 +67,8 @@ public:
     void set_display(display* new_display);
 
     display* get_display();
+
+    bool visible();
+
+    bool fully_visible();
 };

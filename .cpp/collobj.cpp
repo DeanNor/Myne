@@ -132,22 +132,22 @@ void CollObj::SensorEnd(b2ShapeId sensor, b2ShapeId visitor)
     }
 }
 
-void CollObj::collide_begin(CollObj* other)
+void CollObj::collide_begin(CollObj*)
 {
     return;
 }
 
-void CollObj::collide_end(CollObj* other)
+void CollObj::collide_end(CollObj*)
 {
     return;
 }
 
-void CollObj::sensor_begin(CollObj* other)
+void CollObj::sensor_begin(CollObj*)
 {
     return;
 }
 
-void CollObj::sensor_end(CollObj* other)
+void CollObj::sensor_end(CollObj*)
 {
     return;
 }

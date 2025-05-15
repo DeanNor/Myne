@@ -48,7 +48,7 @@ protected:
 
     std::vector<Process*> children = {};
 
-    std::string name;
+    std::string name = std::string{"Undefined"};
 
     bool to_delete = false;
 

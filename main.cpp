@@ -4,241 +4,133 @@
 #include "blendobj.hpp"
 #include "collobj.hpp"
 #include "joint.hpp"
+#include "editorstuff.hpp"
 
-struct rect
+#include <iostream>
+#include <fstream>
+
+
+// USER DEFINED STUFF ISH
+#define HUH 10000
+
+class StaticObj : public CollObj
 {
+REGISTER_OBJECT(StaticObj)
+
+ARCHIVE_INHERIT(CollObj)
+
 public:
-    pos zero;
-    pos max;
-
-    bool is_inside(pos point)
+    StaticObj()
     {
-        return (point.x > zero.x) && (point.y > zero.y) && (point.x < max.x) && (point.y < max.y);
-    }
+        collision_def.type = b2_staticBody;
+        collision_body = b2CreateBody(get_current_coll_world(), &collision_def);
 
-    bool is_inside(pos point, pos offset)
-    {
-        return (point.x > zero.x + offset.x) && (point.y > zero.y + offset.y) && (point.x < max.x + offset.x) && (point.y < max.y + offset.y);
+        b2Polygon box3 = b2MakeOffsetBox(HUH,HUH, pos(HUH, 500 + HUH), b2MakeRot(0));
+
+        b2ShapeDef shapedef = b2DefaultShapeDef();
+
+        b2CreatePolygonShape(collision_body, &shapedef, &box3);
     }
 };
 
-class EditorObj : public BlendObj
+float size = 6.0f;
+
+class DynamObj : public CollObj
 {
-REGISTER_OBJECT(EditorObj)
-
 public:
-    std::string represents;
-
-    void set_representation(std::string new_class)
+    DynamObj()
     {
-        represents = new_class;
-    }
+        collision_def.type = b2_dynamicBody;
 
-    std::string get_representation()
-    {
-        return represents;
-    }
+        collision_body = b2CreateBody(get_current_coll_world(), &collision_def);
 
-    ARCHIVE(BlendObj, represents);
-};
-
-class Float : public EditorObj
-{
-protected:
-    pos offset;
-
-    pos normal;
-
-    display* window = nullptr;
-
-public:
-    Float()
-    {
-        window = get_current_game()->game_window;
-        normal = window->size;
-    }
-
-    virtual void _process(double delta)
-    {
-        BlendObj::_process(delta);
-
-        pos window_zero = window->center - window->half_size;
-        position = window_zero + offset.scaled(normal, window->size);
-
-        if (global_position.parent != nullptr)
-        {
-            position -= *global_position.parent->position;
-        }
-    }
-
-    void set_position(pos new_position) = delete;
-
-    void set_offset(pos new_offset)
-    {
-        offset = new_offset;
-    }
-
-    pos get_offset()
-    {
-        return offset;
-    }
-
-    pos get_normal()
-    {
-        return normal;
-    }
-};
-
-class FloatScaled : public Float // Size is more of a readable value than usable, use scale instead
-{
-protected:
-    pos scale;
-
-    bool parent_scope = false;
-    BlendObj* scalar_parent = nullptr;
-
-public:
-    virtual void _process(double delta)
-    {
-        Float::_process(delta);
-
-        if (parent_scope)
-        {
-            size = scale.scaled(normal, scalar_parent->get_size());
-        }
+        b2Polygon box = b2MakeBox(size, size);
         
-        else
-        {
-            size = scale.scaled(normal, window->size);
-        }
-    }
+        b2ShapeDef fixtureDef = b2DefaultShapeDef();
+        fixtureDef.density = 1;
+        fixtureDef.friction = 1;
+        fixtureDef.restitution = 0.4;
 
-    void set_parent(Process* new_parent)
-    {
-        Float::set_parent(new_parent);
-
-        BlendObj* par = dynamic_cast<BlendObj*>(parent);
-        scalar_parent = par;
-
-        if (scalar_parent != nullptr)
-        {
-            parent_scope = false;
-        }
-    }
-
-    void set_normal(pos new_normal)
-    {
-        normal = new_normal;
-    }
-
-    pos get_normal()
-    {
-        return normal;
-    }
-
-    void set_size(pos) = delete;
-
-    void set_scale(pos new_scale)
-    {
-        scale = new_scale;
-    }
-
-    pos get_scale()
-    {
-        return scale;
+        b2CreatePolygonShape(collision_body, &fixtureDef, &box);
     }
 };
 
-class Dragable : public EditorObj
+class Mouse : public CollObj
 {
-REGISTER_OBJECT(Dragable)
-
-private:
-    bool follow = false;
-
-    bool clicked = false;
-
-    static constexpr double CLOSE = 10.0;
-    rect close_enough = {{-CLOSE,-CLOSE},{CLOSE,CLOSE}};
-
 public:
+    Mouse()
+    {
+        collision_def.type = b2_kinematicBody;
+        collision_def.isBullet = true;
+
+        collision_body = b2CreateBody(get_current_coll_world(), &collision_def);
+
+        b2Circle circ;
+        circ.radius = size;
+
+        b2ShapeDef def = b2DefaultShapeDef();
+
+        b2CreateCircleShape(collision_body, &def, &circ);
+    }
+
     void process(double)
     {
-        mouse_state& mse = get_current_game()->mouse;
-        pos updated_pos = mse.position - size / 2.0;
+        float x,y;
 
-        if (follow)
-        {
-            follow = mse.down;
-            position = updated_pos;
-        }
+        SDL_GetMouseState(&x,&y);
 
-        else if (mse.down && !clicked && close_enough.is_inside(updated_pos, position))
-        {
-            follow = true;
-        }
-
-        clicked = mse.down;
-
-        angle += 0.03;
+        if (x != 0 && y != 0) b2Body_SetLinearVelocity(collision_body, b2Vec2{(x - (float)position.x) * 60.0f, (y - (float)position.y) * 60.0f});
     }
-
-    ARCHIVE_INHERIT(EditorObj)
 };
-
-#include <filesystem>
 
 int main()
 {
     game gameplay;
     set_current_game(&gameplay);
-    gameplay.physics = false;
 
-    pos window_size = gameplay.game_window->size;
+    b2Init();
+    
+    b2WorldDef def = WorldDef(pos(0,30));
+    b2WorldId world = b2CreateWorld(&def);
 
-    Dragable* drawer;
+    set_current_coll_world(world);
+    gameplay.coll_world = world;
 
-    if (std::filesystem::exists("save.json"))
+    StaticObj* obj = new StaticObj;
+
+    Process* root_obj = new Process;
+
+    SDL_Surface* surf = SDL_LoadBMP("sample2.bmp");
+
+    SDL_Texture* text = SDL_CreateTextureFromSurface(gameplay.game_window->renderer,surf);
+    SDL_DestroySurface(surf);
+
+    for (int x = 0; x < 100; x++)
     {
-        std::ifstream os("save.json");
-        cereal::JSONInputArchive ar(os);
+        DynamObj* dyn = new DynamObj;
 
-        ProcessFactory::loadFromArchive(ar, drawer);
+        dyn->set_position({400,-10.0 * x});
+
+        DrawObj* drawer = new DrawObj;
+        dyn->add_child(drawer);
+
+        drawer->set_sprite(text, false);
+
+        root_obj->add_child(dyn);
     }
 
-    else
-    {
-        drawer = new Dragable;
-    }
+    gameplay.root->add_child(obj);
 
-    BLImage img(500, 1000, BLEND_FORMAT);
-
-    BLContext ctx(img);
-    ctx.clearAll();
-
-    BLGradient linear(BLLinearGradientValues(0, 0, 0, 1000));
-    linear.addStop(0.0, BLRgba32(0xFFBBDEF0));
-    linear.addStop(1.0, BLRgba32(0xFF324376));
-
-    ctx.fillRect(
-    BLRect(0, 0, 500, 1000), linear);
-    ctx.end();
-
-    drawer->set_image(img);
-    drawer->set_size({40,40});
-
-    gameplay.root->add_child(drawer);
+    gameplay.root->add_child(root_obj);
 
     gameplay.start();
-    
-    Uint64 tim = SDL_GetTicksNS();
-    {
-        std::ofstream os("save.json");
-        cereal::JSONOutputArchive ar(os);
 
-        ProcessFactory::saveToArchive(ar, drawer);
+    {
+        std::ofstream fil("of.json");
+        cereal::JSONOutputArchive os(fil);
+
+        ProcessFactory::saveToArchive(os, root_obj);
     }
-    std::cout << SDL_GetTicksNS() - tim << std::endl;
 
     return 0;
 }

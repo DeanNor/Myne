@@ -5,13 +5,19 @@
 
 #include "b2.h"
 
+#include "hull.hpp"
+
 class CollObj : public Object
 {
+REGISTER_OBJECT(CollObj)
+
 protected:
     b2BodyId collision_body;
     b2BodyDef collision_def;
 
     bool body_ownership = true;
+
+    std::string hull_path = "";
 
 public:
     CollObj();
@@ -52,4 +58,49 @@ public:
     virtual void sensor_begin(CollObj* other);
 
     virtual void sensor_end(CollObj* other);
+
+    template <class Archive>
+    void load(Archive& ar)
+    {
+        ar(cereal::base_class<Object>(this));
+        
+        ar(hull_path);
+
+        if (hull_path.size() > 0)
+        {
+            hull obj_hull;
+            obj_hull.load(hull_path);
+        }
+
+        collision_def = b2DefaultBodyDef();
+
+        std::string def_name;
+        pos def_position;
+        rad def_rotation;
+
+        ar(collision_def.allowFastRotation, collision_def.angularDamping, collision_def.angularVelocity, collision_def.enableSleep, collision_def.fixedRotation, collision_def.gravityScale, collision_def.isAwake, collision_def.isBullet, collision_def.isEnabled, collision_def.linearDamping, def_name, def_position, def_rotation, collision_def.sleepThreshold, collision_def.type);
+
+        // Non-auto-typed stuff
+        collision_def.name = def_name.c_str();
+        collision_def.position = def_position;
+        collision_def.rotation = def_rotation;
+    }
+
+    template <class Archive>
+    void save(Archive& ar) const
+    {
+        ar(cereal::base_class<Object>(this));
+        
+        ar(hull_path);
+
+        ar(collision_def.allowFastRotation, collision_def.angularDamping, collision_def.angularVelocity, collision_def.enableSleep, collision_def.fixedRotation, collision_def.gravityScale, collision_def.isAwake, collision_def.isBullet, collision_def.isEnabled, collision_def.linearDamping);
+        
+        if (collision_def.name != nullptr && strlen(collision_def.name) != 0)
+        {
+            ar(std::string(collision_def.name));
+        }
+        else ar(std::string(""));
+
+        ar(pos(collision_def.position), rad(collision_def.rotation), collision_def.sleepThreshold, collision_def.type);
+    }
 };
