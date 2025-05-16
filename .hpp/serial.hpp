@@ -32,7 +32,6 @@ namespace __ARCHIVE
 
             else
             {
-                std::cout << "HI" << std::endl;
                 json_serializer(archive, what);
             }
         }
@@ -174,7 +173,9 @@ template <typename T>
 T* ObjFactory<T>::create(const std::string& name)
 {
     auto it = get_map().find(name);
+
     if (it != get_map().end()) return (it->second)();
+
     throw std::runtime_error("Unknown type: " + name);
 }
 
@@ -185,11 +186,16 @@ void ObjFactory<T>::saveToArchive(Archive& archive, T* what)
     std::string typeName = what->_get_type_name();
     archive(typeName);
 
-    auto& serializer_map = get_serializer_map();
+    std::unordered_map<std::string, __ARCHIVE::serializer<T>>& serializer_map = get_serializer_map();
     auto it = serializer_map.find(typeName);
-    if (it != serializer_map.end()) {
+
+    if (it != serializer_map.end())
+    {
         it->second.use_serializer(archive, what);
-    } else {
+    }
+    
+    else
+    {
         throw std::runtime_error("No serializer registered for type: " + typeName);
     }
 }
@@ -203,7 +209,7 @@ void ObjFactory<T>::loadFromArchive(Archive& archive, C*& what)
 
     T* temp = create(type);
 
-    auto& serializer_map = get_serializer_map();
+    std::unordered_map<std::string, __ARCHIVE::serializer<T>>& serializer_map = get_serializer_map();
     auto it = serializer_map.find(type);
     
     if (it != serializer_map.end())
@@ -217,6 +223,8 @@ void ObjFactory<T>::loadFromArchive(Archive& archive, C*& what)
     }
 
     what = static_cast<C*>(temp);
+
+    what->on_load();
 }
 
 // TODO combine these into one object, probably fit the bottom into __ARCHIVE::serializer<T>

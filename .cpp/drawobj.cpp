@@ -97,6 +97,8 @@ bool DrawObj::visible()
     {
         return false;
     }
+
+    return true;
 }
 
 bool DrawObj::fully_visible()

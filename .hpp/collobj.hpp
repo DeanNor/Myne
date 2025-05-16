@@ -59,6 +59,7 @@ public:
 
     virtual void sensor_end(CollObj* other);
 
+    // TODO decide if this should create the physics body and if it should store a physics body
     template <class Archive>
     void load(Archive& ar)
     {
@@ -75,15 +76,18 @@ public:
         collision_def = b2DefaultBodyDef();
 
         std::string def_name;
-        pos def_position;
-        rad def_rotation;
+        pos def_position, def_vel;
+        rad def_rotation, def_rot_vel;
 
-        ar(collision_def.allowFastRotation, collision_def.angularDamping, collision_def.angularVelocity, collision_def.enableSleep, collision_def.fixedRotation, collision_def.gravityScale, collision_def.isAwake, collision_def.isBullet, collision_def.isEnabled, collision_def.linearDamping, def_name, def_position, def_rotation, collision_def.sleepThreshold, collision_def.type);
+        ar(collision_def.allowFastRotation, collision_def.angularDamping, collision_def.enableSleep, collision_def.fixedRotation, collision_def.gravityScale, collision_def.isAwake, collision_def.isBullet, collision_def.isEnabled, collision_def.linearDamping, def_name, def_position, def_rotation, def_vel, def_rot_vel, collision_def.sleepThreshold, collision_def.type);
 
         // Non-auto-typed stuff
         collision_def.name = def_name.c_str();
         collision_def.position = def_position;
         collision_def.rotation = def_rotation;
+
+        collision_def.linearVelocity = def_vel;
+        collision_def.angularVelocity = def_rot_vel;
     }
 
     template <class Archive>
@@ -93,7 +97,7 @@ public:
         
         ar(hull_path);
 
-        ar(collision_def.allowFastRotation, collision_def.angularDamping, collision_def.angularVelocity, collision_def.enableSleep, collision_def.fixedRotation, collision_def.gravityScale, collision_def.isAwake, collision_def.isBullet, collision_def.isEnabled, collision_def.linearDamping);
+        ar(collision_def.allowFastRotation, collision_def.angularDamping, collision_def.enableSleep, collision_def.fixedRotation, collision_def.gravityScale, collision_def.isAwake, collision_def.isBullet, collision_def.isEnabled, collision_def.linearDamping);
         
         if (collision_def.name != nullptr && strlen(collision_def.name) != 0)
         {
@@ -101,6 +105,18 @@ public:
         }
         else ar(std::string(""));
 
-        ar(pos(collision_def.position), rad(collision_def.rotation), collision_def.sleepThreshold, collision_def.type);
+        ar(pos(collision_def.position), rad(collision_def.rotation));
+        
+        if (b2Body_IsValid(collision_body))
+        {
+            ar(pos(b2Body_GetLinearVelocity(collision_body)), rad(b2Body_GetAngularVelocity(collision_body)));
+        }
+        
+        else
+        {
+            ar(pos(collision_def.linearVelocity), rad(collision_def.angularVelocity));
+        }
+        
+        ar(collision_def.sleepThreshold, collision_def.type);
     }
 };

@@ -37,8 +37,12 @@ float size = 6.0f;
 
 class DynamObj : public CollObj
 {
+REGISTER_OBJECT(DynamObj)
+
+ARCHIVE_INHERIT(CollObj)
+
 public:
-    DynamObj()
+    void on_load()
     {
         collision_def.type = b2_dynamicBody;
 
@@ -57,6 +61,10 @@ public:
 
 class Mouse : public CollObj
 {
+REGISTER_OBJECT(Mouse)
+
+ARCHIVE_INHERIT(CollObj)
+
 public:
     Mouse()
     {
@@ -98,13 +106,25 @@ int main()
 
     StaticObj* obj = new StaticObj;
 
-    Process* root_obj = new Process;
-
     SDL_Surface* surf = SDL_LoadBMP("sample2.bmp");
 
     SDL_Texture* text = SDL_CreateTextureFromSurface(gameplay.game_window->renderer,surf);
     SDL_DestroySurface(surf);
 
+    Process* root_obj;
+    {
+        std::ifstream inf("of.json");
+        cereal::JSONInputArchive ia(inf);
+        
+        ProcessFactory::loadFromArchive(ia, root_obj);
+
+        for (Process* child : root_obj->get_children())
+        {
+            ((DrawObj*)child->get_child(0))->set_sprite(text, false);
+        }
+    }
+
+    /*Process* root_obj = new Process;
     for (int x = 0; x < 100; x++)
     {
         DynamObj* dyn = new DynamObj;
@@ -117,7 +137,7 @@ int main()
         drawer->set_sprite(text, false);
 
         root_obj->add_child(dyn);
-    }
+    }*/
 
     gameplay.root->add_child(obj);
 

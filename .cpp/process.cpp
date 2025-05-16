@@ -9,6 +9,11 @@ Process::~Process()
     }
 }
 
+void Process::on_load()
+{
+
+}
+
 void Process::_process(double delta)
 {
     process(delta);
@@ -53,6 +58,11 @@ void Process::remove_child(Process* child)
 Process* Process::get_child(size_t index)
 {
     return children.at(index);
+}
+
+std::vector<Process*> Process::get_children()
+{
+    return children;
 }
 
 size_t Process::get_total_children()
