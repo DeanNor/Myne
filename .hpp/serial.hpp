@@ -14,6 +14,10 @@
 
 #define max_t uint64_t
 
+// Creates, saves, and loads objects. Loaded objects must have their associated macros, see below, and a void on_load() function
+// For stuff that needs to be created, as in not loaded from a file, using both the constructor and the on_load() function, use the static 
+    // *::create() function
+
 namespace __ARCHIVE
 {
     template <typename T>
@@ -103,9 +107,12 @@ private:
 class Process;
 typedef ObjFactory<Process> ProcessFactory;
 
+#define NAME_TYPE(type) virtual std::string _get_type_name() const { return std::string(#type); } \
+
 #define REGISTER_OBJECT(type) \
 public: \
-    virtual std::string _get_type_name() const { return std::string(#type); } \
+    NAME_TYPE(type)\
+    static type* create() {type* t = new type; t->on_load(); return t;} \
 private: \
     static bool _register_##type() { \
         ProcessFactory::registerType(#type, []() -> type* { return new type(); }); \
@@ -121,7 +128,8 @@ private: \
 
 #define REGISTER_CLASS(type, base_class) \
 public: \
-    virtual std::string _get_type_name() const { return #type; } \
+    NAME_TYPE(type)\
+    static type* create() const {type* t = new type; t->on_load(); return t;} \
 private: \
     static bool _register_##type() { \
         ObjFactory<base_class>::registerType(#type, []() -> type* { return new type(); }); \
@@ -196,7 +204,7 @@ void ObjFactory<T>::saveToArchive(Archive& archive, T* what)
     
     else
     {
-        throw std::runtime_error("No serializer registered for type: " + typeName);
+        throw std::runtime_error("No serializer registered for type: " + typeName); // TODO ai bad
     }
 }
 

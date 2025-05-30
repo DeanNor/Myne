@@ -27,6 +27,12 @@ public:
     tfm(pos* new_position, rad* new_angle);
     tfm(pos* new_position, rad* new_angle, tfm* new_parent);
 
+    // Very basic math functions, the position should be separated for anything else, see efficiency rant
+    void add(pos other);
+    void subt(pos other);
+    void mult(pos other);
+    void div(pos other);
+
     bool has_changed();
 
     pos compute();

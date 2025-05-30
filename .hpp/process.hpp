@@ -49,7 +49,9 @@ public:
 
     Process* get_parent();
 
-    void start_delete();
+    void start_delete(); // Starts and queues deletion for the end of the frame _Safe_
+
+    void del(); // Immediately deletes the object _Extrodinarily Unsafe_ when the object is in the call tree and should only be called outside of the main loop or on parentless objects in the process function
 
     bool is_to_delete();
 

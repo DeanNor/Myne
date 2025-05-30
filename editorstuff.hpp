@@ -1,32 +1,159 @@
 #pragma once
 
-struct rect
+class Presenter;
+
+struct editor : public game
 {
 public:
-    pos zero;
-    pos max;
+    Presenter* middle_box; // Da ting in the middle of the screen
 
-    bool is_inside(pos point)
+    editor();
+
+    virtual bool frame();
+};
+
+editor* editing_thing = nullptr;
+
+void set_editor(editor* thing_that_edits)
+{
+    editing_thing = thing_that_edits;
+}
+
+editor* get_editor()
+{
+    return editing_thing;
+}
+
+class Window : public Object
+{
+public:
+    SDL_Texture* screen;
+    SDL_Renderer* renderer;
+
+    Window()
     {
-        return (point.x > zero.x) && (point.y > zero.y) && (point.x < max.x) && (point.y < max.y);
+        renderer = get_current_game()->game_window->renderer;
     }
 
-    bool is_inside(pos point, pos offset)
+    Window(pos size)
     {
-        return (point.x > zero.x + offset.x) && (point.y > zero.y + offset.y) && (point.x < max.x + offset.x) && (point.y < max.y + offset.y);
+        renderer = get_current_game()->game_window->renderer;
+        screen = SDL_CreateTexture(renderer, SDL_FORMAT, SDL_TEXTUREACCESS_TARGET, size.x, size.y);
+
+        SDL_SetRenderTarget(renderer, screen);
+        SDL_SetRenderDrawColor(renderer, 255, 255, 255, SDL_ALPHA_OPAQUE);
+        SDL_RenderClear(renderer);
+        SDL_SetRenderTarget(renderer, nullptr);
+        SDL_SetRenderDrawColor(renderer, 0, 0, 0, SDL_ALPHA_OPAQUE);
+    }
+
+    void set_screen(SDL_Texture* new_screen)
+    {
+        screen = new_screen;
+    }
+
+    SDL_Texture* get_screen()
+    {
+        return screen;
+    }
+
+    void wipe() // Clears the screen to the draw color
+    {
+        SDL_SetRenderTarget(renderer, screen);
+        SDL_RenderClear(renderer);
+        SDL_SetRenderTarget(renderer, nullptr);
+    }
+
+    void wipe(Uint8 r, Uint8 g, Uint8 b, Uint8 a) // Clears the screen to the color
+    {
+        SDL_SetRenderDrawColor(renderer, r,g,b,a);
+        wipe();
     }
 };
 
+class Presenter : public Window
+{
+public:
+    // TODO auto-size, not set size
+    Presenter(pos size) : Window(size), center(size / 2), half_size(center)
+    {
+        game_window = get_current_game()->game_window;
+    }
+
+    pos center;
+    pos half_size;
+
+    display* game_window;
+
+    void process(double tim)
+    {
+        position = game_window->half_size;
+
+        // TODO if mouse clicked but not grabbed something
+    }
+
+    void present()
+    {
+        SDL_FRect rect_what = pos::Make_SDL_FRect(center, half_size);
+        SDL_FRect rect_where = pos::Make_SDL_FRect(position, half_size);
+        SDL_RenderTexture(renderer, screen, &rect_what, &rect_where);
+    }
+};
+
+editor::editor()
+{
+    set_current_game(this); // Used by the presenter
+
+    middle_box = new Presenter({900, 900});
+    root->add_child(middle_box);
+}
+
+bool editor::frame()
+{
+    view_events();
+    run_processes();
+
+    middle_box->present();
+
+    finish_processes();
+
+    middle_box->wipe(255,255,100,255);
+    SDL_SetRenderDrawColor(game_window->renderer, 0,0,0,255);
+
+    return running;
+}
+
+class RepresentObj;
+
 class EditorObj : public BlendObj
 {
-REGISTER_OBJECT(EditorObj)
+    REGISTER_OBJECT(EditorObj)
 
 public:
     std::string represents;
 
+    RepresentObj* representer = nullptr;
+
+    bool has_position = false;
+    pos represented_pos;
+
+    RepresentObj* visible_obj = nullptr;
+
+    static EditorObj* represent(std::string new_class)
+    {
+        EditorObj* obj = new EditorObj;
+
+        obj->set_representation(new_class);
+
+        return obj;
+    }
+
+    EditorObj();
+
     void set_representation(std::string new_class)
     {
         represents = new_class;
+        // TODO update variables
     }
 
     std::string get_representation()
@@ -34,161 +161,57 @@ public:
         return represents;
     }
 
-    ARCHIVE(BlendObj, represents);
+    void set_represented_pos(pos represented)
+    {
+        represented_pos = represented;
+    }
+
+    pos get_represented_pos()
+    {
+        return represented_pos;
+    }
+
+    bool is_drop_target(pos mouse)
+    {
+        // TODO decide if inside 'mouse'
+        // really I need to do a drag and drop global object attached to the editor
+    }
+
+    ARCHIVE(BlendObj, represents)
 };
 
-class Float : public EditorObj
+#include "editortests.hpp"
+
+class RepresentObj : public Dragable
 {
-REGISTER_OBJECT(Float)
-
-protected:
-    pos offset;
-
-    pos normal;
-
-    display* window = nullptr;
-
 public:
-    Float()
+    editor* editor_window;
+
+    EditorObj* controller;
+
+    RepresentObj()
     {
-        window = get_current_game()->game_window;
-        normal = window->size;
+        editor_window = get_editor();
     }
 
-    virtual void _process(double delta)
+    void draw(pos) // TODO make this set up properly, honestly make it so there is a call heirerarchy for draws
     {
-        BlendObj::_process(delta);
-
-        pos window_zero = window->center - window->half_size;
-        position = window_zero + offset.scaled(normal, window->size);
-
-        if (global_position.parent != nullptr)
-        {
-            position -= *global_position.parent->position;
-        }
+        SDL_SetRenderTarget(window->renderer, editor_window->middle_box->screen);
+        Dragable::draw(editor_window->middle_box->center); // TODO redo draw call to use renderer stuff and clipping
+        SDL_SetRenderTarget(window->renderer, nullptr);
     }
 
-    void set_position(pos new_position) = delete;
-
-    void set_offset(pos new_offset)
+    virtual void dropped()
     {
-        offset = new_offset;
+        controller->set_represented_pos(position);
     }
-
-    pos get_offset()
-    {
-        return offset;
-    }
-
-    pos get_normal()
-    {
-        return normal;
-    }
-
-    ARCHIVE(EditorObj, offset)
 };
 
-class FloatScaled : public Float // Size is more of a readable value than usable, use scale instead
+EditorObj::EditorObj()
 {
-REGISTER_OBJECT(FloatScaled)
+    representer = new RepresentObj; // TODO on_load stuff
+    representer->controller = this;
 
-protected:
-    pos scale;
-
-    bool parent_scope = false;
-    BlendObj* scalar_parent = nullptr;
-
-public:
-    virtual void _process(double delta)
-    {
-        Float::_process(delta);
-
-        if (parent_scope)
-        {
-            size = scale.scaled(normal, scalar_parent->get_size());
-        }
-        
-        else
-        {
-            size = scale.scaled(normal, window->size);
-        }
-    }
-
-    void set_parent(Process* new_parent)
-    {
-        Float::set_parent(new_parent);
-
-        BlendObj* par = dynamic_cast<BlendObj*>(parent);
-        scalar_parent = par;
-
-        if (scalar_parent != nullptr)
-        {
-            parent_scope = false;
-        }
-    }
-
-    void set_normal(pos new_normal)
-    {
-        normal = new_normal;
-    }
-
-    pos get_normal()
-    {
-        return normal;
-    }
-
-    void set_size(pos) = delete;
-
-    void set_scale(pos new_scale)
-    {
-        scale = new_scale;
-    }
-
-    pos get_scale()
-    {
-        return scale;
-    }
-
-    ARCHIVE(Float, scale)
-};
-
-class Dragable : public EditorObj
-{
-REGISTER_OBJECT(Dragable)
-
-private:
-    bool follow = false;
-
-    bool clicked = false;
-
-    rect close_enough;
-
-public:
-    void process(double)
-    {
-        mouse_state& mse = get_current_game()->mouse;
-        pos updated_pos = mse.position - size / 2.0;
-
-        if (follow)
-        {
-            follow = mse.down;
-            position = updated_pos;
-        }
-
-        else if (mse.down && !clicked && close_enough.is_inside(updated_pos, position))
-        {
-            follow = true;
-        }
-
-        clicked = mse.down;
-    }
-
-    void resize(pos re_size)
-    {
-        set_size(re_size);
-
-        close_enough = {-re_size, re_size};
-    }
-
-    ARCHIVE_INHERIT(EditorObj)
-};
+    editor* editer = get_editor();
+    editer->middle_box->add_child(representer);
+}

@@ -9,148 +9,37 @@
 #include <iostream>
 #include <fstream>
 
+#include "collobjs.hpp"
 
-// USER DEFINED STUFF ISH
-#define HUH 10000
+#include <filesystem>
 
-class StaticObj : public CollObj
-{
-REGISTER_OBJECT(StaticObj)
-
-ARCHIVE_INHERIT(CollObj)
-
-public:
-    StaticObj()
-    {
-        collision_def.type = b2_staticBody;
-        collision_body = b2CreateBody(get_current_coll_world(), &collision_def);
-
-        b2Polygon box3 = b2MakeOffsetBox(HUH,HUH, pos(HUH, 500 + HUH), b2MakeRot(0));
-
-        b2ShapeDef shapedef = b2DefaultShapeDef();
-
-        b2CreatePolygonShape(collision_body, &shapedef, &box3);
-    }
-};
-
-float size = 6.0f;
-
-class DynamObj : public CollObj
-{
-REGISTER_OBJECT(DynamObj)
-
-ARCHIVE_INHERIT(CollObj)
-
-public:
-    void on_load()
-    {
-        collision_def.type = b2_dynamicBody;
-
-        collision_body = b2CreateBody(get_current_coll_world(), &collision_def);
-
-        b2Polygon box = b2MakeBox(size, size);
-        
-        b2ShapeDef fixtureDef = b2DefaultShapeDef();
-        fixtureDef.density = 1;
-        fixtureDef.friction = 1;
-        fixtureDef.restitution = 0.4;
-
-        b2CreatePolygonShape(collision_body, &fixtureDef, &box);
-    }
-};
-
-class Mouse : public CollObj
-{
-REGISTER_OBJECT(Mouse)
-
-ARCHIVE_INHERIT(CollObj)
-
-public:
-    Mouse()
-    {
-        collision_def.type = b2_kinematicBody;
-        collision_def.isBullet = true;
-
-        collision_body = b2CreateBody(get_current_coll_world(), &collision_def);
-
-        b2Circle circ;
-        circ.radius = size;
-
-        b2ShapeDef def = b2DefaultShapeDef();
-
-        b2CreateCircleShape(collision_body, &def, &circ);
-    }
-
-    void process(double)
-    {
-        float x,y;
-
-        SDL_GetMouseState(&x,&y);
-
-        if (x != 0 && y != 0) b2Body_SetLinearVelocity(collision_body, b2Vec2{(x - (float)position.x) * 60.0f, (y - (float)position.y) * 60.0f});
-    }
-};
+/* TODO Error window */
+#define ASSERT(statement)\
+if ((statement) == false)\
+{\
+    \
+}\
 
 int main()
 {
-    game gameplay;
-    set_current_game(&gameplay);
+    editor gameplay;
+    set_editor(&gameplay);
 
-    b2Init();
-    
-    b2WorldDef def = WorldDef(pos(0,30));
-    b2WorldId world = b2CreateWorld(&def);
+    gameplay.physics = false;
 
-    set_current_coll_world(world);
-    gameplay.coll_world = world;
+    EditorObj* mainer = EditorObj::represent("Process");
 
-    StaticObj* obj = new StaticObj;
+    RepresentObj* repres = mainer->representer;
 
-    SDL_Surface* surf = SDL_LoadBMP("sample2.bmp");
+    repres->set_sprite("img/track.png");
 
-    SDL_Texture* text = SDL_CreateTextureFromSurface(gameplay.game_window->renderer,surf);
-    SDL_DestroySurface(surf);
+    repres->set_size({100,100});
 
-    Process* root_obj;
-    {
-        std::ifstream inf("of.json");
-        cereal::JSONInputArchive ia(inf);
-        
-        ProcessFactory::loadFromArchive(ia, root_obj);
-
-        for (Process* child : root_obj->get_children())
-        {
-            ((DrawObj*)child->get_child(0))->set_sprite(text, false);
-        }
-    }
-
-    /*Process* root_obj = new Process;
-    for (int x = 0; x < 100; x++)
-    {
-        DynamObj* dyn = new DynamObj;
-
-        dyn->set_position({400,-10.0 * x});
-
-        DrawObj* drawer = new DrawObj;
-        dyn->add_child(drawer);
-
-        drawer->set_sprite(text, false);
-
-        root_obj->add_child(dyn);
-    }*/
-
-    gameplay.root->add_child(obj);
-
-    gameplay.root->add_child(root_obj);
+    gameplay.root->add_child(mainer);
 
     gameplay.start();
 
-    {
-        std::ofstream fil("of.json");
-        cereal::JSONOutputArchive os(fil);
-
-        ProcessFactory::saveToArchive(os, root_obj);
-    }
+    gameplay.root->del();
 
     return 0;
 }

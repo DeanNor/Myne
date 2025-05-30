@@ -73,8 +73,6 @@ public:
             obj_hull.load(hull_path);
         }
 
-        collision_def = b2DefaultBodyDef();
-
         std::string def_name;
         pos def_position, def_vel;
         rad def_rotation, def_rot_vel;
@@ -103,7 +101,7 @@ public:
         {
             ar(std::string(collision_def.name));
         }
-        else ar(std::string(""));
+        else ar(std::string());
 
         ar(pos(collision_def.position), rad(collision_def.rotation));
         

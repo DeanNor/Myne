@@ -121,6 +121,17 @@ void Process::start_delete()
     }
 }
 
+void Process::del()
+{
+    for (Process* child : children)
+    {
+        child->parent = nullptr; // Remove the parent of this child so it does not intentionally resize the children
+        child->del();
+    }
+
+    delete this;
+}
+
 bool Process::is_to_delete()
 {
     return to_delete;

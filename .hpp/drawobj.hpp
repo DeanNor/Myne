@@ -38,6 +38,7 @@ public:
 
 protected:
     display* window = nullptr;
+    SDL_Texture* target = nullptr;
 
     SDL_Texture* sprite = nullptr;
     pos center;

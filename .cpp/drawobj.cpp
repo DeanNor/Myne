@@ -21,7 +21,7 @@ DrawObj::~DrawObj()
 
 void DrawObj::draw(pos origin)
 {
-    if (sprite != nullptr)
+    if (sprite != nullptr && visible())
     {
         SDL_FRect pos_rect = pos::Make_SDL_FRect(global_position.compute() - origin, center);
 
@@ -48,6 +48,8 @@ void DrawObj::set_sprite(std::string path)
 
     SDL_Texture* bmp = SDL_CreateTextureFromSurface(window->renderer, surf);
     set_sprite(bmp, true);
+
+    set_sprite_path(path);
 
     SDL_DestroySurface(surf);
 }

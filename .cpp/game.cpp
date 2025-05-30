@@ -13,7 +13,7 @@ game::game()
     if (!SDL_Init(SDL_INIT_VIDEO))
     {
         std::cout << "HUH INIT FAIL?" << std::endl;
-        // ? If this happens, blow up your computer
+        // TODO If this happens, blow up your computer
     }
 
     game_window = new display({1000, 500}, "HUH", SDL_WINDOW_RESIZABLE);
@@ -21,7 +21,7 @@ game::game()
     root = new Process;
 
     std::cout.setf(std::ios::fixed | std::ios::showpoint);
-    std::cout.precision(10);
+    std::cout.precision(80);
 }
 
 game::~game()
@@ -37,27 +37,33 @@ game::~game()
 
 bool game::frame()
 {
+    view_events();
+    run_processes();
+
+    finish_processes();
+
+    return running;
+}
+
+bool game::view_events()
+{
     SDL_Event event;
     while(SDL_PollEvent(&event))
     {
-        if (event.type == SDL_EVENT_WINDOW_CLOSE_REQUESTED)
+        switch (event.type)
         {
-            return false;
-        }
+        case SDL_EVENT_WINDOW_CLOSE_REQUESTED:
+        case SDL_EVENT_QUIT:
+            running = false;
 
-        else if (event.type == SDL_EVENT_WINDOW_RESIZED)
-        {
+        case SDL_EVENT_WINDOW_RESIZED:
             game_window->update_size();
-        }
+            break;
 
-        else if (event.type == SDL_EVENT_MOUSE_BUTTON_DOWN)
-        {
-            mouse.down = true;
-        }
-
-        else if (event.type == SDL_EVENT_MOUSE_BUTTON_UP)
-        {
-            mouse.down = false;
+        case SDL_EVENT_MOUSE_BUTTON_DOWN:
+        case SDL_EVENT_MOUSE_BUTTON_UP:
+            mouse.recheck(event.button);
+            break;
         }
     }
 
@@ -67,14 +73,19 @@ bool game::frame()
         //Wait remaining time
         SDL_Delay(fpsticks - ticks);
     }
-    total_ticks = SDL_GetTicks();
+    Uint64 total_delay = SDL_GetTicks();
+    delay = total_delay - total_ticks;
+    total_ticks = total_delay;
 
     float x,y;
     SDL_GetMouseState(&x,&y);
     mouse.position = {x,y};
 
-    //                                          Uint64 tim = SDL_GetTicksNS();
-    
+    return true;
+}
+
+void game::run_processes()
+{
     process();
     
     if (physics)
@@ -86,15 +97,13 @@ bool game::frame()
     draw();
 
     draw_overlay();
+}
 
-    //                                          std::cout << 1 / ((double)(SDL_GetTicksNS() - tim) / 1000000000) << std::endl; // Potential FPS
-
+void game::finish_processes()
+{
     game_window->push_screen();
 
-
     end_delete();
-
-    return running;
 }
 
 void game::start()
@@ -103,19 +112,13 @@ void game::start()
 
     delete game_window;
     game_window = nullptr;
-
-    #ifdef DEL_ON_END
-    // Delete all currently active objects
-    root->start_delete();
-    end_delete();
-    #endif
 }
 
 void game::process()
 {
     if (root != nullptr)
     {
-        root->_process(spf);
+        root->_process(delay / MSPS);
     }
 
     else

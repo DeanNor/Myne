@@ -12,16 +12,38 @@ class DrawObj;
 class BlendObj;
 class CollObj;
 
-struct mouse_state
+const static double MSPS = 1000;
+
+struct mouse_state // TODO Proper input handling and all mouse buttons
 {
 public:
     pos position;
 
-    bool down = false;
+    bool ldown = false;
+    bool mdown = false;
+    bool rdown = false;
 
     mouse_state() = default;
 
     mouse_state(const mouse_state&) = delete;
+
+    void recheck(SDL_MouseButtonEvent& mse)
+    {
+        switch(mse.button)
+        {
+        case SDL_BUTTON_LEFT:
+            ldown = mse.down;
+            break;
+
+        case SDL_BUTTON_MIDDLE:
+            mdown = mse.down;
+            break;
+            
+        case SDL_BUTTON_RIGHT:
+            rdown = mse.down;
+            break;
+        }
+    }
 };
 
 struct game
@@ -45,6 +67,7 @@ struct game
     Uint64 fpsticks = 1000 / fps; // MSeconds between ticks
 
     Uint64 total_ticks = 0; // Internal clock
+    Uint64 delay = 0; // Delta time
 
     int coll_iterations = 4;
 
@@ -54,7 +77,13 @@ struct game
 
     ~game();
 
-    bool frame();
+    virtual bool frame();
+
+    bool view_events();
+
+    void run_processes();
+
+    void finish_processes();
 
     void start();
 
