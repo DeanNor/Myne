@@ -3,11 +3,10 @@
 
 tfm::tfm(pos* new_position, rad* new_angle) : position(new_position), angle(new_angle), parent(nullptr)
 {
-    compute();
 }
 tfm::tfm(pos* new_position, rad* new_angle, tfm* new_parent) : position(new_position), angle(new_angle), parent(new_parent)
 {
-    compute();
+
 }
 
 // TODO incorrect math, mainly mult and div

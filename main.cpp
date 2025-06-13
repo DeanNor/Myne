@@ -38,11 +38,11 @@ int main()
     {
         DynamObj* dyn = DynamObj::create();
 
-        dyn->set_position({600,static_cast<double>(20 * x)});
+        dyn->set_position({30,static_cast<double>(50 * x)});
 
         DynamObj* dyn2 = DynamObj::create();
         dyn->add_child(dyn2);
-        dyn2->set_position({100,0});
+        dyn2->set_position({600,0});
         dyn2->set_angle(PI);
 
         DrawObj* drawer2 = new DrawObj;

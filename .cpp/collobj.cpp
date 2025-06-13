@@ -39,7 +39,7 @@ void CollObj::collision_process()
             angle = rad(b2Body_GetRotation(collision_body)) - offset_rad;
         }
 
-        else 
+        else
         {
             position = body_pos;
 
