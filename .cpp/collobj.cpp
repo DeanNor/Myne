@@ -1,5 +1,6 @@
 
 #include "collobj.hpp"
+#include <ostream>
 
 CollObj::CollObj()
 {
@@ -24,24 +25,29 @@ void CollObj::_process(double delta)
 
 void CollObj::collision_process()
 {
-    b2Vec2 body_b2pos = b2Body_GetPosition(collision_body);
-    pos body_pos(body_b2pos.x, body_b2pos.y);
-    
-    if (global_position.parent != nullptr)
-    {        
-        pos offset = global_position.parent->compute();
-        rad offset_rad = global_position.parent->compute_angle();
-
-        position = (body_pos - offset).rotated(-offset_rad);
-
-        angle = rad(b2Body_GetRotation(collision_body)) - offset_rad;
-    }
-
-    else 
+    if (b2Body_IsValid(collision_body))
     {
-        position = body_pos;
+        b2Vec2 body_b2pos = b2Body_GetPosition(collision_body);
+        pos body_pos(body_b2pos.x, body_b2pos.y);
+        
+        if (global_position.parent != nullptr)
+        {        
+            pos offset = global_position.parent->compute();
+            rad offset_rad = global_position.parent->compute_angle();
 
-        angle = rad(b2Body_GetRotation(collision_body));
+            position = (body_pos - offset).rotated(-offset_rad);
+
+            std::cout << position << ' ' << global_position.compute() << std::endl;
+
+            angle = rad(b2Body_GetRotation(collision_body)) - offset_rad;
+        }
+
+        else 
+        {
+            position = body_pos;
+
+            angle = rad(b2Body_GetRotation(collision_body));
+        }
     }
 }
 

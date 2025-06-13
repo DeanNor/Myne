@@ -34,27 +34,23 @@ int main()
     load_img(text2, gameplay.game_window->renderer, "img/track2.png");
 
     Process* root_obj = new Process;
-    for (int x = 0; x < 1; x++)
+    for (int x = 0; x < 10; x++)
     {
         DynamObj* dyn = DynamObj::create();
 
-        dyn->set_position({600,100});
+        dyn->set_position({600,static_cast<double>(20 * x)});
 
         DynamObj* dyn2 = DynamObj::create();
         dyn->add_child(dyn2);
         dyn2->set_position({100,0});
         dyn2->set_angle(PI);
 
-        DrawObj* drawer = new DrawObj;
-        dyn->add_child(drawer);
-
-        drawer->set_sprite(text, false);
-
         DrawObj* drawer2 = new DrawObj;
         dyn2->add_child(drawer2);
 
-        drawer->set_position({50,0});
-        drawer2->set_position({50,0});
+        DrawObj* drawer = new DrawObj;
+        dyn->add_child(drawer);
+        drawer->set_sprite(text, false);
 
         drawer2->set_sprite(text2, false);
 

@@ -43,8 +43,6 @@ bool game::frame()
     wait_for_frame();
     finish_processes();
 
-    std::cout << std::endl;
-
     return running;
 }
 

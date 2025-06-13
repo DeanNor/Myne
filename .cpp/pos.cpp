@@ -85,8 +85,8 @@ pos pos::rotated(rad angle)
 {
     if (angle != rad(0.0))
     {
-        double cosine = cos(angle);
-        double sine = sin(angle);
+        double cosine = std::cos(angle);
+        double sine = std::sin(angle);
 
         pos temp_pos = {};
 

@@ -25,6 +25,8 @@ void DrawObj::draw(pos origin)
     {
         SDL_FRect pos_rect = pos::Make_SDL_FRect(global_position.compute() - origin, center);
 
+        std::cout << global_position.compute() << std::endl;
+
         SDL_RenderTextureRotated(window->renderer, sprite, nullptr, &pos_rect, global_position.compute_angle().deg(), nullptr, SDL_FLIP_NONE);
     }
 }
