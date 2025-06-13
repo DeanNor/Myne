@@ -27,8 +27,7 @@ void CollObj::collision_process()
 {
     if (b2Body_IsValid(collision_body))
     {
-        b2Vec2 body_b2pos = b2Body_GetPosition(collision_body);
-        pos body_pos(body_b2pos.x, body_b2pos.y);
+        pos body_pos = b2Body_GetPosition(collision_body);
         
         if (global_position.parent != nullptr)
         {        

@@ -15,10 +15,12 @@ private:
     rad par_angle = 0;
 
 public:
-    // Internal values to quick compute transform and angle
+    // Internal values to quick compute transform and angle.
+    // Should not normally be used.
     pos transform;
     rad transform_angle = 0;
 
+    // Un-Owned position and angle variables, stored in the object class but not here.
     pos* position = nullptr;
     rad* angle = nullptr;
 
@@ -37,9 +39,13 @@ public:
 
     bool has_changed();
 
+    // Gives the position
+    // Technically, it is more efficient to use .transform_angle instead of .compute_angle() after calling this.
+    // Same as it is better to store this that to compute it twice.
     pos compute();
 
     bool angle_changed();
 
+    // Gives the angle
     rad compute_angle();
 };

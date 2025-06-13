@@ -1,10 +1,10 @@
 
 #include "game.hpp"
-// #include "drawobj.hpp"
+#include "drawobj.hpp"
 // #include "blendobj.hpp"
 // #include "collobj.hpp"
-// #include "joint.hpp"
-#include "editorstuff.hpp"
+// // #include "joint.hpp"
+// #include "editorstuff.hpp"
 
 #include "collobjs.hpp"
 

@@ -6,7 +6,6 @@ void Object::set_parent(Process* new_parent)
     Process::set_parent(new_parent);
 
     Object* p = dynamic_cast<Object*>(new_parent);
-
     if (p != nullptr)
     {
         global_position.parent = p->get_tfm();

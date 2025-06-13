@@ -23,11 +23,9 @@ void DrawObj::draw(pos origin)
 {
     if (sprite != nullptr && visible())
     {
-        SDL_FRect pos_rect = pos::Make_SDL_FRect(global_position.compute() - origin, center);
+        SDL_FRect pos_rect = pos::Make_SDL_FRect(global_position.transform - origin, center); // Transform and transform_angle can be used as visible() uses compute()
 
-        std::cout << global_position.compute() << std::endl;
-
-        SDL_RenderTextureRotated(window->renderer, sprite, nullptr, &pos_rect, global_position.compute_angle().deg(), nullptr, SDL_FLIP_NONE);
+        SDL_RenderTextureRotated(window->renderer, sprite, nullptr, &pos_rect, global_position.transform_angle.deg(), nullptr, SDL_FLIP_NONE);
     }
 }
 
