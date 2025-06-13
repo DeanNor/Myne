@@ -5,8 +5,8 @@
 
 #include <SDL3_image/SDL_image.h>
 
-#include <string>
+#include <filesystem>
 
-void save_img(SDL_Texture* texture, SDL_Renderer* renderer, std::string name);
+void save_img(SDL_Texture* texture, SDL_Renderer* renderer, std::filesystem::path path);
 
-void load_img(SDL_Texture*& texture, SDL_Renderer* renderer, std::string name);
+void load_img(SDL_Texture*& texture, SDL_Renderer* renderer, std::filesystem::path path);

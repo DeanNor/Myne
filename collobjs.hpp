@@ -1,7 +1,9 @@
 
 // USER DEFINED STUFF ISH
-#define HUH 10000
-#define w 500
+static const int HUH = 10000;
+static const int width = 500;
+
+#include "collobj.hpp"
 
 class StaticObj : public CollObj
 {
@@ -15,21 +17,24 @@ public:
         collision_def.type = b2_staticBody;
         collision_body = b2CreateBody(get_current_coll_world(), &collision_def);
 
-        b2Polygon box1 = b2MakeOffsetBox(HUH,HUH, pos(HUH + 2*w, HUH), b2MakeRot(0));
+        b2Polygon box1 = b2MakeOffsetBox(HUH,HUH, pos(HUH + 2*width, HUH), b2MakeRot(0));
 
         b2Polygon box2 = b2MakeOffsetBox(HUH,HUH, pos(-HUH,HUH), b2MakeRot(0));
 
-        b2Polygon box3 = b2MakeOffsetBox(HUH,HUH, pos(HUH, w + HUH), b2MakeRot(0));
+        b2Polygon box3 = b2MakeOffsetBox(HUH,HUH, pos(HUH, width + HUH), b2MakeRot(0));
+
+        b2Polygon box4 = b2MakeOffsetBox(HUH,HUH, pos(HUH, -HUH), b2MakeRot(0));
 
         b2ShapeDef shapedef = b2DefaultShapeDef();
 
         b2CreatePolygonShape(collision_body, &shapedef, &box1);
         b2CreatePolygonShape(collision_body, &shapedef, &box2);
         b2CreatePolygonShape(collision_body, &shapedef, &box3);
+        b2CreatePolygonShape(collision_body, &shapedef, &box4);
     }
 };
 
-float size = 6.0f;
+static float size = 6.0f;
 
 class DynamObj : public CollObj
 {
@@ -38,9 +43,12 @@ REGISTER_OBJECT(DynamObj)
 ARCHIVE_INHERIT(CollObj)
 
 public:
+    DynamObj() = default;
+
     void on_load()
     {
         collision_def.type = b2_dynamicBody;
+        collision_def.enableSleep = true;
 
         collision_body = b2CreateBody(get_current_coll_world(), &collision_def);
 
@@ -48,8 +56,8 @@ public:
         
         b2ShapeDef fixtureDef = b2DefaultShapeDef();
         fixtureDef.density = 1;
-        fixtureDef.friction = 0;
-        fixtureDef.restitution = 0.8;
+        fixtureDef.friction = 0.2;
+        fixtureDef.restitution = 0.7;
 
         b2CreatePolygonShape(collision_body, &fixtureDef, &box);
     }

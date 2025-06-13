@@ -10,6 +10,10 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
 
 find_package(SDL3 REQUIRED CONFIG REQUIRED COMPONENTS SDL3-shared)
 
+file(GLOB imgui-docking "include/imgui-docking/*.cpp") # TODO remove, see below
+
+set(CMAKE_EXPORT_COMPILE_COMMANDS True)
+
 add_executable(${PROJECT_NAME} main.cpp
     .cpp/drawobj.cpp
     .cpp/blendobj.cpp
@@ -25,13 +29,21 @@ add_executable(${PROJECT_NAME} main.cpp
     .cpp/ref.cpp
     .cpp/SDL3.cpp
     .cpp/hull.cpp
-    )
 
-# add_executable(${PROJECT_NAME} other.cpp)
+    ${imgui-docking}
+    "include/imgui-docking/backends/imgui_impl_sdl3.cpp"
+    "include/imgui-docking/backends/imgui_impl_sdlrenderer3.cpp"
+    "include/imgui-docking/misc/cpp/imgui_stdlib.cpp"
+    
+    #TODO ^ separate the imgui version to use the compiled version of this library instead of compiling with it
+    )
 
 include_directories(.hpp)
 
-include_directories(Include)
+include_directories(include)
+
+include_directories(include/imgui-docking) # TODO remove, see above
+include_directories(include/imgui-docking/backends) #TODO remove, see above
 
 find_library(blend2d NAMES blend2d PATHS /usr/local/lib64/) # Find shared blend2d library
 

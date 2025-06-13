@@ -1,4 +1,6 @@
 
+#include "blendobj.hpp"
+#include "drawobj.hpp"
 
 struct rect
 {
@@ -18,7 +20,7 @@ public:
 };
 
 
-class Float : public EditorObj
+class Float : public BlendObj
 {
 REGISTER_OBJECT(Float)
 
@@ -66,7 +68,7 @@ public:
         return normal;
     }
 
-    ARCHIVE(EditorObj, offset)
+    ARCHIVE(BlendObj, offset)
 };
 
 class FloatScaled : public Float // Size is more of a readable value than usable, use scale instead
@@ -144,20 +146,26 @@ private:
 
     rect close_enough;
 
+    pos past_mouse;
+
     pos size;
 
 public:
     void process(double)
     {
         mouse_state& mse = get_current_game()->mouse;
-        pos updated_pos = mse.position - size / 2.0;
+        pos updated_pos = mse.position - (size / 2.0);
+
+        if (global_position.parent)
+        {
+            updated_pos -= global_position.parent->compute();
+        }
 
         if (follow)
         {
             follow = mse.ldown;
 
-            // TODO I guess it doesnt work :<
-            global_position.subt(updated_pos);
+            position += updated_pos - past_mouse;
 
             if (!follow)
             {
@@ -171,6 +179,8 @@ public:
         }
 
         clicked = mse.ldown;
+
+        past_mouse = updated_pos;
     }
 
     virtual void dropped(){}

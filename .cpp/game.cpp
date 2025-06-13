@@ -8,20 +8,20 @@
 
 #include <algorithm>
 
-game::game()
+game::game(const char* name, SDL_WindowFlags flags)
 {
-    if (!SDL_Init(SDL_INIT_VIDEO))
+    if (!SDL_Init(SDL_INIT_AUDIO | SDL_INIT_VIDEO))
     {
         std::cout << "HUH INIT FAIL?" << std::endl;
         // TODO If this happens, blow up your computer
     }
 
-    game_window = new display({1000, 500}, "HUH", SDL_WINDOW_RESIZABLE);
+    game_window = new display({1000, 500}, name, flags);
 
-    root = new Process;
+    root = new Process; // TODO remove
 
-    std::cout.setf(std::ios::fixed | std::ios::showpoint);
-    std::cout.precision(80);
+    /*std::cout.setf(std::ios::fixed | std::ios::showpoint);
+    std::cout.precision(80);*/
 }
 
 game::~game()
@@ -40,52 +40,57 @@ bool game::frame()
     view_events();
     run_processes();
 
+    wait_for_frame();
     finish_processes();
+
+    std::cout << std::endl;
 
     return running;
 }
 
-bool game::view_events()
+void game::view_events()
 {
     SDL_Event event;
     while(SDL_PollEvent(&event))
     {
-        switch (event.type)
-        {
-        case SDL_EVENT_WINDOW_CLOSE_REQUESTED:
-        case SDL_EVENT_QUIT:
-            running = false;
-
-        case SDL_EVENT_WINDOW_RESIZED:
-            game_window->update_size();
-            break;
-
-        case SDL_EVENT_MOUSE_BUTTON_DOWN:
-        case SDL_EVENT_MOUSE_BUTTON_UP:
-            mouse.recheck(event.button);
-            break;
-        }
+        process_event(event);
     }
+}
 
-    Uint64 ticks = SDL_GetTicks() - total_ticks;
-    if (ticks < fpsticks)
+void game::process_event(SDL_Event event)
+{
+    switch (event.type)
     {
-        //Wait remaining time
-        SDL_Delay(fpsticks - ticks);
+    case SDL_EVENT_WINDOW_CLOSE_REQUESTED:
+        if (event.window.windowID == SDL_GetWindowID(game_window->window))
+        {
+            running = false;
+        }
+        
+    case SDL_EVENT_QUIT:
+        running = false;
+
+    case SDL_EVENT_WINDOW_RESIZED:
+        game_window->update_size();
+        break;
+
+    case SDL_EVENT_MOUSE_BUTTON_DOWN:
+    case SDL_EVENT_MOUSE_BUTTON_UP:
+        mouse.recheck(event.button);
+        break;
     }
-    Uint64 total_delay = SDL_GetTicks();
-    delay = total_delay - total_ticks;
-    total_ticks = total_delay;
-
-    float x,y;
-    SDL_GetMouseState(&x,&y);
-    mouse.position = {x,y};
-
-    return true;
 }
 
 void game::run_processes()
 {
+    // Update mouse position
+    float x,y;
+    SDL_GetMouseState(&x,&y);
+    mouse.position = pos(x,y) + game_window->center - game_window->half_size;
+
+    delay = (SDL_GetTicksNS() - total_delay) / NSPS;
+    total_delay = SDL_GetTicksNS();
+
     process();
     
     if (physics)
@@ -97,6 +102,18 @@ void game::run_processes()
     draw();
 
     draw_overlay();
+}
+
+void game::wait_for_frame()
+{
+    Uint64 ticks = SDL_GetTicks() - total_ticks;
+    if (ticks < fpsticks)
+    {
+        //Wait remaining time
+        SDL_Delay(fpsticks - ticks);
+    }
+
+    total_ticks = SDL_GetTicks();
 }
 
 void game::finish_processes()
@@ -118,7 +135,7 @@ void game::process()
 {
     if (root != nullptr)
     {
-        root->_process(delay / MSPS);
+        root->_process(delay);
     }
 
     else
@@ -130,6 +147,7 @@ void game::process()
 
 void game::collision_process()
 {
+    // TODO timeStep should be constant, 0.016 prolly
     b2World_Step(coll_world, spf, coll_iterations);
 
     b2SensorEvents sensors = b2World_GetSensorEvents(coll_world);

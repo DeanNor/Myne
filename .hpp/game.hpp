@@ -12,7 +12,8 @@ class DrawObj;
 class BlendObj;
 class CollObj;
 
-const static double MSPS = 1000;
+const static double MSPS = 1000.;
+const static double NSPS = 1.e+9;
 
 struct mouse_state // TODO Proper input handling and all mouse buttons
 {
@@ -67,21 +68,26 @@ struct game
     Uint64 fpsticks = 1000 / fps; // MSeconds between ticks
 
     Uint64 total_ticks = 0; // Internal clock
-    Uint64 delay = 0; // Delta time
+    Uint64 total_delay = 0; // Internal clock #2, uses NS //TODO remove the #2
+    double delay; // Delta time
 
     int coll_iterations = 4;
 
     mouse_state mouse;
 
-    game();
+    game(const char* name, SDL_WindowFlags flags);
 
-    ~game();
+    virtual ~game();
 
     virtual bool frame();
 
-    bool view_events();
+    void view_events();
+
+    void process_event(SDL_Event event);
 
     void run_processes();
+
+    void wait_for_frame();
 
     void finish_processes();
 

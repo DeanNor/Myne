@@ -1,41 +1,67 @@
 
 #include "game.hpp"
-#include "drawobj.hpp"
-#include "blendobj.hpp"
-#include "collobj.hpp"
-#include "joint.hpp"
+// #include "drawobj.hpp"
+// #include "blendobj.hpp"
+// #include "collobj.hpp"
+// #include "joint.hpp"
 #include "editorstuff.hpp"
-
-#include <iostream>
-#include <fstream>
 
 #include "collobjs.hpp"
 
-#include <filesystem>
-
-/* TODO Error window */
-#define ASSERT(statement)\
-if ((statement) == false)\
-{\
-    \
-}\
-
 int main()
 {
-    editor gameplay;
-    set_editor(&gameplay);
+    game gameplay("HI", SDL_WINDOW_RESIZABLE | SDL_WINDOW_VULKAN);
+    //set_editor(&gameplay);
+    set_current_game(&gameplay);
 
-    gameplay.physics = false;
+    //EDITOR::setup_namespace();
 
-    EditorObj* mainer = EditorObj::represent("Process");
+    b2Init();
 
-    RepresentObj* repres = mainer->representer;
+    b2WorldDef world_def = WorldDef({0,15});
+    b2WorldId coll_world = b2CreateWorld(&world_def);
 
-    repres->set_sprite("img/track.png");
+    set_current_coll_world(coll_world);
 
-    repres->set_size({100,100});
+    gameplay.coll_world = coll_world;
 
-    gameplay.root->add_child(mainer);
+    StaticObj* base = new StaticObj;
+    gameplay.root->add_child(base);
+
+    SDL_Texture* text;
+    load_img(text, gameplay.game_window->renderer, "img/track.png");
+    SDL_Texture* text2;
+    load_img(text2, gameplay.game_window->renderer, "img/track2.png");
+
+    Process* root_obj = new Process;
+    for (int x = 0; x < 1; x++)
+    {
+        DynamObj* dyn = DynamObj::create();
+
+        dyn->set_position({600,100});
+
+        DynamObj* dyn2 = DynamObj::create();
+        dyn->add_child(dyn2);
+        dyn2->set_position({100,0});
+        dyn2->set_angle(PI);
+
+        DrawObj* drawer = new DrawObj;
+        dyn->add_child(drawer);
+
+        drawer->set_sprite(text, false);
+
+        DrawObj* drawer2 = new DrawObj;
+        dyn2->add_child(drawer2);
+
+        drawer->set_position({50,0});
+        drawer2->set_position({50,0});
+
+        drawer2->set_sprite(text2, false);
+
+        root_obj->add_child(dyn);
+    }
+
+    gameplay.root->add_child(root_obj);
 
     gameplay.start();
 

@@ -1,15 +1,96 @@
 #pragma once
 
-class Presenter;
+#include "imgui-docking/imgui.h"
+#include "imgui-docking/backends/imgui_impl_sdl3.h"
+#include "imgui-docking/backends/imgui_impl_sdlrenderer3.h"
+#include "imgui-docking/misc/cpp/imgui_stdlib.h"
+
+static const char* objects = "Scene Objects";
+static const char* data = "Variables";
+static const char* create = "Add Object";
+static const char* viewport = "Editor";
+
+#include "game.hpp"
+
+static const int viewport_size = 1000;
+
+static const ImGuiTreeNodeFlags tree_flags = ImGuiTreeNodeFlags_DrawLinesFull | ImGuiTreeNodeFlags_DefaultOpen;
+
+namespace EDITOR
+{
+    static SDL_Texture* basic_positional;
+
+    void setup_namespace()
+    {
+        load_img(basic_positional, get_current_game()->game_window->renderer, "img/track.png");
+    }
+}
 
 struct editor : public game
 {
 public:
-    Presenter* middle_box; // Da ting in the middle of the screen
+    editor(const char* name, SDL_WindowFlags flags) : game(name, flags)
+    {
+        set_current_game(this);
 
-    editor();
+        ImGui::CreateContext(); // Could store a context, but not required right now
 
-    virtual bool frame();
+        ImGuiIO& io = ImGui::GetIO(); (void)io;
+        io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
+        io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
+        io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;         // Enable Docking
+
+        ImGui::StyleColorsDark();
+
+        ImGui_ImplSDL3_InitForSDLRenderer(game_window->window, game_window->renderer);
+        ImGui_ImplSDLRenderer3_Init(game_window->renderer);
+    }
+
+    virtual bool frame()
+    {
+        // basically view_events(); but with a ImGui process as well
+        SDL_Event event;
+        while(SDL_PollEvent(&event))
+        {
+            ImGui_ImplSDL3_ProcessEvent(&event);
+            process_event(event);
+        }
+        
+        ImGui_ImplSDLRenderer3_NewFrame();
+        ImGui_ImplSDL3_NewFrame();
+        ImGui::NewFrame();
+
+        //ImGui::ShowDemoWindow();
+
+        ImGui::Begin(objects, nullptr);
+        run_processes();
+        ImGui::End();
+
+        ImGui::Begin(data, nullptr);
+        ImGui::Text("Fps: %.4f", 1 / delay);
+        // TODO a lot. take the categories of objects from below and find their datas
+        ImGui::End();
+
+        ImGui::Begin(create, nullptr);
+        // TODO a lot. auto categorize objects that call REGISTER_OBJECT() and add them here
+        ImGui::End();
+
+        wait_for_frame();
+
+        ImGui::Render();
+        ImGui_ImplSDLRenderer3_RenderDrawData(ImGui::GetDrawData(), game_window->renderer);
+
+        finish_processes();
+
+        return running;
+    }
+
+    ~editor()
+    {
+        ImGui_ImplSDLRenderer3_Shutdown();
+        ImGui_ImplSDL3_Shutdown();
+        ImGui::DestroyContext();
+    }
 };
 
 editor* editing_thing = nullptr;
@@ -24,194 +105,41 @@ editor* get_editor()
     return editing_thing;
 }
 
-class Window : public Object
-{
-public:
-    SDL_Texture* screen;
-    SDL_Renderer* renderer;
-
-    Window()
-    {
-        renderer = get_current_game()->game_window->renderer;
-    }
-
-    Window(pos size)
-    {
-        renderer = get_current_game()->game_window->renderer;
-        screen = SDL_CreateTexture(renderer, SDL_FORMAT, SDL_TEXTUREACCESS_TARGET, size.x, size.y);
-
-        SDL_SetRenderTarget(renderer, screen);
-        SDL_SetRenderDrawColor(renderer, 255, 255, 255, SDL_ALPHA_OPAQUE);
-        SDL_RenderClear(renderer);
-        SDL_SetRenderTarget(renderer, nullptr);
-        SDL_SetRenderDrawColor(renderer, 0, 0, 0, SDL_ALPHA_OPAQUE);
-    }
-
-    void set_screen(SDL_Texture* new_screen)
-    {
-        screen = new_screen;
-    }
-
-    SDL_Texture* get_screen()
-    {
-        return screen;
-    }
-
-    void wipe() // Clears the screen to the draw color
-    {
-        SDL_SetRenderTarget(renderer, screen);
-        SDL_RenderClear(renderer);
-        SDL_SetRenderTarget(renderer, nullptr);
-    }
-
-    void wipe(Uint8 r, Uint8 g, Uint8 b, Uint8 a) // Clears the screen to the color
-    {
-        SDL_SetRenderDrawColor(renderer, r,g,b,a);
-        wipe();
-    }
-};
-
-class Presenter : public Window
-{
-public:
-    // TODO auto-size, not set size
-    Presenter(pos size) : Window(size), center(size / 2), half_size(center)
-    {
-        game_window = get_current_game()->game_window;
-    }
-
-    pos center;
-    pos half_size;
-
-    display* game_window;
-
-    void process(double tim)
-    {
-        position = game_window->half_size;
-
-        // TODO if mouse clicked but not grabbed something
-    }
-
-    void present()
-    {
-        SDL_FRect rect_what = pos::Make_SDL_FRect(center, half_size);
-        SDL_FRect rect_where = pos::Make_SDL_FRect(position, half_size);
-        SDL_RenderTexture(renderer, screen, &rect_what, &rect_where);
-    }
-};
-
-editor::editor()
-{
-    set_current_game(this); // Used by the presenter
-
-    middle_box = new Presenter({900, 900});
-    root->add_child(middle_box);
-}
-
-bool editor::frame()
-{
-    view_events();
-    run_processes();
-
-    middle_box->present();
-
-    finish_processes();
-
-    middle_box->wipe(255,255,100,255);
-    SDL_SetRenderDrawColor(game_window->renderer, 0,0,0,255);
-
-    return running;
-}
-
-class RepresentObj;
-
-class EditorObj : public BlendObj
-{
-    REGISTER_OBJECT(EditorObj)
-
-public:
-    std::string represents;
-
-    RepresentObj* representer = nullptr;
-
-    bool has_position = false;
-    pos represented_pos;
-
-    RepresentObj* visible_obj = nullptr;
-
-    static EditorObj* represent(std::string new_class)
-    {
-        EditorObj* obj = new EditorObj;
-
-        obj->set_representation(new_class);
-
-        return obj;
-    }
-
-    EditorObj();
-
-    void set_representation(std::string new_class)
-    {
-        represents = new_class;
-        // TODO update variables
-    }
-
-    std::string get_representation()
-    {
-        return represents;
-    }
-
-    void set_represented_pos(pos represented)
-    {
-        represented_pos = represented;
-    }
-
-    pos get_represented_pos()
-    {
-        return represented_pos;
-    }
-
-    bool is_drop_target(pos mouse)
-    {
-        // TODO decide if inside 'mouse'
-        // really I need to do a drag and drop global object attached to the editor
-    }
-
-    ARCHIVE(BlendObj, represents)
-};
-
 #include "editortests.hpp"
 
-class RepresentObj : public Dragable
+class EditorObj : public Dragable
 {
+REGISTER_OBJECT(EditorObj)
+
+ARCHIVE_INHERIT(Dragable)
+
 public:
-    editor* editor_window;
+    const char* represents = "";
 
-    EditorObj* controller;
+    bool child = false;
 
-    RepresentObj()
+    bool has_sprite = false;
+
+    void on_load()
     {
-        editor_window = get_editor();
+        if (!has_sprite)
+        {
+            set_sprite(EDITOR::basic_positional, false);
+        }
+
+        pos wh(sprite->w,sprite->h);
+        set_size(wh / 2);
     }
 
-    void draw(pos) // TODO make this set up properly, honestly make it so there is a call heirerarchy for draws
+    void _process(double delta)
     {
-        SDL_SetRenderTarget(window->renderer, editor_window->middle_box->screen);
-        Dragable::draw(editor_window->middle_box->center); // TODO redo draw call to use renderer stuff and clipping
-        SDL_SetRenderTarget(window->renderer, nullptr);
-    }
+        process(delta);
 
-    virtual void dropped()
-    {
-        controller->set_represented_pos(position);
+        if (ImGui::TreeNodeEx(this, tree_flags, "%s", represents))
+        {
+            process_children(delta); // Do all child objects, then finish the tree
+
+            ImGui::TreePop();
+        }
     }
 };
-
-EditorObj::EditorObj()
-{
-    representer = new RepresentObj; // TODO on_load stuff
-    representer->controller = this;
-
-    editor* editer = get_editor();
-    editer->middle_box->add_child(representer);
-}

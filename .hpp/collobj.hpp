@@ -3,10 +3,9 @@
 
 #include "object.hpp"
 
-#include "b2.h"
-
 #include "hull.hpp"
 
+// TODO set velocity
 class CollObj : public Object
 {
 REGISTER_OBJECT(CollObj)

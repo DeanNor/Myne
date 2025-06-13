@@ -1,0 +1,163 @@
+--Introduction to Functions--
+A function is a word that will make the program do something. It may or may not be given something. Similar to a mathematical function and just an abbreviation of code.
+
+The format is name(...)
+
+When calling a function the interpreter checks if the function is declared, checks if the arguments given to the function are valid, then runs the code inside the function and (optionally) returns a value.
+
+The print function takes a string and displays the string to the terminal.
+
+Values given to any function are enclosed in parenthesis after the function name.
+Functions are case sensitive.
+
+Print will normally add an endline, '\n', to the string it is given when it is called.
+Print can also be called without a value to give just the endline.
+
+The character for a \ is \\ because the first '\' is used to define special characters.
+The special character '\n' is to create a endline or newline.
+
+The print function can handle multiple inputs, all of which have to be separated by a comma.
+There will normally be a space separating each input.
+
+The endline and separation can be defined when calling the print function.
+	To change the endline, the end variable must be defined. print("HI...", end="Bye!\n")
+	To change the separation, the sep variable must be defined. print('H', 'E', 'L', 'L', 'O', sep="") # Where did the * come from on the example?
+	These can both be defined at once. print(' ', ' ', sep="HI", end="BYE\n")
+
+The output would be My-name-is Monty*Python.*
+
+--Practice--
+print('/', '/', '/', sep="\\", end="\\\n")
+
+print("Programming","Essentials","in", sep="***", end="...")
+print("Python")
+
+print("    *")
+print("   * *")
+print("  *   *")
+print(" *     *")
+print("***   ***")
+print("  *   *")
+print("  *   *")
+print("  *****")
+
+Literals are data and values.
+Literals can be ints, floats, and strings.
+
+Strings are "Hello World!"
+Ints are whole numbers, 1, 0, 9999999
+Floats are floating point numbers, 1.1, 0.0000000001, 999.8534
+
+print("1234") prints a string.
+print(1234) prints an integer.
+print("12" + "88") prints 1288.
+print(12+88) prints 100. Math is done before sending values to a function.
+
+12345 is an integer.
+12.345, is a float, signified by the fractional values after the 12.
+
+The type function returns the type of a value or variable.
+type("String") says that the value is a string.
+type(181) says that the value is an int.
+type(a) breaks as a is not defined.
+setting a to a value will set the type of a to the type of value it is given. Setting it to an int will change the value of a to an int, and setting it to a float will set its value to a float.
+
+300000000 is a lot of zeros to print and write out.
+It can be written as 3 * 10^8, or 3 * 100000000.
+To represent it in python, you would use 3e8. However, this is not the same as 300000000 because 3e8 is stored as a float.
+
+Boolean value can only have two states, on or off.
+This can also be represented as 1 or 0.
+
+There are boolean statements that will compare the left and right values and return a boolean value.
+Examples are < and >.
+
+print("\"I\'m\"\n\"\"Learning\"\"\n\"\"\"Python\"\"\"") is better as the \' is represented, but not required as the double quotes will only search for the next double quote.
+
+The literals are a string and a string
+The literals are a string, float, int, and bool
+
+Functions can be built into python, added by imported modules, created by you, and require parenthesis even when they are given no values.
+
+Print and type are functions built into python.
+Functions can do things and compute things.
+
+
+--Python Variables, expressions, and statements--
+
+The + operator adds, * multiplies, - subtracts, and / does floating point division.
+The % operator takes the modulus, or remainder after division, of a number.
+The // operator does integer division of a number.
+Dividing by 0 is an error.
+
+Variables are values that can change while the program is running.
+Variables have a name and a value: x = 1992;
+Must contain only letters, numbers, or _ and can not start with a number.
+__private_security_key : ✓
+int1 : ✓
+1int : X
+elif : X
+elf : ✓
+working var : X
+
+The name of a variable represents a ram location to python.
+The id command returns the location of a variable.
+Changing the value of a variable can change the location of the variable.
+
+Strings can be made of 'single quotes', "double quotes", or triples of either type of quote: '''Single''', """and double""".
+Quotes inside of strings will represent a character when they are not of the same type of quote used to create the quote. """ quotes can often be used to ignore \' and \" requirements.
+
+Variables are case sensitive and should have a readable meaning. the_doer is not a good name for a variable.
+
+john_apples = 3
+mary_apples = 5
+adam_apples = 6
+
+print(john_apples, mary_apples, adam_apples, sep=" ,")
+
+total_apples = john_apples + mary_apples + adam_apples
+print("Total apples:", total_apples)
+
+Sometimes code alone is not readable enough to understand. Once again, the_doer.
+Comments on a single line can be created with a #, and multi line comments are created with """ or '''.
+
+Comments can show what a program is doing and elaborate on the names of variables.
+
+Comments can also write licensing and descriptions of a program.
+
+Comments are great at showing what the program at least intends to do. They are also helpful if you forget what the program does or if another person wants to know what the program is doing.
+
+' How does the written two days ago work?
+
+Comments can begin at the start of a line or be created after code.
+They can also show what is to be done in the program.
+
+The input function will return text that is typed into the console.
+
+Input can be given a string that it will print before receiving input.
+
+The ** operator is brings the left to the power of the right.
+Input will return only text, so it needs to be formatted as a int or float to do math.
+This can be done with int(input("Enter 5, please:))
+
+The type cast functions are int(), float(), and str() for integer, float, and string casts, respectively.
+
+Concatenation is the combination of strings.
+Concatenation can only be done with strings, combining other types of variables is not allowed unless they are converted to strings.
+
+Multiplying a string by an int will repeat the string that many times.
+
+• # input a float value for variable a here
+a = float(input("A: "))
+• # input a float value for variable b here
+b = float(input("B: "))
+• # output the result of addition here
+print(a + b)
+• # output the result of subtraction here
+print(a - b)
+• # output the result of multiplication here
+print(a * b)
+• # output the result of division here
+print(a / b)
+
+print("\nThat's all, folks!")

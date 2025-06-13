@@ -1,11 +1,12 @@
 
 #pragma once
 
-#include <cmath>
-
 #include <box2d/math_functions.h>
 
 #include "serial.hpp"
+
+const double PI = 3.14159265358979323846;
+const double TO_DEG = 180.0 / PI;
 
 // Radian type, auto looping
 struct rad

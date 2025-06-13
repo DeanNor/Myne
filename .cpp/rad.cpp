@@ -1,7 +1,6 @@
 #include "rad.hpp"
 
-const double PI = 3.14159265358979323846;
-const double TO_DEG = 180.0 / PI;
+#include <cmath>
 
 double rad_constraint(double amount)
 {

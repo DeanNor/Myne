@@ -20,7 +20,7 @@ tfm* Object::get_tfm()
 
 pos Object::get_global_position()
 {
-    return global_position;
+    return global_position.compute();
 }
 
 void Object::set_position(pos new_pos)

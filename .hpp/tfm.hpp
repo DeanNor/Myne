@@ -33,6 +33,8 @@ public:
     void mult(pos other);
     void div(pos other);
 
+    void set(pos value);
+
     bool has_changed();
 
     pos compute();
@@ -40,6 +42,4 @@ public:
     bool angle_changed();
 
     rad compute_angle();
-
-    operator pos();
 };

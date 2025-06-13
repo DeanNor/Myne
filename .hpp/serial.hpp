@@ -16,7 +16,13 @@
 
 // Creates, saves, and loads objects. Loaded objects must have their associated macros, see below, and a void on_load() function
 // For stuff that needs to be created, as in not loaded from a file, using both the constructor and the on_load() function, use the static 
-    // *::create() function
+// *::create() function
+
+// For Process rooted objects that you want to load, use REGISTER_OBJECT(obj) and add a save and load function, or an ARCHIVE_... macro
+
+// For new types that you want to load, use BASE_INIT(base)
+// In addition, REGISTER_CLASS(obj, base) should be used, where base is the base class that has BASE_INIT, not just the previous parent.
+// ObjFactory<base> can then be used to create the objects from a file.
 
 namespace __ARCHIVE
 {
@@ -107,63 +113,64 @@ private:
 class Process;
 typedef ObjFactory<Process> ProcessFactory;
 
-#define NAME_TYPE(type) virtual std::string _get_type_name() const { return std::string(#type); } \
+#define NAME_TYPE(type) virtual std::string _get_type_name() const {return std::string(#type); }\
 
-#define REGISTER_OBJECT(type) \
-public: \
-    NAME_TYPE(type)\
-    static type* create() {type* t = new type; t->on_load(); return t;} \
-private: \
-    static bool _register_##type() { \
-        ProcessFactory::registerType(#type, []() -> type* { return new type(); }); \
-        __ARCHIVE::serializer<Process> serializers; \
-        serializers.json_serializer = [](cereal::JSONOutputArchive& ar, Process* base) { ar(static_cast<type&>(*base)); }; \
-        serializers.binary_serializer = [](cereal::BinaryOutputArchive& ar, Process* base) { ar(static_cast<type&>(*base)); }; \
-        serializers.json_deserializer = [](cereal::JSONInputArchive& ar, Process* base) { ar(static_cast<type&>(*base)); }; \
-        serializers.binary_deserializer = [](cereal::BinaryInputArchive& ar, Process* base) { ar(static_cast<type&>(*base)); }; \
-        ProcessFactory::registerSerializers(#type, serializers); \
-        return true; \
-    } \
-    static inline const bool _reg_trigger_##type = _register_##type();
+#define REGISTER_OBJECT(type)\
+public:\
+NAME_TYPE(type)\
+static type*create(){type*t=new type;t->on_load();return t;}\
+private:\
+static bool _register_##type(){\
+ProcessFactory::registerType(#type,[]()->type*{return new type();});\
+__ARCHIVE::serializer<Process>serializers;\
+serializers.json_serializer=[](cereal::JSONOutputArchive&ar,Process*base){ar(static_cast<type&>(*base));};\
+serializers.binary_serializer=[](cereal::BinaryOutputArchive&ar,Process*base){ar(static_cast<type&>(*base));};\
+serializers.json_deserializer=[](cereal::JSONInputArchive&ar,Process*base){ar(static_cast<type&>(*base));};\
+serializers.binary_deserializer=[](cereal::BinaryInputArchive&ar,Process*base){ar(static_cast<type&>(*base));};\
+ProcessFactory::registerSerializers(#type,serializers);\
+return true;\
+}\
+static inline const bool _reg_trigger_##type=_register_##type();
 
-#define REGISTER_CLASS(type, base_class) \
-public: \
-    NAME_TYPE(type)\
-    static type* create() const {type* t = new type; t->on_load(); return t;} \
-private: \
-    static bool _register_##type() { \
-        ObjFactory<base_class>::registerType(#type, []() -> type* { return new type(); }); \
-        __ARCHIVE::serializer<base_class> serializers; \
-        serializers.json_serializer = [](cereal::JSONOutputArchive& ar, base_class* base) { ar(static_cast<type&>(*base)); }; \
-        serializers.binary_serializer = [](cereal::BinaryOutputArchive& ar, base_class* base) { ar(static_cast<type&>(*base)); }; \
-        serializers.json_deserializer = [](cereal::JSONInputArchive& ar, base_class* base) { ar(static_cast<type&>(*base)); }; \
-        serializers.binary_deserializer = [](cereal::BinaryInputArchive& ar, base_class* base) { ar(static_cast<type&>(*base)); }; \
-        ObjFactory<base_class>::registerSerializers(#type, serializers); \
-        return true; \
-    } \
-    static inline const bool _reg_trigger_##type = _register_##type();
+#define REGISTER_CLASS(type,base_class)\
+public:\
+NAME_TYPE(type)\
+static type*create()const{type*t=new type;t->on_load();return t;}\
+private:\
+static bool _register_##type(){\
+ObjFactory<base_class>::registerType(#type,[]()->type*{return new type();});\
+__ARCHIVE::serializer<base_class>serializers;\
+serializers.json_serializer=[](cereal::JSONOutputArchive&ar,base_class*base){ar(static_cast<type&>(*base));};\
+serializers.binary_serializer=[](cereal::BinaryOutputArchive&ar,base_class*base){ar(static_cast<type&>(*base));};\
+serializers.json_deserializer=[](cereal::JSONInputArchive&ar,base_class*base){ar(static_cast<type&>(*base));};\
+serializers.binary_deserializer=[](cereal::BinaryInputArchive&ar,base_class*base){ar(static_cast<type&>(*base));};\
+ObjFactory<base_class>::registerSerializers(#type,serializers);\
+return true;\
+}\
+static inline const bool _reg_trigger_##type=_register_##type();
 
+#define ARCHIVE_BASE(...)\
+public:\
+template<class Archive>\
+void save(Archive&ar)const{ar(__VA_ARGS__);}\
+template<class Archive>\
+void load(Archive&ar){ar(__VA_ARGS__);}\
 
-#define ARCHIVE_BASE(...) \
-public: \
-    template <class Archive> \
-    void save(Archive& ar) const { ar(__VA_ARGS__); } \
-    template <class Archive> \
-    void load(Archive& ar) { ar(__VA_ARGS__); } \
+#define ARCHIVE(parent,...)\
+public:\
+template<class Archive>\
+void save(Archive&ar)const{ar(cereal::base_class<parent>(this),__VA_ARGS__);}\
+template<class Archive>\
+void load(Archive&ar){ar(cereal::base_class<parent>(this),__VA_ARGS__);}\
 
-#define ARCHIVE(parent, ...) \
-public: \
-    template <class Archive> \
-    void save(Archive& ar) const { ar(cereal::base_class<parent>(this), __VA_ARGS__); } \
-    template <class Archive> \
-    void load(Archive& ar) { ar(cereal::base_class<parent>(this), __VA_ARGS__); } \
+#define ARCHIVE_INHERIT(parent)\
+public:\
+template<class Archive>\
+void save(Archive&ar)const{ar(cereal::base_class<parent>(this));}\
+template<class Archive>\
+void load(Archive&ar){ar(cereal::base_class<parent>(this));}\
 
-#define ARCHIVE_INHERIT(parent) \
-public: \
-    template <class Archive> \
-    void save(Archive& ar) const { ar(cereal::base_class<parent>(this)); } \
-    template <class Archive> \
-    void load(Archive& ar) { ar(cereal::base_class<parent>(this)); } \
+#define ARCHIVED_VALUES(...)
 
 template <typename T>
 void ObjFactory<T>::registerType(std::string name, std::function<T*()> ctor)

@@ -64,6 +64,12 @@ void tfm::div(pos other)
     }
 }
 
+void tfm::set(pos value)
+{
+   if (parent) *position = value - parent->compute();
+   else *position = value;
+}
+
 bool tfm::has_changed()
 {
     if (*position != past_pos || angle_changed())
@@ -144,9 +150,4 @@ rad tfm::compute_angle()
     }
 
     return transform_angle;
-}
-
-tfm::operator pos()
-{
-    return compute();
 }

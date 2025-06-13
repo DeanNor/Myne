@@ -18,6 +18,8 @@ struct display
     pos size;
     pos half_size;
 
+    pos original_size;
+
     display(pos display_size, const char* name, SDL_WindowFlags flags);
 
     ~display();

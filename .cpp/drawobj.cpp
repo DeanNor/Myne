@@ -84,7 +84,7 @@ bool DrawObj::visible()
     pos window_zero = window->center - window->half_size;
     pos window_max = window->center + window->half_size;
 
-    pos glo_pos = global_position;
+    pos glo_pos = global_position.compute();
     if (glo_pos.within(window_zero, window_max))
     {
         return true;
@@ -108,7 +108,7 @@ bool DrawObj::fully_visible()
     pos window_zero = window->center - window->half_size;
     pos window_max = window->center + window->half_size;
 
-    pos glo_pos = global_position;
+    pos glo_pos = global_position.compute();
     if (glo_pos.x + center.x < window_zero.x || glo_pos.x - center.x > window_max.x)
     {
         return false;

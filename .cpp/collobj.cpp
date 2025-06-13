@@ -26,16 +26,23 @@ void CollObj::collision_process()
 {
     b2Vec2 body_b2pos = b2Body_GetPosition(collision_body);
     pos body_pos(body_b2pos.x, body_b2pos.y);
-    pos offset = {0, 0};
     
     if (global_position.parent != nullptr)
     {        
-        offset = *global_position.parent;
-    }
-    
-    position = body_pos - offset;
+        pos offset = global_position.parent->compute();
+        rad offset_rad = global_position.parent->compute_angle();
 
-    angle = b2Body_GetRotation(collision_body);
+        position = (body_pos - offset).rotated(-offset_rad);
+
+        angle = rad(b2Body_GetRotation(collision_body)) - offset_rad;
+    }
+
+    else 
+    {
+        position = body_pos;
+
+        angle = rad(b2Body_GetRotation(collision_body));
+    }
 }
 
 void CollObj::set_collision_body(b2BodyId new_body, bool ownership)
