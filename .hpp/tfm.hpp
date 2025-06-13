@@ -7,10 +7,6 @@
 struct tfm
 {
 private:
-    // Internal values to quick compute transform and angle
-    pos transform;
-    rad transform_angle = 0;
-
     // Storage of past values for quick compute
     pos past_pos;
     rad past_angle = 0;
@@ -19,6 +15,10 @@ private:
     rad par_angle = 0;
 
 public:
+    // Internal values to quick compute transform and angle
+    pos transform;
+    rad transform_angle = 0;
+
     pos* position = nullptr;
     rad* angle = nullptr;
 

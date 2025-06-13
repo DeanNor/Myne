@@ -20,7 +20,7 @@ void CollObj::_process(double delta)
 {
     Object::_process(delta);
 
-    b2Body_SetTransform(collision_body,global_position.compute(),global_position.compute_angle());
+    b2Body_SetTransform(collision_body,global_position.compute(),global_position.transform_angle);
 }
 
 void CollObj::collision_process()
@@ -33,11 +33,9 @@ void CollObj::collision_process()
         if (global_position.parent != nullptr)
         {        
             pos offset = global_position.parent->compute();
-            rad offset_rad = global_position.parent->compute_angle();
+            rad offset_rad = global_position.parent->transform_angle;
 
             position = (body_pos - offset).rotated(-offset_rad);
-
-            std::cout << position << ' ' << global_position.compute() << std::endl;
 
             angle = rad(b2Body_GetRotation(collision_body)) - offset_rad;
         }

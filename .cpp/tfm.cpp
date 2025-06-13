@@ -70,6 +70,7 @@ void tfm::set(pos value)
    else *position = value;
 }
 
+// TODO: replace recursive calls to angle_changed and has_changed.
 bool tfm::has_changed()
 {
     if (*position != past_pos || angle_changed())
@@ -94,13 +95,11 @@ pos tfm::compute()
 {
     if (has_changed())
     {
-        past_pos = *position;
-
         if (parent != nullptr)
         {
-            transform = position->rotated(parent->compute_angle());
-            
             par_pos = parent->compute();
+            transform = position->rotated(parent->transform_angle);
+            
             transform += par_pos;
         }
 
@@ -108,6 +107,8 @@ pos tfm::compute()
         {
             transform = *position;
         }
+
+        past_pos = *position;
     }
 
     return transform;
@@ -137,15 +138,19 @@ rad tfm::compute_angle()
 {
     if (angle_changed())
     {
-        past_angle = *angle;
-
-        transform_angle = *angle;
-
         if (parent != nullptr)
         {
+            transform_angle = *angle;
+            past_angle = transform_angle;
+            
             par_angle = parent->compute_angle();
-
             transform_angle += par_angle;
+        }
+
+        else
+        {
+            transform_angle = *angle;
+            past_angle = transform_angle;
         }
     }
 
