@@ -22,7 +22,7 @@ public:
 
 class Float : public BlendObj
 {
-REGISTER_OBJECT(Float)
+ASSIGN_CONSTRUCTOR(Float)
 
 protected:
     pos offset;
@@ -73,7 +73,7 @@ public:
 
 class FloatScaled : public Float // Size is more of a readable value than usable, use scale instead
 {
-REGISTER_OBJECT(FloatScaled)
+ASSIGN_CONSTRUCTOR(FloatScaled)
 
 protected:
     pos scale;
@@ -137,7 +137,7 @@ public:
 
 class Dragable : public DrawObj
 {
-REGISTER_OBJECT(Dragable)
+ASSIGN_CONSTRUCTOR(Dragable)
 
 private:
     bool follow = false;

@@ -3,13 +3,13 @@
 
 #include "game.hpp"
 
-#include "pos.hpp"
-
-#include "serial.hpp"
+#include "factory.hpp"
+#include "loader.hpp"
+#include "saver.hpp"
 
 class Process
 {
-REGISTER_OBJECT(Process)
+ASSIGN_CONSTRUCTOR(Process)
 
 protected:
     Process* parent = nullptr;
@@ -23,7 +23,11 @@ protected:
 public:
     virtual ~Process();
 
-    virtual void on_load();
+    virtual void load(Loader* load);
+
+    virtual void save(Saver* save) const;
+
+    virtual void onload();
 
     virtual void _process(double delta);
 
@@ -49,42 +53,71 @@ public:
 
     Process* get_parent();
 
-    void start_delete(); // Starts and queues deletion for the end of the frame _Safe_
+    // Starts and queues deletion for the end of the frame _Safe_
+    void start_delete();
 
-    void del(); // Immediately deletes the object _Extrodinarily Unsafe_ when the object is in the call tree and should only be called outside of the main loop or on parentless objects in the process function
-
+    // Immediately deletes the object _Extrodinarily Unsafe_ when the object is in the call tree and should only be called outside of the main loop or on parentless objects in the process function
+    void del();
+    
     bool is_to_delete();
 
     void set_name(std::string new_name);
 
     std::string get_name();
-
-    template <class Archive>
-    void load(Archive& ar)
-    {
-        ar(name);
-
-        max_t size;
-        ar(size);
-
-        for (max_t count = 0; count < size; ++count)
-        {
-            Process* child;
-            ProcessFactory::loadFromArchive(ar, child);
-            add_child(child);
-        }
-    }
-
-    template <class Archive>
-    void save(Archive& ar) const
-    {
-        ar(name);
-
-        ar(children.size());
-
-        for (Process* child : children)
-        {
-            ProcessFactory::saveToArchive(ar, child);
-        }
-    }
 };
+
+
+inline void Saver::save_process(Process* data)
+{
+    save_data<int64_t>(data->_get_type_hash().value);
+    data->save(this);  
+}
+
+inline Process* Loader::load_process()
+{
+    if (eof)
+    {
+        if (values != nullptr)
+        {
+            hash* hash_name = (hash*)(values->get());
+
+            Process* p = Factory::construct_process(*hash_name);
+
+            p->load(this);
+            p->onload();
+
+            return p;
+        }
+
+        else throw std::bad_alloc();
+    }
+
+    else
+    {
+        Process* p;
+
+        if (values)
+        {
+            hash_t* hash_name = (hash_t*)malloc(sizeof(hash_t));
+
+            file.read((char*)hash_name, sizeof(hash_t));
+
+            values->add(hash_name);
+
+            p = Factory::construct_process(*hash_name);
+        }
+
+        else
+        {
+            hash hash_name = load_data<hash_t>();
+            p = Factory::construct_process(hash_name);
+        }
+
+        p->load(this);
+        p->onload();
+
+        eof = file.eof();
+
+        return p;
+    }
+}

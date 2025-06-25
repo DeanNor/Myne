@@ -3,7 +3,8 @@
 
 #include <box2d/math_functions.h>
 
-#include "serial.hpp"
+#include "loader.hpp"
+#include "saver.hpp"
 
 const double PI = 3.14159265358979323846;
 const double TO_DEG = 180.0 / PI;
@@ -11,76 +12,243 @@ const double TO_DEG = 180.0 / PI;
 // Radian type, auto looping
 struct rad
 {
+ASSIGN_VAR_CONSTRUCTOR(rad)
+
+private:
+    constexpr double rad_constraint(double amount)
+    {
+        if (amount > 0)
+        {
+            return fmod(amount, PI) - PI;
+        }
+        
+        return fmod(amount, PI) + PI;
+    }
+
+    constexpr double constrain_rad(double amount)
+    {
+        if (amount > PI || amount <= -PI)
+        {
+            return rad_constraint(amount);
+        }
+
+        return amount;
+    }
+
+    constexpr rad constrain_rad(rad amount)
+    {
+        if (amount.radian > PI || amount.radian <= -PI)
+        {
+            return rad_constraint(amount.radian);
+        }
+
+        return amount.radian;
+    }
+
 public:
-    double radian = 0;
+    double radian;
 
-    double deg();
+    constexpr double deg() const
+    {
+        return radian * TO_DEG;
+    }
 
-    rad(const double& val);
+    constexpr rad(const double& val) : radian(constrain_rad(val)) {}
 
-    rad(const b2Rot& val);
+    constexpr rad(const b2Rot& val) : radian(b2Rot_GetAngle(val)) {}
 
-    rad();
+    constexpr rad() = default;
 
-    operator double();
+    constexpr operator double()
+    {
+        return radian;
+    }
 
-    operator b2Rot();
+    constexpr operator b2Rot()
+    {
+        return b2MakeRot(radian);
+    }
+
+    void load(Loader* load)
+    {
+        radian = load->load_data<double>();
+    }
+
+    void save(Saver* save)
+    {
+        save->save_data(radian);
+    }
 
     // ----- ?
-    bool operator> (rad compare);
+    constexpr bool operator> (rad compare)
+    {
+        return constrain_rad(radian - compare.radian) > 0;
+    }
 
-    bool operator< (rad compare);
+    constexpr bool operator< (rad compare)
+    {
+        return constrain_rad(radian - compare.radian) < 0;
+    }
 
-    bool operator>= (rad compare);
+    constexpr bool operator>= (rad compare)
+    {
+        return constrain_rad(radian - compare.radian) >= 0;
+    }
 
-    bool operator<= (rad compare);
+    constexpr bool operator<= (rad compare)
+    {
+        return constrain_rad(radian - compare.radian) <= 0;
+    }
 
-    bool operator== (rad compare);
+    constexpr bool operator== (rad compare)
+    {
+        return radian == compare.radian;
+    }
 
-    bool operator!= (rad compare);
+    constexpr bool operator!= (rad compare)
+    {
+        return radian != compare.radian;
+    }
 
     // ----- +
-    rad operator+ (rad amount);
+    constexpr rad operator+ (rad amount)
+    {
+        return amount.radian + radian;
+    }
 
-    rad operator+ (double amount);
+    constexpr rad operator+ (double amount)
+    {
+        return rad(amount + radian);
+    }
 
-    // ----- +=
-    rad& operator+= (rad amount);
+    constexpr rad& operator+= (rad amount)
+    {
+        radian = radian + amount;
 
-    rad& operator+= (double amount);
+        radian = constrain_rad(radian);
+
+        return *this;
+    }
+
+    constexpr rad& operator+= (double amount)
+    {
+        radian = radian + amount;
+
+        radian = constrain_rad(radian);
+
+        return *this;
+    }
 
     // ----- -
-    rad operator- (rad amount);
+    constexpr rad operator- (rad amount)
+    {
+        return radian - amount.radian;
+    }
 
-    rad operator- (double amount);
+    constexpr rad operator- (double amount)
+    {
+        return rad(radian - amount);
+    }
 
-    // ----- -=
-    rad& operator-= (rad amount);
+    constexpr rad& operator-= (rad amount)
+    {
+        radian = radian - amount;
 
-    rad& operator-= (double amount);
+        radian = constrain_rad(radian);
+
+        return *this;
+    }
+
+    constexpr rad& operator-= (double amount)
+    {
+        radian = radian - amount;
+
+        radian = constrain_rad(radian);
+
+        return *this;
+    }
 
     // ----- *
-    rad operator* (rad amount);
+    constexpr rad operator* (rad amount)
+    {
+        return amount.radian * radian;
+    }
 
-    rad operator* (double amount);
-    
-    // ----- *=
-    rad& operator*= (rad amount);
-    
-    rad& operator*= (double amount);
+    constexpr rad operator* (double amount)
+    {
+        return rad(radian * amount);
+    }
+
+    constexpr rad& operator*= (rad amount)
+    {
+        radian = radian * amount;
+
+        radian = constrain_rad(radian);
+
+        return *this;
+    }
+
+    constexpr rad& operator*= (double amount)
+    {
+        radian = radian * amount;
+
+        radian = constrain_rad(radian);
+
+        return *this;
+    }
 
     // ----- /
-    rad operator/ (rad amount);
+    constexpr rad operator/ (rad amount)
+    {
+        return amount.radian / radian;
+    }
 
-    rad operator/ (double amount);
+    constexpr rad operator/ (double amount)
+    {
+        return rad(radian / amount);
+    }
 
-    // ----- /=
-    rad& operator/= (rad amount);
+    constexpr rad& operator/= (rad amount)
+    {
+        radian = radian / amount;
 
-    rad& operator/= (double amount);
+        radian = constrain_rad(radian);
 
-    ARCHIVE_BASE(radian)
+        return *this;
+    }
+
+    constexpr rad& operator/= (double amount)
+    {
+        radian = radian / amount;
+
+        radian = constrain_rad(radian);
+
+        return *this;
+    }
 };
 
 // Degree to radian
-rad drad(double degree);
+constexpr rad drad(double degree)
+{
+    return rad(degree / TO_DEG);
+}
+
+constexpr rad operator ""_r(long double v)
+{
+    return rad(v);
+}
+
+constexpr long double operator ""_d(long double v)
+{
+    return drad(v);
+}
+
+constexpr rad operator ""_r(unsigned long long v)
+{
+    return rad(v);
+}
+
+constexpr long double operator ""_d(unsigned long long v)
+{
+    return drad(v);
+}

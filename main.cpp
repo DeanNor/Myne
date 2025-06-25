@@ -1,12 +1,41 @@
 
+#include "SDL3.h"
 #include "game.hpp"
 #include "drawobj.hpp"
-// #include "blendobj.hpp"
-// #include "collobj.hpp"
-// // #include "joint.hpp"
-// #include "editorstuff.hpp"
 
 #include "collobjs.hpp"
+#include "process.hpp"
+#include <type_traits>
+
+SDL_Texture* text1;
+SDL_Texture* text2;
+
+class Spawner : public Process
+{
+    double timer = 0.02;
+
+public:
+    void process(double delta)
+    {
+        if (timer <= 0)
+        {
+            DynamObj* a = DynamObj::create();
+            add_child(a);
+            a->set_position({400,-40});
+
+            DrawObj* da = new DrawObj;
+            da->set_sprite(text1,false);
+            a->add_child(da);
+
+            timer = 0.00001;
+        }
+
+        else {
+            timer -= delta;
+        }
+    }
+
+};
 
 int main()
 {
@@ -18,48 +47,25 @@ int main()
 
     b2Init();
 
-    b2WorldDef world_def = WorldDef({0,15});
+    b2WorldDef world_def = WorldDef({0.,15.});
     b2WorldId coll_world = b2CreateWorld(&world_def);
 
     set_current_coll_world(coll_world);
 
+    StaticObj* static_object = new StaticObj;
+    gameplay.root->add_child(static_object);
+
     gameplay.coll_world = coll_world;
 
-    StaticObj* base = new StaticObj;
-    gameplay.root->add_child(base);
-
-    SDL_Texture* text;
-    load_img(text, gameplay.game_window->renderer, "img/track.png");
-    SDL_Texture* text2;
+    load_img(text1, gameplay.game_window->renderer, "img/track1.png");
     load_img(text2, gameplay.game_window->renderer, "img/track2.png");
 
-    Process* root_obj = new Process;
-    for (int x = 0; x < 10; x++)
-    {
-        DynamObj* dyn = DynamObj::create();
-
-        dyn->set_position({30,static_cast<double>(50 * x)});
-
-        DynamObj* dyn2 = DynamObj::create();
-        dyn->add_child(dyn2);
-        dyn2->set_position({600,0});
-        dyn2->set_angle(PI);
-
-        DrawObj* drawer2 = new DrawObj;
-        dyn2->add_child(drawer2);
-
-        DrawObj* drawer = new DrawObj;
-        dyn->add_child(drawer);
-        drawer->set_sprite(text, false);
-
-        drawer2->set_sprite(text2, false);
-
-        root_obj->add_child(dyn);
-    }
-
-    gameplay.root->add_child(root_obj);
+    gameplay.root->add_child(new Spawner);
 
     gameplay.start();
+
+    Saver s("save.sve");
+    s.save_process(gameplay.root);
 
     gameplay.root->del();
 

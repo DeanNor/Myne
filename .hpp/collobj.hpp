@@ -1,14 +1,46 @@
 
 #pragma once
 
+#include "factory.hpp"
 #include "object.hpp"
 
 #include "hull.hpp"
+#include <box2d/math_functions.h>
 
-// TODO set velocity
+EXTERNAL_VAR_CONSTRUCTOR(b2Vec2)
+OVERRIDE_LOAD(b2Vec2)
+{
+    b2Vec2 data;
+    data.x = load_data<float>();
+    data.y = load_data<float>();
+
+    return data;
+}
+OVERRIDE_SAVE(b2Vec2)(b2Vec2 data)
+{
+    save_data(data.x);
+    save_data(data.y);
+}
+
+EXTERNAL_VAR_CONSTRUCTOR(b2Rot)
+OVERRIDE_LOAD(b2Rot)
+{
+    b2Rot data;
+    data.c = load_data<float>();
+    data.s = load_data<float>();
+
+    return data;
+}
+OVERRIDE_SAVE(b2Rot)(b2Rot data)
+{
+    save_data(data.c);
+    save_data(data.s);
+}
+
+// TODO set velocity functions
 class CollObj : public Object
 {
-REGISTER_OBJECT(CollObj)
+ASSIGN_CONSTRUCTOR(CollObj)
 
 protected:
     b2BodyId collision_body;
@@ -59,12 +91,11 @@ public:
     virtual void sensor_end(CollObj* other);
 
     // TODO decide if this should create the physics body and if it should store a physics body
-    template <class Archive>
-    void load(Archive& ar)
+    void load(Loader* ar)
     {
-        ar(cereal::base_class<Object>(this));
+        Object::load(ar);
         
-        ar(hull_path);
+        hull_path = ar->load_complex<std::string>();
 
         if (hull_path.size() > 0)
         {
@@ -72,48 +103,60 @@ public:
             obj_hull.load(hull_path);
         }
 
-        std::string def_name;
-        pos def_position, def_vel;
-        rad def_rotation, def_rot_vel;
+        collision_def.allowFastRotation = ar->load_data<bool>();
+        collision_def.angularDamping = ar->load_data<float>();
+        collision_def.enableSleep = ar->load_data<bool>();
+        collision_def.fixedRotation = ar->load_data<bool>();
+        collision_def.gravityScale = ar->load_data<float>();
+        collision_def.isAwake = ar->load_data<bool>();
+        collision_def.isBullet = ar->load_data<bool>();
+        collision_def.isEnabled = ar->load_data<bool>();
+        collision_def.linearDamping = ar->load_data<float>();
+        
+        // Do not save nor load collision_def.name
 
-        ar(collision_def.allowFastRotation, collision_def.angularDamping, collision_def.enableSleep, collision_def.fixedRotation, collision_def.gravityScale, collision_def.isAwake, collision_def.isBullet, collision_def.isEnabled, collision_def.linearDamping, def_name, def_position, def_rotation, def_vel, def_rot_vel, collision_def.sleepThreshold, collision_def.type);
-
-        // Non-auto-typed stuff
-        collision_def.name = def_name.c_str();
-        collision_def.position = def_position;
-        collision_def.rotation = def_rotation;
-
-        collision_def.linearVelocity = def_vel;
-        collision_def.angularVelocity = def_rot_vel;
+        collision_def.position = ar->load_complex<b2Vec2>();
+        collision_def.rotation = ar->load_complex<b2Rot>();
+        collision_def.linearVelocity = ar->load_complex<b2Vec2>();
+        collision_def.angularVelocity = ar->load_data<float>();
+        collision_def.sleepThreshold = ar->load_data<float>();
+        collision_def.type = ar->load_enum<b2BodyType>();
     }
 
-    template <class Archive>
-    void save(Archive& ar) const
+    void save(Saver* ar) const
     {
-        ar(cereal::base_class<Object>(this));
+        Object::save(ar);
         
-        ar(hull_path);
+        ar->save_complex(hull_path);
 
-        ar(collision_def.allowFastRotation, collision_def.angularDamping, collision_def.enableSleep, collision_def.fixedRotation, collision_def.gravityScale, collision_def.isAwake, collision_def.isBullet, collision_def.isEnabled, collision_def.linearDamping);
-        
-        if (collision_def.name != nullptr && strlen(collision_def.name) != 0)
-        {
-            ar(std::string(collision_def.name));
-        }
-        else ar(std::string());
+        ar->save_data(collision_def.allowFastRotation);
+        ar->save_data(collision_def.angularDamping);
+        ar->save_data(collision_def.enableSleep);
+        ar->save_data(collision_def.fixedRotation);
+        ar->save_data(collision_def.gravityScale);
+        ar->save_data(collision_def.isAwake);
+        ar->save_data(collision_def.isBullet);
+        ar->save_data(collision_def.isEnabled);
+        ar->save_data(collision_def.linearDamping);
 
-        ar(pos(collision_def.position), rad(collision_def.rotation));
+        // Do not save nor load collision_def.name
+
+        ar->save_complex(collision_def.position);
+        ar->save_complex(collision_def.rotation);
         
         if (b2Body_IsValid(collision_body))
         {
-            ar(pos(b2Body_GetLinearVelocity(collision_body)), rad(b2Body_GetAngularVelocity(collision_body)));
+            ar->save_complex(b2Body_GetLinearVelocity(collision_body));
+            ar->save_data(b2Body_GetAngularVelocity(collision_body));
         }
         
         else
         {
-            ar(pos(collision_def.linearVelocity), rad(collision_def.angularVelocity));
+            ar->save_complex(collision_def.linearVelocity);
+            ar->save_data(collision_def.angularVelocity);
         }
         
-        ar(collision_def.sleepThreshold, collision_def.type);
+        ar->save_data(collision_def.sleepThreshold);
+        ar->save_enum(collision_def.type);
     }
 };

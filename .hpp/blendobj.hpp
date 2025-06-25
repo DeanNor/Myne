@@ -1,28 +1,14 @@
 
 #pragma once
 
-#include "blend.h"
-
+#include "factory.hpp"
 #include "object.hpp"
+
+#include "blend.h"
 
 class BlendObj : public Object
 {
-REGISTER_OBJECT(BlendObj)
-
-private:
-    friend class cereal::access;
-
-    template <class Archive>
-    void save(Archive& ar) const
-    {
-        ar(cereal::base_class<Object>(this), size, image_size);
-    }
-
-    template <class Archive>
-    void load(Archive& ar)
-    {
-        ar(cereal::base_class<Object>(this), size, image_size);
-    }
+ASSIGN_CONSTRUCTOR(BlendObj)
 
 protected:
     BLImage image;
@@ -38,6 +24,22 @@ public:
     BlendObj();
 
     ~BlendObj();
+
+    virtual void save(Saver* ar) const
+    {
+        Object::save(ar);
+        
+        ar->save_complex(size);
+        ar->save_complex(image_size);
+    }
+
+    virtual void load(Loader* ar)
+    {
+        Object::load(ar);
+        
+        size = ar->load_complex<pos>();
+        image_size = ar->load_complex<pos>();
+    }
 
     virtual void draw_overlay(pos origin);
 

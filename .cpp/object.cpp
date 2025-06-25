@@ -1,6 +1,24 @@
 
 #include "object.hpp"
 
+void Object::load(Loader* load)
+{
+    Process::load(load);
+
+    position = load->load_complex<pos>();
+
+    angle = load->load_complex<rad>();
+}
+
+void Object::save(Saver* save) const
+{
+    Process::save(save);
+
+    save->save_complex(position);
+
+    save->save_complex(angle);
+}
+
 void Object::set_parent(Process* new_parent)
 {
     Process::set_parent(new_parent);

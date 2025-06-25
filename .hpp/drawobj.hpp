@@ -1,38 +1,44 @@
 
 #pragma once
 
+#include "factory.hpp"
 #include "object.hpp"
 
 #include "display.hpp"
+#include "saver.hpp"
 
 class DrawObj : public Object
 {
-REGISTER_OBJECT(DrawObj)
+ASSIGN_CONSTRUCTOR(DrawObj)
 
 public:
-    template <class Archive>
-    void load(Archive& ar)
+    void load(Loader* ar)
     {
-        ar(cereal::base_class<Object>(this));
-        ar(center, scale, ownership);
+        Object::load(ar);
+
+        center = ar->load_complex<pos>();
+        scale = ar->load_complex<pos>();
+        ownership = ar->load_data<bool>();
 
         if (ownership)
         {
-            ar(sprite_path);
+            sprite_path = ar->load_complex<std::string>();
 
             set_sprite(sprite_path);
         }
     }
 
-    template <class Archive>
-    void save(Archive& ar) const
+    void save(Saver* ar) const
     {
-        ar(cereal::base_class<Object>(this));
-        ar(center, scale, ownership);
+        Object::save(ar);
+        
+        ar->save_complex(center);
+        ar->save_complex(scale);
+        ar->save_data(ownership);
 
         if (ownership)
         {
-            ar(sprite_path);
+            ar->save_complex(sprite_path);
         }
     }
 
@@ -69,7 +75,9 @@ public:
 
     display* get_display();
 
+    // If any pixel of the object is on the screen.
     bool visible();
 
+    // If 100% of the object is on the screen.
     bool fully_visible();
 };

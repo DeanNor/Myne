@@ -1,6 +1,7 @@
 
 #include "SDL3.h"
 
+#include <SDL3_image/SDL_image.h>
 #include <cassert>
 #include <filesystem>
 
@@ -35,9 +36,6 @@ void load_img(SDL_Texture*& texture, SDL_Renderer* renderer, std::filesystem::pa
 {
     ASSERT(std::filesystem::exists(path), "File path does not exist");
 
-    SDL_Surface* surf = IMG_Load(path.c_str());
-
-    texture = SDL_CreateTextureFromSurface(renderer, surf);
-    
-    SDL_DestroySurface(surf);
+    texture = IMG_LoadTexture(renderer, path.c_str());
+    ASSERT(texture, "ERROR with texture");
 }

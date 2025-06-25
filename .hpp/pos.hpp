@@ -1,39 +1,63 @@
 
 #pragma once
 
-#include <cmath>
-#include <iostream>
+#include <ostream>
 
 #include <box2d/math_functions.h>
 #include <SDL3/SDL_rect.h>
 
+#include "factory.hpp"
 #include "rad.hpp"
 
-#include "serial.hpp"
+#include "saver.hpp"
+#include "loader.hpp"
 
+// TODO efficiency week!
 struct pos
 {
+ASSIGN_VAR_CONSTRUCTOR(pos)
+
 public:
-    double x = 0;
-    double y = 0;
+    double x;
+    double y;
+        
+    constexpr pos(const double& new_x, const double& new_y) : x(new_x), y(new_y) {}
 
-    pos(const double& new_x, const double& new_y);
+    constexpr pos() = default;
 
-    pos();
+    constexpr pos(const pos& past_pos) : x(past_pos.x), y(past_pos.y){}
 
-    pos(const pos& past_pos);
+    constexpr operator b2Vec2()
+    {
+        return b2Vec2{(float)x,(float)y};
+    }
 
-    operator b2Vec2();
+    constexpr pos(const b2Vec2& convert)
+    {
+        x = convert.x;
+        y = convert.y;
+    }
 
-    pos(const b2Vec2& convert);
+    constexpr operator SDL_FPoint()
+    {
+        return SDL_FPoint{(float)x,(float)y};
+    }
 
-    operator SDL_FPoint();
+    constexpr pos(const SDL_FPoint& convert) : x(convert.x), y(convert.y) {};
 
-    pos(const SDL_FPoint& convert);
+    static constexpr SDL_FRect Make_SDL_FRect(const pos& center, const pos& offset)
+    {
+        return SDL_FRect{(float)(center.x - offset.x), (float)(center.y - offset.y), (float)(offset.x * 2.0f), (float)(offset.y * 2.0f)};
+    }
 
-    static SDL_FRect Make_SDL_FRect(const pos& center, const pos& offset);
+    static constexpr SDL_Rect Make_SDL_Rect(const pos& center, const pos& offset)
+    {
+        return SDL_Rect{(int)(center.x - offset.x), (int)(center.y - offset.y), (int)(offset.x * 2.0f), (int)(offset.y * 2.0f)};
+    }
 
-    static SDL_Rect Make_SDL_Rect(const pos& center, const pos& offset);
+    void load(Loader* load);
+
+    void save(Saver* save);
 
     double sum();
 
@@ -100,6 +124,4 @@ public:
     bool operator!= (const pos& to_compare);
 
     friend std::ostream& operator<< (std::ostream& os, const pos& convert);
-
-    ARCHIVE_BASE(x,y)
 };

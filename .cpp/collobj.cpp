@@ -1,6 +1,5 @@
 
 #include "collobj.hpp"
-#include <ostream>
 
 CollObj::CollObj()
 {
@@ -20,7 +19,7 @@ void CollObj::_process(double delta)
 {
     Object::_process(delta);
 
-    b2Body_SetTransform(collision_body,global_position.compute(),global_position.transform_angle);
+    b2Body_SetTransform(collision_body,global_position.compute(),global_position.compute_angle());
 }
 
 void CollObj::collision_process()
@@ -32,7 +31,7 @@ void CollObj::collision_process()
         if (global_position.parent != nullptr)
         {        
             pos offset = global_position.parent->compute();
-            rad offset_rad = global_position.parent->transform_angle;
+            rad offset_rad = global_position.parent->compute_angle();
 
             position = (body_pos - offset).rotated(-offset_rad);
 

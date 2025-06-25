@@ -3,14 +3,12 @@
 
 #include <cstddef>
 
-#include "serial.hpp"
-
 template<typename T> struct ref
 {
 public:
     T* internal_data = nullptr;
 
-    size_t* refs = nullptr;
+    size_t* refs = 0;
 
     ref() = default;
 
@@ -18,7 +16,7 @@ public:
 
     T* operator->();
 
-    constexpr ref<T>& operator=(const ref<T>& other);
+    ref<T>& operator=(const ref<T>& other);
 
     ~ref();
 

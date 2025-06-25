@@ -23,9 +23,9 @@ void DrawObj::draw(pos origin)
 {
     if (sprite != nullptr && visible())
     {
-        SDL_FRect pos_rect = pos::Make_SDL_FRect(global_position.transform - origin, center); // Transform and transform_angle can be used as visible() uses compute()
+        SDL_FRect pos_rect = pos::Make_SDL_FRect(global_position.compute() - origin, center); // Transform and transform_angle can be used as visible() uses compute()
 
-        SDL_RenderTextureRotated(window->renderer, sprite, nullptr, &pos_rect, global_position.transform_angle.deg(), nullptr, SDL_FLIP_NONE);
+        SDL_RenderTextureRotated(window->renderer, sprite, nullptr, &pos_rect, global_position.compute_angle().deg(), nullptr, SDL_FLIP_NONE);
     }
 }
 
@@ -79,6 +79,7 @@ display* DrawObj::get_display()
     return window;
 }
 
+// TODO rotated rect check
 bool DrawObj::visible()
 {
     pos window_zero = window->center - window->half_size;

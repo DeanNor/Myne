@@ -12,8 +12,8 @@ class DrawObj;
 class BlendObj;
 class CollObj;
 
-const static double MSPS = 1000.;
-const static double NSPS = 1.e+9;
+const static long double MSPS = 1000.;
+const static long double NSPS = 1.e+9;
 
 struct mouse_state // TODO Proper input handling and all mouse buttons
 {
@@ -66,6 +66,8 @@ struct game
     double fps = 60;
     double spf = 1.0 / fps; // Seconds between ticks
     Uint64 fpsticks = 1000 / fps; // MSeconds between ticks
+
+    double coll_spf = 1 / 60.0;
 
     Uint64 total_ticks = 0; // Internal clock
     Uint64 total_delay = 0; // Internal clock #2, uses NS //TODO remove the #2

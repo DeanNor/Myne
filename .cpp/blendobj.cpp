@@ -1,6 +1,8 @@
 
 #include "blendobj.hpp"
 
+#include "blend.h"
+
 BlendObj::BlendObj()
 {
     game* current_game = get_current_game();

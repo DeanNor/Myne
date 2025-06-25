@@ -97,7 +97,7 @@ pos tfm::compute()
         if (parent != nullptr)
         {
             par_pos = parent->compute();
-            transform = position->rotated(parent->transform_angle);
+            transform = position->rotated(parent->compute_angle());
             
             transform += par_pos;
         }

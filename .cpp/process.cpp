@@ -9,7 +9,32 @@ Process::~Process()
     }
 }
 
-void Process::on_load()
+void Process::load(Loader* load)
+{
+    name = load->load_complex<std::string>();
+
+    size_t size = load->load_data<size_t>();
+    children.reserve(size);
+
+    for (size_t x = size_t(0); x < size; x++)
+    {
+        children.push_back(load->load_process());
+    }
+}
+
+void Process::save(Saver* save) const
+{
+    save->save_complex(name);
+
+    save->save_data(children.size());
+
+    for (Process* p : children)
+    {
+        save->save_process(p);
+    }
+}
+
+void Process::onload()
 {
 
 }
@@ -146,5 +171,3 @@ std::string Process::get_name()
 {
     return name;
 }
-
-BASE_INIT(Process)

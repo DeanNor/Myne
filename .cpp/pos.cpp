@@ -1,54 +1,16 @@
 
 #include "pos.hpp"
 
-pos::pos(const double& new_x, const double& new_y)
+void pos::load(Loader* load)
 {
-    x = new_x;
-    y = new_y;
+    x = load->load_data<double>();
+    y = load->load_data<double>();
 }
 
-pos::pos()
+void pos::save(Saver* save)
 {
-    x = 0;
-    y = 0;
-}
-
-pos::pos(const pos& past_pos)
-{
-    x = past_pos.x;
-    y = past_pos.y;
-}
-
-pos::operator b2Vec2()
-{
-    return b2Vec2{(float)x,(float)y};
-}
-
-pos::pos(const b2Vec2& convert)
-{
-    x = convert.x;
-    y = convert.y;
-}
-
-pos::operator SDL_FPoint()
-{
-    return SDL_FPoint{(float)x,(float)y};
-}
-
-pos::pos(const SDL_FPoint& convert)
-{
-    x = convert.x;
-    y = convert.y;
-}
-
-SDL_FRect pos::Make_SDL_FRect(const pos& center, const pos& offset)
-{
-    return SDL_FRect{(float)(center.x - offset.x), (float)(center.y - offset.y), (float)(offset.x * 2.0f), (float)(offset.y * 2.0f)};
-}
-
-SDL_Rect pos::Make_SDL_Rect(const pos& center, const pos& offset)
-{
-    return SDL_Rect{(int)(center.x - offset.x), (int)(center.y - offset.y), (int)(offset.x * 2.0f), (int)(offset.y * 2.0f)};
+    save->save_data(x);
+    save->save_data(y);
 }
 
 double pos::sum()

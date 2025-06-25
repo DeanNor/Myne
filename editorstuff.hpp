@@ -72,7 +72,7 @@ public:
         ImGui::End();
 
         ImGui::Begin(create, nullptr);
-        // TODO a lot. auto categorize objects that call REGISTER_OBJECT() and add them here
+        // TODO a lot. auto categorize objects that call ASSIGN_CONSTRUCTOR() and add them here
         ImGui::End();
 
         wait_for_frame();
@@ -109,7 +109,7 @@ editor* get_editor()
 
 class EditorObj : public Dragable
 {
-REGISTER_OBJECT(EditorObj)
+ASSIGN_CONSTRUCTOR(EditorObj)
 
 ARCHIVE_INHERIT(Dragable)
 
@@ -120,7 +120,7 @@ public:
 
     bool has_sprite = false;
 
-    void on_load()
+    void onload()
     {
         if (!has_sprite)
         {

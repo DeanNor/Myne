@@ -1,15 +1,14 @@
 
 #pragma once
 
+#include "factory.hpp"
 #include "process.hpp"
 
 #include "tfm.hpp"
 
-#include <vector>
-
 class Object: public Process
 {
-REGISTER_OBJECT(Object)
+ASSIGN_CONSTRUCTOR(Object)
 
 protected:
     pos position;
@@ -18,6 +17,10 @@ protected:
     tfm global_position = {&position, &angle};
 
 public:
+    virtual void load(Loader* load);
+
+    virtual void save(Saver* save) const;
+
     void set_parent(Process* new_parent);
 
     tfm* get_tfm();
@@ -33,6 +36,4 @@ public:
     rad get_angle();
 
     rad get_global_angle();
-
-    ARCHIVE(Process, position, angle)
 };

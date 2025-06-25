@@ -23,12 +23,15 @@ add_executable(${PROJECT_NAME} main.cpp
     .cpp/process.cpp
     .cpp/display.cpp
     .cpp/collobj.cpp
-    .cpp/rad.cpp
     .cpp/tfm.cpp
     .cpp/joint.cpp
     .cpp/ref.cpp
     .cpp/SDL3.cpp
     .cpp/hull.cpp
+    .cpp/factory.cpp
+    .cpp/loader.cpp
+    .cpp/saver.cpp
+    .cpp/tube.cpp
 
     ${imgui-docking}
     "include/imgui-docking/backends/imgui_impl_sdl3.cpp"

@@ -6,6 +6,7 @@
 #include "blendobj.hpp"
 #include "collobj.hpp"
 
+#include <SDL3/SDL_timer.h>
 #include <algorithm>
 
 game::game(const char* name, SDL_WindowFlags flags)
@@ -86,7 +87,7 @@ void game::run_processes()
     SDL_GetMouseState(&x,&y);
     mouse.position = pos(x,y) + game_window->center - game_window->half_size;
 
-    delay = (SDL_GetTicksNS() - total_delay) / NSPS;
+    delay = (long double)(SDL_GetTicksNS() - total_delay) / NSPS;
     total_delay = SDL_GetTicksNS();
 
     process();
@@ -146,7 +147,7 @@ void game::process()
 void game::collision_process()
 {
     // TODO timeStep should be constant, 0.016 prolly
-    b2World_Step(coll_world, spf, coll_iterations);
+    b2World_Step(coll_world, coll_spf, coll_iterations);
 
     b2SensorEvents sensors = b2World_GetSensorEvents(coll_world);
 
