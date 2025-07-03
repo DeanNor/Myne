@@ -39,6 +39,9 @@ class DynamObj : public CollObj
 {
 ASSIGN_CONSTRUCTOR(DynamObj)
 
+private:
+    double counter = 60;
+
 public:
     DynamObj() = default;
 
@@ -52,11 +55,20 @@ public:
         b2Polygon box = b2MakeBox(size, size);
         
         b2ShapeDef fixtureDef = b2DefaultShapeDef();
-        fixtureDef.density = 1;
-        fixtureDef.friction = 0.2;
-        fixtureDef.restitution = 0.23;
+        fixtureDef.density = 0.0001;
+        fixtureDef.friction = 0;
+        fixtureDef.restitution = 1;
+        fixtureDef.filter.categoryBits = 2;
+        fixtureDef.filter.maskBits = 1;
 
         b2CreatePolygonShape(collision_body, &fixtureDef, &box);
+    }
+
+    void process(double delta)
+    {
+        counter -= delta;
+
+        if (counter <= 0) start_delete();
     }
 };
 

@@ -11,7 +11,7 @@ class Object: public Process
 ASSIGN_CONSTRUCTOR(Object)
 
 protected:
-    pos position;
+    pos position = {0,0};
     rad angle = 0;
 
     tfm global_position = {&position, &angle};

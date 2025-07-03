@@ -5,36 +5,33 @@
 
 #include "collobjs.hpp"
 #include "process.hpp"
-#include <type_traits>
+#include <chrono>
+#include <random>
 
 SDL_Texture* text1;
-SDL_Texture* text2;
 
 class Spawner : public Process
 {
-    double timer = 0.02;
-
 public:
-    void process(double delta)
+    void process(double)
     {
-        if (timer <= 0)
-        {
-            DynamObj* a = DynamObj::create();
-            add_child(a);
-            a->set_position({400,-40});
+        DynamObj* a = DynamObj::create();
+        add_child(a);
+        a->set_position({get_current_game()->game_window->center.x,50});
 
-            DrawObj* da = new DrawObj;
-            da->set_sprite(text1,false);
-            a->add_child(da);
+        static std::random_device rd;
+        static std::mt19937 gen(rd());
+        static std::uniform_real_distribution<> dis(-PI, PI);
+        static std::uniform_real_distribution<float> dis2(-100.0f, 100.0f);
 
-            timer = 0.00001;
-        }
+        a->set_angle(dis(gen));
 
-        else {
-            timer -= delta;
-        }
+        b2Body_SetLinearVelocity(a->get_collision_body(), {(float)dis2(gen), (float)dis2(gen)});
+
+        DrawObj* da = new DrawObj;
+        da->set_sprite(text1,false);
+        a->add_child(da);
     }
-
 };
 
 int main()
@@ -47,7 +44,7 @@ int main()
 
     b2Init();
 
-    b2WorldDef world_def = WorldDef({0.,15.});
+    b2WorldDef world_def = WorldDef({0.,100.});
     b2WorldId coll_world = b2CreateWorld(&world_def);
 
     set_current_coll_world(coll_world);
@@ -57,15 +54,18 @@ int main()
 
     gameplay.coll_world = coll_world;
 
-    load_img(text1, gameplay.game_window->renderer, "img/track1.png");
-    load_img(text2, gameplay.game_window->renderer, "img/track2.png");
+    load_img(text1, gameplay.game_window->renderer, "img/track2.png");
 
     gameplay.root->add_child(new Spawner);
 
     gameplay.start();
 
+    auto tim = std::chrono::high_resolution_clock::now().time_since_epoch();
     Saver s("save.sve");
     s.save_process(gameplay.root);
+    std::cout << std::chrono::high_resolution_clock::now().time_since_epoch() - tim << std::endl;
+
+    std::cout << gameplay.root->get_sum_total_children();
 
     gameplay.root->del();
 
