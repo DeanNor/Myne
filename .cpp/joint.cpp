@@ -19,80 +19,70 @@ _joint::operator bool()
 
 revolute_j::revolute_j(CollObj* a, CollObj* b, b2RevoluteJointDef joint_def) : joint_def(joint_def)
 {
-    joint_def.bodyIdA = a->get_collision_body();
-    joint_def.bodyIdB = b->get_collision_body();
+    joint_def.base.bodyIdA = a->get_collision_body();
+    joint_def.base.bodyIdB = b->get_collision_body();
 
-    _joint(a,b,joint_def.bodyIdA,joint_def.bodyIdB);
+    _joint(a,b,joint_def.base.bodyIdA,joint_def.base.bodyIdB);
 
     collision_joint = b2CreateRevoluteJoint(get_current_coll_world(), &joint_def);
 }
 
 distance_j::distance_j(CollObj* a, CollObj* b, b2DistanceJointDef joint_def) : joint_def(joint_def)
 {
-    joint_def.bodyIdA = a->get_collision_body();
-    joint_def.bodyIdB = b->get_collision_body();
+    joint_def.base.bodyIdA = a->get_collision_body();
+    joint_def.base.bodyIdB = b->get_collision_body();
 
-    _joint(a,b,joint_def.bodyIdA,joint_def.bodyIdB);
+    _joint(a,b,joint_def.base.bodyIdA,joint_def.base.bodyIdB);
 
     collision_joint = b2CreateDistanceJoint(get_current_coll_world(), &joint_def);
 }
 
 wheel_j::wheel_j(CollObj* a, CollObj* b, b2WheelJointDef joint_def) : joint_def(joint_def)
 {
-    joint_def.bodyIdA = a->get_collision_body();
-    joint_def.bodyIdB = b->get_collision_body();
+    joint_def.base.bodyIdA = a->get_collision_body();
+    joint_def.base.bodyIdB = b->get_collision_body();
 
-    _joint(a,b,joint_def.bodyIdA,joint_def.bodyIdB);
+    _joint(a,b,joint_def.base.bodyIdA,joint_def.base.bodyIdB);
 
     collision_joint = b2CreateWheelJoint(get_current_coll_world(), &joint_def);
 }
 
 prismatic_j::prismatic_j(CollObj* a, CollObj* b, b2PrismaticJointDef joint_def) : joint_def(joint_def)
 {
-    joint_def.bodyIdA = a->get_collision_body();
-    joint_def.bodyIdB = b->get_collision_body();
+    joint_def.base.bodyIdA = a->get_collision_body();
+    joint_def.base.bodyIdB = b->get_collision_body();
 
-    _joint(a,b,joint_def.bodyIdA,joint_def.bodyIdB);
+    _joint(a,b,joint_def.base.bodyIdA,joint_def.base.bodyIdB);
 
     collision_joint = b2CreatePrismaticJoint(get_current_coll_world(), &joint_def);
 }
 
 weld_j::weld_j(CollObj* a, CollObj* b, b2WeldJointDef joint_def) : joint_def(joint_def)
 {
-    joint_def.bodyIdA = a->get_collision_body();
-    joint_def.bodyIdB = b->get_collision_body();
+    joint_def.base.bodyIdA = a->get_collision_body();
+    joint_def.base.bodyIdB = b->get_collision_body();
 
-    _joint(a,b,joint_def.bodyIdA,joint_def.bodyIdB);
+    _joint(a,b,joint_def.base.bodyIdA,joint_def.base.bodyIdB);
 
     collision_joint = b2CreateWeldJoint(get_current_coll_world(), &joint_def);
 }
 
 mouse_j::mouse_j(CollObj* a, CollObj* b, b2MouseJointDef joint_def) : joint_def(joint_def)
 {
-    joint_def.bodyIdA = a->get_collision_body();
-    joint_def.bodyIdB = b->get_collision_body();
+    joint_def.base.bodyIdA = a->get_collision_body();
+    joint_def.base.bodyIdB = b->get_collision_body();
 
-    _joint(a,b,joint_def.bodyIdA,joint_def.bodyIdB);
+    _joint(a,b,joint_def.base.bodyIdA,joint_def.base.bodyIdB);
 
     collision_joint = b2CreateMouseJoint(get_current_coll_world(), &joint_def);
 }
 
 motor_j::motor_j(CollObj* a, CollObj* b, b2MotorJointDef joint_def) : joint_def(joint_def)
 {
-    joint_def.bodyIdA = a->get_collision_body();
-    joint_def.bodyIdB = b->get_collision_body();
+    joint_def.base.bodyIdA = a->get_collision_body();
+    joint_def.base.bodyIdB = b->get_collision_body();
 
-    _joint(a,b,joint_def.bodyIdA,joint_def.bodyIdB);
+    _joint(a,b,joint_def.base.bodyIdA,joint_def.base.bodyIdB);
 
     collision_joint = b2CreateMotorJoint(get_current_coll_world(), &joint_def);
-}
-
-null_j::null_j(CollObj* a, CollObj* b, b2NullJointDef joint_def) : joint_def(joint_def)
-{
-    joint_def.bodyIdA = a->get_collision_body();
-    joint_def.bodyIdB = b->get_collision_body();
-
-    _joint(a,b,joint_def.bodyIdA,joint_def.bodyIdB);
-
-    collision_joint = b2CreateNullJoint(get_current_coll_world(), &joint_def);
 }

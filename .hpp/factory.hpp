@@ -50,7 +50,8 @@ public:
 
 // Viratual and non virtual naming
 #define NAME_TYPE(type) private: static constexpr hash _hash_val = hash(#type); public: constexpr const hash& _get_type_hash() const {return _hash_val;}
-#define VIR_NAME_TYPE(type) private: static constexpr hash _hash_val = hash(#type); public: virtual const hash& _get_type_hash() const {return _hash_val;}
+#define VIR_NAME_TYPE(type) private: static constexpr hash _hash_val = hash(#type); public: virtual const hash& _get_type_hash() const override {return _hash_val;}
+#define VIR_NAME_TYPE_OVERRIDE(type) private: static constexpr hash _hash_val = hash(#type); public: virtual const hash& _get_type_hash() const {return _hash_val;}
 
 #define CREATE_TYPE(type) public: static type* create() {type* t = new type(); t->onload(); return t;};
 
@@ -75,9 +76,30 @@ return true;\
 }\
 inline static const bool _reg_trigger_##type=_register_##type();
 
+// Version without override, so no error for base virtual
+#define ASSIGN_VIR_VAR_CONSTRUCTOR_OVERRIDE(type)\
+VIR_NAME_TYPE_OVERRIDE(type)\
+private:\
+static bool _register_##type(){\
+Factory::_add_constructor([]()->type*{return new type();},_hash_val);\
+return true;\
+}\
+inline static const bool _reg_trigger_##type=_register_##type();
+
 // Macro for process based stuff.
 #define ASSIGN_CONSTRUCTOR(type)\
 VIR_NAME_TYPE(type)\
+CREATE_TYPE(type)\
+private:\
+static bool _register_##type(){\
+Factory::_add_process_constructor([]()->type*{return new type();},_hash_val);\
+return true;\
+}\
+inline static const bool _reg_trigger_##type=_register_##type();
+
+// Version without override, so no error for base virtual
+#define ASSIGN_CONSTRUCTOR_OVERRIDE(type)\
+VIR_NAME_TYPE_OVERRIDE(type)\
 CREATE_TYPE(type)\
 private:\
 static bool _register_##type(){\

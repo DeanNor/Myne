@@ -37,6 +37,7 @@ void hull::save(std::string location)
 
 void hull::save(std::ostream& where)
 {
+    // TODO save b2 data for shape 
     for (std::pair<int, std::array<pos, B2_MAX_POLYGON_VERTICES>> shape : data)
     {
         for (int z = 0; z < shape.first; ++z)

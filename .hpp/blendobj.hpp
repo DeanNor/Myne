@@ -25,7 +25,7 @@ public:
 
     ~BlendObj();
 
-    virtual void save(Saver* ar) const
+    virtual void save(Saver* ar) const override
     {
         Object::save(ar);
         
@@ -33,7 +33,7 @@ public:
         ar->save_complex(image_size);
     }
 
-    virtual void load(Loader* ar)
+    virtual void load(Loader* ar) override
     {
         Object::load(ar);
         

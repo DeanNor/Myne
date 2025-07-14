@@ -17,11 +17,11 @@ protected:
     tfm global_position = {&position, &angle};
 
 public:
-    virtual void load(Loader* load);
+    virtual void load(Loader* load) override;
 
-    virtual void save(Saver* save) const;
+    virtual void save(Saver* save) const override;
 
-    void set_parent(Process* new_parent);
+    void set_parent(Process* new_parent) override;
 
     tfm* get_tfm();
 

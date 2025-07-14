@@ -1,0 +1,15 @@
+[submodule "include/SDL"]
+	path = include/SDL
+	url = https://github.com/libsdl-org/SDL.git
+[submodule "include/box2d"]
+	path = include/box2d
+	url = https://github.com/erincatto/box2d
+[submodule "include/blend2d"]
+	path = include/blend2d
+	url = https://github.com/blend2d/blend2d
+[submodule "include/--force"]
+	path = include/--force
+	url = https://github.com/libsdl-org/SDL_image
+[submodule "include/SDL_image"]
+	path = include/SDL_image
+	url = https://github.com/libsdl-org/SDL_image

@@ -1,5 +1,6 @@
 
 #include "SDL3.h"
+#include "SDL3/SDL_video.h"
 #include "game.hpp"
 #include "drawobj.hpp"
 
@@ -26,7 +27,7 @@ public:
 
         a->set_angle(dis(gen));
 
-        b2Body_SetLinearVelocity(a->get_collision_body(), {(float)dis2(gen), (float)dis2(gen)});
+        b2Body_SetLinearVelocity(a->get_collision_body(), {dis2(gen), dis2(gen)});
 
         DrawObj* da = new DrawObj;
         da->set_sprite(text1,false);
@@ -36,7 +37,7 @@ public:
 
 int main()
 {
-    game gameplay("HI", SDL_WINDOW_RESIZABLE | SDL_WINDOW_VULKAN);
+    game gameplay("HI", SDL_WINDOW_RESIZABLE);
     //set_editor(&gameplay);
     set_current_game(&gameplay);
 
@@ -54,7 +55,7 @@ int main()
 
     gameplay.coll_world = coll_world;
 
-    load_img(text1, gameplay.game_window->renderer, "img/track2.png");
+    load_img(text1, gameplay.game_window->renderer, "img/track1.png");
 
     gameplay.root->add_child(new Spawner);
 
@@ -64,8 +65,6 @@ int main()
     Saver s("save.sve");
     s.save_process(gameplay.root);
     std::cout << std::chrono::high_resolution_clock::now().time_since_epoch() - tim << std::endl;
-
-    std::cout << gameplay.root->get_sum_total_children();
 
     gameplay.root->del();
 

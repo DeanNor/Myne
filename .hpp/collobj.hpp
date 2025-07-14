@@ -106,13 +106,12 @@ public:
         collision_def.allowFastRotation = ar->load_data<bool>();
         collision_def.angularDamping = ar->load_data<float>();
         collision_def.enableSleep = ar->load_data<bool>();
-        collision_def.fixedRotation = ar->load_data<bool>();
         collision_def.gravityScale = ar->load_data<float>();
         collision_def.isAwake = ar->load_data<bool>();
         collision_def.isBullet = ar->load_data<bool>();
         collision_def.isEnabled = ar->load_data<bool>();
         collision_def.linearDamping = ar->load_data<float>();
-        
+                
         // Do not save nor load collision_def.name
 
         collision_def.position = ar->load_complex<b2Vec2>();
@@ -132,7 +131,6 @@ public:
         ar->save_data(collision_def.allowFastRotation);
         ar->save_data(collision_def.angularDamping);
         ar->save_data(collision_def.enableSleep);
-        ar->save_data(collision_def.fixedRotation);
         ar->save_data(collision_def.gravityScale);
         ar->save_data(collision_def.isAwake);
         ar->save_data(collision_def.isBullet);

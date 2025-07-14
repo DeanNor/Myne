@@ -51,6 +51,7 @@ protected:
 
     pos scale = {1,1};
 
+    // If the sprite pointer is owned.
     bool ownership = false;
 
     std::string sprite_path;

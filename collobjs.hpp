@@ -56,8 +56,8 @@ public:
         
         b2ShapeDef fixtureDef = b2DefaultShapeDef();
         fixtureDef.density = 0.0001;
-        fixtureDef.friction = 0;
-        fixtureDef.restitution = 1;
+        fixtureDef.material.friction = 0;
+        fixtureDef.material.restitution = 1;
         fixtureDef.filter.categoryBits = 2;
         fixtureDef.filter.maskBits = 1;
 

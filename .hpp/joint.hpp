@@ -73,10 +73,3 @@ struct motor_j : public _joint
 
     motor_j(CollObj* a, CollObj* b, b2MotorJointDef joint_def);
 };
-
-struct null_j : public _joint
-{
-    b2NullJointDef joint_def;
-
-    null_j(CollObj* a, CollObj* b, b2NullJointDef joint_def);
-};
