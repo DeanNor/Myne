@@ -3,3 +3,5 @@ Game
 /.cache
 /.vscode
 lib*
+*.so
+*.0
