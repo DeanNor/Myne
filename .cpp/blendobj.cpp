@@ -2,13 +2,11 @@
 #include "blendobj.hpp"
 
 #include "blend.h"
+#include "game.hpp"
 
 BlendObj::BlendObj()
 {
-    game* current_game = get_current_game();
-    window = current_game->game_window;
-
-    current_game->overlay_draws.push_back(this);
+    window = get_current_game()->game_window;
 }
 
 BlendObj::~BlendObj()
@@ -18,15 +16,15 @@ BlendObj::~BlendObj()
         SDL_DestroyTexture(texture);
     }
 
-    get_current_game()->remove_from_overlay_draws(this);
+    get_current_game()->remove_from_overlay_draws(this, depth);
 }
 
 void BlendObj::draw_overlay(pos origin)
 {
     if (texture != nullptr)
     {
-        pos glo_pos = global_position.transform - origin;
-        SDL_FRect pos_rect{(float)glo_pos.x,(float)glo_pos.y, (float)size.x, (float)size.y};
+        const pos glo_pos = global_position.transform - origin;
+        const SDL_FRect pos_rect{(float)glo_pos.x,(float)glo_pos.y, (float)size.x, (float)size.y};
 
         SDL_RenderTextureRotated(window->renderer, texture, nullptr, &pos_rect, global_position.transform_angle.deg(), nullptr, SDL_FLIP_NONE);
     }
@@ -70,4 +68,14 @@ void BlendObj::set_size(pos new_size)
 pos BlendObj::get_size()
 {
     return size;
+}
+
+void BlendObj::set_depth(unsigned char z)
+{
+    depth = z;
+}
+
+unsigned char BlendObj::get_depth()
+{
+    return depth;
 }

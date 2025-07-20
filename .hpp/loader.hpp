@@ -8,7 +8,6 @@
 #include <cstdlib>
 #include <cstring>
 #include <fstream>
-#include <iostream>
 #include <stdexcept>
 
 #include "load_save_requirements.hpp"

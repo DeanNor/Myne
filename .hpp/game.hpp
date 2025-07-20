@@ -1,10 +1,11 @@
 
 #pragma once
 
+#include "box2d/id.h"
+
 #include "display.hpp"
 
-#include <box2d/box2d.h>
-
+#include <limits>
 #include <vector>
 
 class Process;
@@ -53,8 +54,10 @@ struct game
 
     Process* root = nullptr;
 
-    std::vector<DrawObj*> draws = {};
-    std::vector<BlendObj*> overlay_draws = {};
+    // 255 depth values for both draws and overlay
+    std::vector<DrawObj*> draws[std::numeric_limits<unsigned char>::max()];
+    std::vector<BlendObj*> overlay_draws[std::numeric_limits<unsigned char>::max()];
+
     std::vector<CollObj*> collisions = {};
     std::vector<Process*> deletes = {};
 
@@ -97,19 +100,29 @@ struct game
 
     void process();
 
-    void collision_process();
+    void collision_process() const;
 
-    void draw();
+    void draw() const;
 
-    void draw_overlay();
+    void draw_overlay() const;
 
     void end_delete();
 
-    void remove_from_draws(DrawObj* who);
+    void add_to_draws(DrawObj* who, const unsigned char& depth);
 
-    void remove_from_overlay_draws(BlendObj* who);
+    void remove_from_draws(DrawObj* who, const unsigned char& depth);
+
+    void add_to_overlay_draws(BlendObj* who, const unsigned char& depth);
+
+    void remove_from_overlay_draws(BlendObj* who, const unsigned char& depth);
 
     void remove_from_collisions(CollObj* who);
+
+private:
+    bool __remove_from_draws(DrawObj* who, const unsigned char& depth);
+
+
+    bool __remove_from_overlay_draws(BlendObj* who, const unsigned char& depth);
 };
 
 void set_current_coll_world(b2WorldId world);

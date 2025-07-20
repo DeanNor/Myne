@@ -1,6 +1,9 @@
 
 #include "collobj.hpp"
 
+#include "b2.h"
+#include "game.hpp"
+
 CollObj::CollObj()
 {
     get_current_game()->collisions.push_back(this);
@@ -30,7 +33,7 @@ void CollObj::collision_process()
         
         if (global_position.parent != nullptr)
         {        
-            pos offset = global_position.parent->compute();
+            const pos offset = global_position.parent->compute();
             rad offset_rad = global_position.parent->compute_angle();
 
             position = (body_pos - offset).rotated(-offset_rad);

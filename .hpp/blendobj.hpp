@@ -1,10 +1,13 @@
 
 #pragma once
 
-#include "factory.hpp"
-#include "object.hpp"
+#include "SDL3/SDL_render.h"
 
-#include "blend.h"
+#include "blend2d.h"
+
+#include "display.hpp"
+
+#include "object.hpp"
 
 class BlendObj : public Object
 {
@@ -19,6 +22,8 @@ protected:
 
     pos image_size;
     pos size;
+
+    unsigned char depth;
 
 public:
     BlendObj();
@@ -54,4 +59,8 @@ public:
     void set_size(pos new_size);
 
     pos get_size();
+
+    void set_depth(unsigned char depth);
+
+    unsigned char get_depth();
 };

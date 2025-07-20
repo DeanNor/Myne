@@ -1,5 +1,6 @@
 
 #include "hull.hpp"
+#include "box2d/box2d.h"
 
 #include <fstream>
 
@@ -8,13 +9,13 @@ hull::hull(b2BodyId collision_body)
     static const int cap = 0xff;
 
     b2ShapeId shapes[cap];
-    int total = b2Body_GetShapes(collision_body, shapes, cap);
+    const int total = b2Body_GetShapes(collision_body, shapes, cap);
 
     for(int x = 0; x < total; ++x)
     {
-        b2ShapeId current = shapes[x];
+        const b2ShapeId current = shapes[x];
 
-        b2Polygon poly = b2Shape_GetPolygon(current);
+        const b2Polygon poly = b2Shape_GetPolygon(current);
 
         std::array<pos, B2_MAX_POLYGON_VERTICES> shape;
         for (int y = 0; y < poly.count; ++y)

@@ -39,13 +39,8 @@ class DynamObj : public CollObj
 {
 ASSIGN_CONSTRUCTOR(DynamObj)
 
-private:
-    double counter = 60;
-
 public:
-    DynamObj() = default;
-
-    void onload()
+    DynamObj()
     {
         collision_def.type = b2_dynamicBody;
         collision_def.enableSleep = false;
@@ -62,13 +57,6 @@ public:
         fixtureDef.filter.maskBits = 1;
 
         b2CreatePolygonShape(collision_body, &fixtureDef, &box);
-    }
-
-    void process(double delta)
-    {
-        counter -= delta;
-
-        if (counter <= 0) start_delete();
     }
 };
 
@@ -92,7 +80,7 @@ public:
         b2CreateCircleShape(collision_body, &def, &circ);
     }
 
-    void process(double)
+    void process(double) override
     {
         float x,y;
 

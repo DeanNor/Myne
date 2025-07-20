@@ -2,6 +2,8 @@
 #include "blendobj.hpp"
 #include "drawobj.hpp"
 
+#include ".hpp/game.hpp"
+
 struct rect
 {
 public:
@@ -38,7 +40,7 @@ public:
         normal = window->size;
     }
 
-    virtual void _process(double delta)
+    virtual void _process(double delta) override
     {
         BlendObj::_process(delta);
 
@@ -67,8 +69,6 @@ public:
     {
         return normal;
     }
-
-    ARCHIVE(BlendObj, offset)
 };
 
 class FloatScaled : public Float // Size is more of a readable value than usable, use scale instead
@@ -82,7 +82,7 @@ protected:
     BlendObj* scalar_parent = nullptr;
 
 public:
-    virtual void _process(double delta)
+    virtual void _process(double delta) override
     {
         Float::_process(delta);
 
@@ -97,7 +97,7 @@ public:
         }
     }
 
-    void set_parent(Process* new_parent)
+    void set_parent(Process* new_parent) override
     {
         Float::set_parent(new_parent);
 
@@ -131,8 +131,6 @@ public:
     {
         return scale;
     }
-
-    ARCHIVE(Float, scale)
 };
 
 class Dragable : public DrawObj
@@ -151,7 +149,7 @@ private:
     pos size;
 
 public:
-    void process(double)
+    void process(double) override
     {
         mouse_state& mse = get_current_game()->mouse;
         pos updated_pos = mse.position - (size / 2.0);
@@ -190,6 +188,4 @@ public:
         size = re_size;
         close_enough = {-re_size, re_size};
     }
-
-    ARCHIVE_INHERIT(DrawObj)
 };

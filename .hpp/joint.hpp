@@ -1,7 +1,7 @@
 
 #pragma once
 
-#include "b2.h"
+#include "box2d/types.h"
 
 #include "game.hpp"
 

@@ -15,8 +15,7 @@ void pos::save(Saver* save)
 
 double pos::sum()
 {
-    double sum = std::abs(x) + std::abs(y);
-    return sum;
+    return std::abs(x) + std::abs(y);
 }
 
 rad pos::direction()
@@ -29,7 +28,7 @@ pos pos::ratio()
 {
     pos x_to_y = {0,0};
 
-    double scale = sum();
+    const double scale = sum();
 
     x_to_y.x = x / scale;
     x_to_y.y = y / scale;
@@ -39,18 +38,17 @@ pos pos::ratio()
 
 double pos::len()
 {
-    double length = std::sqrt(std::pow(x,2) + std::pow(y,2));
-    return length;
+    return std::sqrt(std::pow(x,2) + std::pow(y,2));
 }
 
 pos pos::rotated(rad angle)
 {
     if (angle != rad(0.0))
     {
-        double cosine = std::cos(angle);
-        double sine = std::sin(angle);
+        const double cosine = std::cos(angle);
+        const double sine = std::sin(angle);
 
-        pos temp_pos = {};
+        pos temp_pos;
 
         temp_pos.x = (x * cosine) - (y * sine);
 
@@ -67,18 +65,17 @@ pos pos::rotated(rad angle)
 
 rad pos::angle_to(pos target)
 {
-    rad new_angle = atan2(target.y - y,target.x - x);
-    return new_angle;
+    return atan2(target.y - y,target.x - x);
 }
 
 pos pos::limited(double limit)
 {
-    double len = std::abs(x) + std::abs(y);
-    pos temp_pos = {};
+    const double len = std::abs(x) + std::abs(y);
+    pos temp_pos = {0,0};
 
     if (len > limit)
     {
-        double ratio_over = (len) / limit;
+        const double ratio_over = (len) / limit;
 
         if (ratio_over > 0)
         {
@@ -100,19 +97,19 @@ pos pos::scaled(pos start, pos end)
 {
     pos temp_pos = *this;
 
-    temp_pos *= end/start;
+    temp_pos *= end / start;
     
     return temp_pos;
 }
 
-bool pos::within(pos a, pos b)
+bool pos::within(const pos& min, const pos& max)
 {
-    if(x < std::min(a.x, b.x) || x > std::max(a.x, b.x))
+    if (x < min.x || x > max.x)
     {
         return false;
     }
 
-    if (y < std::min(a.y,b.y) || y > std::max(a.y,b.y))
+    if (y < min.y || y > max.y)
     {
         return false;
     }
@@ -168,7 +165,7 @@ pos pos::operator+ (const pos amount)
 
 pos pos::operator+ (const double amount)
 {
-    pos amount_over = ratio();
+    const pos amount_over = ratio();
     pos temp_pos = *this;
 
     temp_pos.x += amount * amount_over.x;
@@ -187,7 +184,7 @@ pos& pos::operator+= (const pos amount)
 
 pos& pos::operator+= (const double amount)
 {
-    pos amount_over = ratio();
+    const pos amount_over = ratio();
 
     x += amount * amount_over.x;
     y += amount * amount_over.y;
@@ -206,7 +203,7 @@ pos pos::operator- (const pos amount)
 
 pos pos::operator- (const double amount)
 {
-    pos amount_over = ratio();
+    const pos amount_over = ratio();
     pos temp_pos = *this;
 
     temp_pos.x -= amount * amount_over.x;
@@ -225,7 +222,7 @@ pos& pos::operator-= (const pos amount)
 
 pos& pos::operator-= (const double amount)
 {
-    pos amount_over = ratio();
+    const pos amount_over = ratio();
 
     x -= amount * amount_over.x;
     y -= amount * amount_over.y;

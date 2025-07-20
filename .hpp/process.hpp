@@ -1,9 +1,6 @@
 
 #pragma once
 
-#include "game.hpp"
-
-#include "factory.hpp"
 #include "loader.hpp"
 #include "saver.hpp"
 
@@ -23,11 +20,11 @@ protected:
 public:
     virtual ~Process();
 
+    Process() = default;
+
     virtual void load(Loader* load);
 
     virtual void save(Saver* save) const;
-
-    virtual void onload();
 
     virtual void _process(double delta);
 
@@ -86,7 +83,6 @@ inline Process* Loader::load_process()
             Process* p = Factory::construct_process(*hash_name);
 
             p->load(this);
-            p->onload();
 
             return p;
         }
@@ -116,7 +112,6 @@ inline Process* Loader::load_process()
         }
 
         p->load(this);
-        p->onload();
 
         eof = file.eof();
 

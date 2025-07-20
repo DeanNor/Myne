@@ -3,7 +3,6 @@
 
 #include "hash.hpp"
 
-#include <iostream>
 #include <fstream>
 #include <string>
 

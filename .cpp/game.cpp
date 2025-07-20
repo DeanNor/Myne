@@ -7,14 +7,19 @@
 #include "collobj.hpp"
 
 #include <SDL3/SDL_timer.h>
+#include <SDL3/SDL_init.h>
+
 #include <algorithm>
+#include <limits>
 
 game::game(const char* name, SDL_WindowFlags flags)
 {
     if (!SDL_Init(SDL_INIT_AUDIO | SDL_INIT_VIDEO))
     {
-        std::cout << "HUH INIT FAIL?" << std::endl;
+        std::cout << "HUH INIT FAIL?\n";
         // TODO If this happens, blow up your computer
+
+        std::cout << SDL_GetError() << '\n' << '\n';
     }
 
     game_window = new display({1000, 500}, name, flags);
@@ -105,7 +110,7 @@ void game::run_processes()
 
 void game::wait_for_frame()
 {
-    Uint64 ticks = SDL_GetTicks() - total_ticks;
+    const Uint64 ticks = SDL_GetTicks() - total_ticks;
     if (ticks < fpsticks)
     {
         //Wait remaining time
@@ -144,12 +149,12 @@ void game::process()
     }
 }
 
-void game::collision_process()
+void game::collision_process() const
 {
     // TODO timeStep should be constant, 0.016 prolly
     b2World_Step(coll_world, coll_spf, coll_iterations);
 
-    b2SensorEvents sensors = b2World_GetSensorEvents(coll_world);
+    const b2SensorEvents sensors = b2World_GetSensorEvents(coll_world);
 
     for (int x = 0; x < sensors.beginCount; ++x)
     {
@@ -163,7 +168,7 @@ void game::collision_process()
         CollObj::SensorEnd(event->sensorShapeId, event->visitorShapeId);
     }
 
-    b2ContactEvents contacts = b2World_GetContactEvents(coll_world);
+    const b2ContactEvents contacts = b2World_GetContactEvents(coll_world);
 
     for (int x = 0; x < contacts.beginCount; ++x)
     {
@@ -183,21 +188,29 @@ void game::collision_process()
     }
 }
 
-void game::draw()
+void game::draw() const
 {
-    pos origin = game_window->center - game_window->half_size;
-    for (DrawObj* object : draws)
+    const pos origin = game_window->center - game_window->half_size;
+    for (unsigned char x = 0; x < std::numeric_limits<unsigned char>::max(); x++)
     {
-        object->draw(origin);
+        const std::vector<DrawObj*>& layer = draws[x];
+        for (DrawObj* object : layer)
+        {
+            object->draw(origin);
+        }
     }
 }
 
-void game::draw_overlay()
+void game::draw_overlay() const
 {
-    pos origin = game_window->center - game_window->half_size;
-    for (BlendObj* object : overlay_draws)
+    const pos origin = game_window->center - game_window->half_size;
+    for (unsigned char x = 0; x < std::numeric_limits<unsigned char>::max(); x++)
     {
-        object->draw_overlay(origin);
+        const std::vector<BlendObj*>& layer = overlay_draws[x];
+        for (BlendObj* object : layer)
+        {
+            object->draw_overlay(origin);
+        }
     }
 }
 
@@ -214,39 +227,65 @@ void game::end_delete()
     }
 }
 
-void game::remove_from_draws(DrawObj* who)
+void game::add_to_draws(DrawObj* who, const unsigned char& depth)
 {
-    std::vector<DrawObj*>::iterator index = std::find(draws.begin(), draws.end(), who);
-
-    if (index != draws.end())
-    {
-        draws.erase(index);
-    }
-
-    else
-    {
-        std::cout << "HUH Draws" << std::endl; // Error, object seems already deleted and has no draw calls
-    }
+    draws[depth].push_back(who);
 }
 
-void game::remove_from_overlay_draws(BlendObj* who)
+bool game::__remove_from_draws(DrawObj* who, const unsigned char& depth)
 {
-    std::vector<BlendObj*>::iterator index = std::find(overlay_draws.begin(), overlay_draws.end(), who);
+    std::vector<DrawObj*>& layer = draws[depth];
+    auto index = std::find(layer.begin(), layer.end(), who);
 
-    if (index != overlay_draws.end())
+    if (index == layer.end()) return false;
+
+    layer.erase(index);
+    return true;
+}
+
+void game::remove_from_draws(DrawObj* who, const unsigned char& depth)
+{
+    if (__remove_from_draws(who,depth)) return;
+
+    for (unsigned char x = depth + 1; x != depth; x++) // Uses unsigned looping to get all
     {
-        overlay_draws.erase(index);
+        if (__remove_from_draws(who, x)) return;
     }
 
-    else
+    std::cout << "Huh Draws" << std::endl;
+}
+
+void game::add_to_overlay_draws(BlendObj* who, const unsigned char& depth)
+{
+    overlay_draws[depth].push_back(who);
+}
+
+bool game::__remove_from_overlay_draws(BlendObj* who, const unsigned char& depth)
+{
+    std::vector<BlendObj*>& layer = overlay_draws[depth];
+    auto index = std::find(layer.begin(), layer.end(), who);
+
+    if (index == layer.end()) return false;
+
+    layer.erase(index);
+    return true;
+}
+
+void game::remove_from_overlay_draws(BlendObj* who, const unsigned char& depth)
+{
+    if (__remove_from_overlay_draws(who,depth)) return;
+
+    for (unsigned char x = depth + 1; x != depth; x++) // Uses unsigned looping to get all
     {
-        std::cout << "HUH Overlay Draws" << std::endl; // Error, object seems already deleted and has no draw calls
+        if (__remove_from_overlay_draws(who, x)) return;
     }
+
+    std::cout << "HUH Overlay Draws" << std::endl;
 }
 
 void game::remove_from_collisions(CollObj* who)
 {
-    std::vector<CollObj*>::iterator index = std::find(collisions.begin(), collisions.end(), who);
+    const std::vector<CollObj*>::iterator index = std::find(collisions.begin(), collisions.end(), who);
 
     if (index != collisions.end())
     {

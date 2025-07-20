@@ -34,8 +34,8 @@ void save_img(SDL_Texture* texture, SDL_Renderer* renderer, std::filesystem::pat
 // Loads texture from path. The texture will be attached to the renderer
 void load_img(SDL_Texture*& texture, SDL_Renderer* renderer, std::filesystem::path path)
 {
-    ASSERT(std::filesystem::exists(path), "File path does not exist");
+    ASSERT(std::filesystem::exists(path), std::string("File path does not exist ") + path.generic_string());
 
     texture = IMG_LoadTexture(renderer, path.c_str());
-    ASSERT(texture, "ERROR with texture");
+    ASSERT(texture, "ERROR with texture creation");
 }

@@ -1,12 +1,13 @@
 
 #include "drawobj.hpp"
 
+#include "SDL3_image/SDL_image.h"
+
+#include "game.hpp"
+
 DrawObj::DrawObj()
 {
-    game* current_game = get_current_game();
-    window = current_game->game_window;
-
-    current_game->draws.push_back(this);
+    window = get_current_game()->game_window;
 }
 
 DrawObj::~DrawObj()
@@ -16,14 +17,14 @@ DrawObj::~DrawObj()
         SDL_DestroyTexture(sprite);
     }
 
-    get_current_game()->remove_from_draws(this);
+    get_current_game()->remove_from_draws(this, depth);
 }
 
 void DrawObj::draw(pos origin)
 {
     if (sprite != nullptr && visible())
     {
-        SDL_FRect pos_rect = pos::Make_SDL_FRect(global_position.compute() - origin, center); // Transform and transform_angle can be used as visible() uses compute()
+        const SDL_FRect pos_rect = pos::Make_SDL_FRect(global_position.compute() - origin, half_size); // Transform and transform_angle can be used as visible() uses compute()
 
         SDL_RenderTextureRotated(window->renderer, sprite, nullptr, &pos_rect, global_position.compute_angle().deg(), nullptr, SDL_FLIP_NONE);
     }
@@ -38,8 +39,8 @@ void DrawObj::set_sprite(SDL_Texture* bitmap, bool owns_sprite)
 
     SDL_GetTextureSize(sprite, &x, &y);
 
-    center.x = x / 2.0;
-    center.y = y / 2.0;
+    size = {x,y};
+    half_size = size / 2;
 }
 
 void DrawObj::set_sprite(std::string path)
@@ -69,53 +70,89 @@ std::string DrawObj::get_sprite_path()
     return sprite_path;
 }
 
-void DrawObj::set_display(display* new_display)
+void DrawObj::set_depth(unsigned char z)
 {
-    window = new_display;
+    depth = z;
 }
 
-display* DrawObj::get_display()
+unsigned char DrawObj::get_depth()
 {
-    return window;
+    return depth;
 }
 
-// TODO rotated rect check
+void DrawObj::init()
+{
+    get_current_game()->add_to_draws(this, depth);
+}
+
+void DrawObj::init(unsigned char z)
+{
+    depth = z;
+
+    get_current_game()->add_to_draws(this, depth);
+}
+
 bool DrawObj::visible()
 {
-    pos window_zero = window->center - window->half_size;
-    pos window_max = window->center + window->half_size;
+    const pos window_zero = window->center - window->half_size;
+    const pos window_max = window->center + window->half_size;
 
     pos glo_pos = global_position.compute();
-    if (glo_pos.within(window_zero, window_max))
+
+    pos bottom_right = (glo_pos + size).rotated(angle);
+    if (bottom_right.within(window_zero, window_max))
     {
         return true;
     }
 
-    if (glo_pos.x - center.x < window_zero.x || glo_pos.x + center.x > window_max.x)
+    pos top_left = (glo_pos - size).rotated(angle);
+    if (top_left.within(window_zero, window_max))
     {
-        return false;
+        return true;
     }
 
-    if (glo_pos.y - center.y < window_zero.y || glo_pos.y + center.y > window_max.y)
+    pos top_right = pos(glo_pos.x + size.x, glo_pos.y - size.x).rotated(angle);
+    if (top_right.within(window_zero, window_max))
     {
-        return false;
+        return true;
     }
 
-    return true;
+    pos bottom_left = pos(glo_pos.x - size.x, glo_pos.y + size.y).rotated(angle);
+    if (bottom_left.within(window_zero, window_max))
+    {
+        return true;
+    }
+
+    return false;
 }
 
 bool DrawObj::fully_visible()
 {
-    pos window_zero = window->center - window->half_size;
-    pos window_max = window->center + window->half_size;
+    const pos window_zero = window->center - window->half_size;
+    const pos window_max = window->center + window->half_size;
 
     pos glo_pos = global_position.compute();
-    if (glo_pos.x + center.x < window_zero.x || glo_pos.x - center.x > window_max.x)
+
+    pos bottom_right = (glo_pos + size).rotated(angle);
+    if (!bottom_right.within(window_zero, window_max))
     {
         return false;
     }
 
-    if (glo_pos.y + center.y < window_zero.y || glo_pos.y - center.y > window_max.y)
+    pos top_left = (glo_pos - size).rotated(angle);
+    if (!top_left.within(window_zero, window_max))
+    {
+        return false;
+    }
+
+    pos top_right = pos(glo_pos.x + size.x, glo_pos.y - size.x).rotated(angle);
+    if (!top_right.within(window_zero, window_max))
+    {
+        return false;
+    }
+
+    pos bottom_left = pos(glo_pos.x - size.x, glo_pos.y + size.y).rotated(angle);
+    if (!bottom_left.within(window_zero, window_max))
     {
         return false;
     }

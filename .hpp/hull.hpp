@@ -1,7 +1,9 @@
 
 #pragma once
 
-#include "b2.h"
+#include "box2d/collision.h"
+#include "box2d/id.h"
+
 #include "pos.hpp"
 
 #include <iostream>

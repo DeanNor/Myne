@@ -1,72 +1,69 @@
 
-#include "SDL3.h"
-#include "SDL3/SDL_video.h"
 #include "game.hpp"
-#include "drawobj.hpp"
 
 #include "collobjs.hpp"
 #include "process.hpp"
-#include <chrono>
-#include <random>
 
-SDL_Texture* text1;
+#include "editorstuff.hpp"
 
-class Spawner : public Process
+#include "clang_tool.hpp"
+
+#include <thread>
+
+static double fps = 1 / 60.0;
+
+class ENDLESS : public Process
 {
+    EditorObj* editor_var;
+
 public:
-    void process(double)
+    ENDLESS()
     {
-        DynamObj* a = DynamObj::create();
-        add_child(a);
-        a->set_position({get_current_game()->game_window->center.x,50});
+        editor_var = new EditorObj;
+        editor_var->set_size(pos(EDITOR::basic_positional->w,EDITOR::basic_positional->h));
+        editor_var->set_position({1,1});
 
-        static std::random_device rd;
-        static std::mt19937 gen(rd());
-        static std::uniform_real_distribution<> dis(-PI, PI);
-        static std::uniform_real_distribution<float> dis2(-100.0f, 100.0f);
+        editor_var->init();
 
-        a->set_angle(dis(gen));
+        add_child(editor_var);
+    }
 
-        b2Body_SetLinearVelocity(a->get_collision_body(), {dis2(gen), dis2(gen)});
+    void process(double delta) override
+    {
+        if (delta >= fps)
+        {
+            EditorObj* p_editor_var = editor_var;
 
-        DrawObj* da = new DrawObj;
-        da->set_sprite(text1,false);
-        a->add_child(da);
+            editor_var = new EditorObj;
+            editor_var->set_size(pos(EDITOR::basic_positional->w,EDITOR::basic_positional->h));
+            editor_var->set_position({1,1});
+
+            editor_var->init();
+
+            p_editor_var->add_child(editor_var);
+        }
     }
 };
 
 int main()
 {
-    game gameplay("HI", SDL_WINDOW_RESIZABLE);
-    //set_editor(&gameplay);
+    editor gameplay("HI", SDL_WINDOW_RESIZABLE);
+    set_editor(&gameplay);
     set_current_game(&gameplay);
 
-    //EDITOR::setup_namespace();
+    gameplay.physics = false;
 
-    b2Init();
+    EDITOR::setup_namespace();
 
-    b2WorldDef world_def = WorldDef({0.,100.});
-    b2WorldId coll_world = b2CreateWorld(&world_def);
+    std::thread search(search_load,"./.cpp/object.cpp");
 
-    set_current_coll_world(coll_world);
-
-    StaticObj* static_object = new StaticObj;
-    gameplay.root->add_child(static_object);
-
-    gameplay.coll_world = coll_world;
-
-    load_img(text1, gameplay.game_window->renderer, "img/track1.png");
-
-    gameplay.root->add_child(new Spawner);
+    gameplay.root->add_child(new ENDLESS);
 
     gameplay.start();
 
-    auto tim = std::chrono::high_resolution_clock::now().time_since_epoch();
-    Saver s("save.sve");
-    s.save_process(gameplay.root);
-    std::cout << std::chrono::high_resolution_clock::now().time_since_epoch() - tim << std::endl;
-
     gameplay.root->del();
+
+    search.join();
 
     return 0;
 }

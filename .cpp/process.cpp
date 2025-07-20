@@ -1,5 +1,7 @@
 
 #include "process.hpp"
+#include "err.hpp"
+#include "game.hpp"
 
 Process::~Process()
 {
@@ -34,11 +36,6 @@ void Process::save(Saver* save) const
     }
 }
 
-void Process::onload()
-{
-
-}
-
 void Process::_process(double delta)
 {
     process(delta);
@@ -69,15 +66,9 @@ void Process::remove_child(Process* child)
 {
     std::vector<Process*>::iterator index = std::find(children.begin(), children.end(), child);
 
-    if (index != children.end())
-    {
-        children.erase(index);
-    }
+    ASSERT(index != children.end(), "Error with remove child");
 
-    else
-    {
-        std::cout << "Not FOUND for remove child" << std::endl; // Error, object seems already deleted, or the parent is wrong
-    }
+    children.erase(index);
 }
 
 Process* Process::get_child(size_t index)

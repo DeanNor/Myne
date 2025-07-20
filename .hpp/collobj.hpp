@@ -1,11 +1,11 @@
 
 #pragma once
 
-#include "factory.hpp"
+#include "box2d/box2d.h"
+
 #include "object.hpp"
 
 #include "hull.hpp"
-#include <box2d/math_functions.h>
 
 EXTERNAL_VAR_CONSTRUCTOR(b2Vec2)
 OVERRIDE_LOAD(b2Vec2)
@@ -55,7 +55,7 @@ public:
     
     ~CollObj();
 
-    void _process(double delta);
+    void _process(double delta) override;
 
     virtual void collision_process();
 
@@ -91,7 +91,7 @@ public:
     virtual void sensor_end(CollObj* other);
 
     // TODO decide if this should create the physics body and if it should store a physics body
-    void load(Loader* ar)
+    void load(Loader* ar) override
     {
         Object::load(ar);
         
@@ -122,7 +122,7 @@ public:
         collision_def.type = ar->load_enum<b2BodyType>();
     }
 
-    void save(Saver* ar) const
+    void save(Saver* ar) const override
     {
         Object::save(ar);
         

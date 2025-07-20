@@ -1,22 +1,19 @@
 
 #pragma once
 
-#include "factory.hpp"
 #include "object.hpp"
 
 #include "display.hpp"
-#include "saver.hpp"
 
 class DrawObj : public Object
 {
 ASSIGN_CONSTRUCTOR(DrawObj)
 
 public:
-    void load(Loader* ar)
+    void load(Loader* ar) override
     {
         Object::load(ar);
 
-        center = ar->load_complex<pos>();
         scale = ar->load_complex<pos>();
         ownership = ar->load_data<bool>();
 
@@ -26,13 +23,14 @@ public:
 
             set_sprite(sprite_path);
         }
+
+        depth = ar->load_data<unsigned char>();
     }
 
-    void save(Saver* ar) const
+    void save(Saver* ar) const override
     {
         Object::save(ar);
-        
-        ar->save_complex(center);
+
         ar->save_complex(scale);
         ar->save_data(ownership);
 
@@ -40,6 +38,8 @@ public:
         {
             ar->save_complex(sprite_path);
         }
+
+        ar->save_data(depth);
     }
 
 protected:
@@ -47,14 +47,19 @@ protected:
     SDL_Texture* target = nullptr;
 
     SDL_Texture* sprite = nullptr;
-    pos center;
 
     pos scale = {1,1};
+
+    // Both size and half size
+    pos size;
+    pos half_size;
 
     // If the sprite pointer is owned.
     bool ownership = false;
 
     std::string sprite_path;
+
+    unsigned char depth = 0;
 
 public:
     DrawObj();
@@ -72,13 +77,18 @@ public:
 
     std::string get_sprite_path();
 
-    void set_display(display* new_display);
+    void set_depth(unsigned char depth);
 
-    display* get_display();
+    unsigned char get_depth();
 
-    // If any pixel of the object is on the screen.
+    // Assumes that the depth is already assigned.
+    void init();
+
+    void init(unsigned char depth);
+
+    // If any pixel of the object is on the screen. Calls compute.
     bool visible();
 
-    // If 100% of the object is on the screen.
+    // If 100% of the object is on the screen. Calls compute. Note, rounding errors (and moveover, physics) make this a little inaccurate.
     bool fully_visible();
 };

@@ -1,9 +1,10 @@
 #pragma once
 
+#include "SDL3.h"
 #include "imgui-docking/imgui.h"
 #include "imgui-docking/backends/imgui_impl_sdl3.h"
 #include "imgui-docking/backends/imgui_impl_sdlrenderer3.h"
-#include "imgui-docking/misc/cpp/imgui_stdlib.h"
+#include <filesystem>
 
 static const char* objects = "Scene Objects";
 static const char* data = "Variables";
@@ -20,11 +21,13 @@ namespace EDITOR
 {
     static SDL_Texture* basic_positional;
 
-    void setup_namespace()
+    inline void setup_namespace()
     {
-        load_img(basic_positional, get_current_game()->game_window->renderer, "img/track.png");
+        load_img(basic_positional, get_current_game()->game_window->renderer, "img/track1.png");
     }
 }
+
+#include <iostream>
 
 struct editor : public game
 {
@@ -33,11 +36,10 @@ public:
     {
         set_current_game(this);
 
-        ImGui::CreateContext(); // Could store a context, but not required right now
+        ImGui::CreateContext(); // TODO Could store a context, but not required right now
 
-        ImGuiIO& io = ImGui::GetIO(); (void)io;
+        ImGuiIO& io = ImGui::GetIO();
         io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
-        io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
         io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;         // Enable Docking
 
         ImGui::StyleColorsDark();
@@ -93,14 +95,14 @@ public:
     }
 };
 
-editor* editing_thing = nullptr;
+inline editor* editing_thing = nullptr;
 
-void set_editor(editor* thing_that_edits)
+inline void set_editor(editor* thing_that_edits)
 {
     editing_thing = thing_that_edits;
 }
 
-editor* get_editor()
+inline editor* get_editor()
 {
     return editing_thing;
 }
@@ -111,8 +113,6 @@ class EditorObj : public Dragable
 {
 ASSIGN_CONSTRUCTOR(EditorObj)
 
-ARCHIVE_INHERIT(Dragable)
-
 public:
     const char* represents = "";
 
@@ -120,8 +120,10 @@ public:
 
     bool has_sprite = false;
 
-    void onload()
+    void load(Loader* load) override
     {
+        Dragable::load(load);
+        
         if (!has_sprite)
         {
             set_sprite(EDITOR::basic_positional, false);
@@ -131,7 +133,7 @@ public:
         set_size(wh / 2);
     }
 
-    void _process(double delta)
+    void _process(double delta) override
     {
         process(delta);
 

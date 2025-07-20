@@ -4,8 +4,8 @@
 #include <box2d/types.h>
 #include <box2d/math_functions.h>
 
-const float B2_SCALE = 100.0f; // Scale between b2 positions and object positions
-const float B2_MAX_MOVEMENT = 500.0f;
+static float B2_SCALE = 100.0f; // Scale between b2 positions and object positions
+static float B2_MAX_MOVEMENT = 500.0f;
 
 inline void b2Init()
 {

@@ -1,12 +1,9 @@
 
 #pragma once
 
-#include <ostream>
-
 #include <box2d/math_functions.h>
 #include <SDL3/SDL_rect.h>
 
-#include "factory.hpp"
 #include "rad.hpp"
 
 #include "saver.hpp"
@@ -77,7 +74,7 @@ public:
 
     pos scaled(pos start, pos end);
 
-    bool within(pos a, pos b);
+    bool within(const pos& min, const pos& max);
 
     pos floor();
 
