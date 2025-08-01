@@ -1,5 +1,5 @@
 
-#include "display.hpp"
+#include ".hpp/display.hpp"
 
 display::display(pos display_size, const char* name, SDL_WindowFlags flags)
 {

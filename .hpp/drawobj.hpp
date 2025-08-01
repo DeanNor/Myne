@@ -1,46 +1,13 @@
 
 #pragma once
 
-#include "object.hpp"
+#include ".hpp/object.hpp"
 
-#include "display.hpp"
+#include ".hpp/display.hpp"
 
 class DrawObj : public Object
 {
 ASSIGN_CONSTRUCTOR(DrawObj)
-
-public:
-    void load(Loader* ar) override
-    {
-        Object::load(ar);
-
-        scale = ar->load_complex<pos>();
-        ownership = ar->load_data<bool>();
-
-        if (ownership)
-        {
-            sprite_path = ar->load_complex<std::string>();
-
-            set_sprite(sprite_path);
-        }
-
-        depth = ar->load_data<unsigned char>();
-    }
-
-    void save(Saver* ar) const override
-    {
-        Object::save(ar);
-
-        ar->save_complex(scale);
-        ar->save_data(ownership);
-
-        if (ownership)
-        {
-            ar->save_complex(sprite_path);
-        }
-
-        ar->save_data(depth);
-    }
 
 protected:
     display* window = nullptr;
@@ -65,6 +32,10 @@ public:
     DrawObj();
 
     ~DrawObj();
+
+    void load(Loader* ar) override;
+
+    void save(Saver* ar) const override;
 
     virtual void draw(pos origin);
 

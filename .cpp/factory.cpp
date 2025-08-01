@@ -1,5 +1,5 @@
 
-#include "factory.hpp"
+#include ".hpp/factory.hpp"
 
 void* Factory::construct(hash name)
 {

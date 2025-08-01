@@ -1,8 +1,8 @@
 
-#include "blendobj.hpp"
+#include ".hpp/blendobj.hpp"
 
-#include "blend.h"
-#include "game.hpp"
+#include ".hpp/blend.h"
+#include ".hpp/game.hpp"
 
 BlendObj::BlendObj()
 {

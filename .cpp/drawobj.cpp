@@ -1,9 +1,9 @@
 
-#include "drawobj.hpp"
+#include ".hpp/drawobj.hpp"
+
+#include ".hpp/game.hpp"
 
 #include "SDL3_image/SDL_image.h"
-
-#include "game.hpp"
 
 DrawObj::DrawObj()
 {
@@ -18,6 +18,38 @@ DrawObj::~DrawObj()
     }
 
     get_current_game()->remove_from_draws(this, depth);
+}
+
+void DrawObj::load(Loader* ar)
+{
+    Object::load(ar);
+
+    scale = ar->load_complex<pos>();
+    ownership = ar->load_data<bool>();
+
+    if (ownership)
+    {
+        sprite_path = ar->load_complex<std::string>();
+
+        set_sprite(sprite_path);
+    }
+
+    depth = ar->load_data<unsigned char>();
+}
+
+void DrawObj::save(Saver* ar) const override
+{
+    Object::save(ar);
+
+    ar->save_complex(scale);
+    ar->save_data(ownership);
+
+    if (ownership)
+    {
+        ar->save_complex(sprite_path);
+    }
+
+    ar->save_data(depth);
 }
 
 void DrawObj::draw(pos origin)

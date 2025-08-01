@@ -1,8 +1,8 @@
 
-#include "collobj.hpp"
+#include ".hpp/collobj.hpp"
 
-#include "b2.h"
-#include "game.hpp"
+#include ".hpp/b2.h"
+#include ".hpp/game.hpp"
 
 CollObj::CollObj()
 {
@@ -18,9 +18,9 @@ CollObj::~CollObj()
     get_current_game()->remove_from_collisions(this);
 }
 
-void CollObj::_process(double delta)
+void CollObj::_process()
 {
-    Object::_process(delta);
+    Object::_process();
 
     b2Body_SetTransform(collision_body,global_position.compute(),global_position.compute_angle());
 }

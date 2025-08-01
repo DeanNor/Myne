@@ -1,11 +1,11 @@
 
-#include "SDL3.h"
+#include ".hpp/SDL3.h"
 
 #include <SDL3_image/SDL_image.h>
 #include <cassert>
 #include <filesystem>
 
-#include "err.hpp"
+#include ".hpp/err.hpp"
 
 // Should not be called in the draw function as it clears the content of renderer, although YOLO
 // Saves the texture to path as a png, but does not add the .png to the end

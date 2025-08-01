@@ -1,6 +1,6 @@
 
-#include "blendobj.hpp"
-#include "drawobj.hpp"
+#include ".hpp/blendobj.hpp"
+#include ".hpp/drawobj.hpp"
 
 #include ".hpp/game.hpp"
 
@@ -10,14 +10,9 @@ public:
     pos zero;
     pos max;
 
-    bool is_inside(pos point)
+    bool contains(pos point)
     {
         return (point.x > zero.x) && (point.y > zero.y) && (point.x < max.x) && (point.y < max.y);
-    }
-
-    bool is_inside(pos point, pos offset)
-    {
-        return (point.x > zero.x + offset.x) && (point.y > zero.y + offset.y) && (point.x < max.x + offset.x) && (point.y < max.y + offset.y);
     }
 };
 
@@ -40,9 +35,9 @@ public:
         normal = window->size;
     }
 
-    virtual void _process(double delta) override
+    virtual void _process() override
     {
-        BlendObj::_process(delta);
+        BlendObj::_process();
 
         pos window_zero = window->center - window->half_size;
         position = window_zero + offset.scaled(normal, window->size);
@@ -82,9 +77,9 @@ protected:
     BlendObj* scalar_parent = nullptr;
 
 public:
-    virtual void _process(double delta) override
+    virtual void _process() override
     {
-        Float::_process(delta);
+        Float::_process();
 
         if (parent_scope)
         {
@@ -133,55 +128,32 @@ public:
     }
 };
 
+// Due to the implementation of dragging, no children other than Dragables and child classes can be had. It also assumes that a base Dragable is the root position.
 class Dragable : public DrawObj
 {
 ASSIGN_CONSTRUCTOR(Dragable)
 
 private:
-    bool follow = false;
-
-    bool clicked = false;
-
     rect close_enough;
-
-    pos past_mouse;
 
     pos size;
 
 public:
-    void process(double) override
+    Dragable* check_click(pos global_mouse)
     {
-        mouse_state& mse = get_current_game()->mouse;
-        pos updated_pos = mse.position - (size / 2.0);
+        pos updated_mouse = global_mouse - position;
 
-        if (global_position.parent)
+        for (Process* child : children)
         {
-            updated_pos -= global_position.parent->compute();
+            Dragable* ret_val = ((Dragable*)child)->check_click(updated_mouse);
+
+            if (ret_val) return ret_val;
         }
 
-        if (follow)
-        {
-            follow = mse.ldown;
+        if (close_enough.contains(updated_mouse)) return this;
 
-            position += updated_pos - past_mouse;
-
-            if (!follow)
-            {
-                dropped();
-            }
-        }
-
-        else if (mse.ldown && !clicked && close_enough.is_inside(updated_pos, position))
-        {
-            follow = true;
-        }
-
-        clicked = mse.ldown;
-
-        past_mouse = updated_pos;
+        return nullptr;
     }
-
-    virtual void dropped(){}
 
     void set_size(pos re_size)
     {

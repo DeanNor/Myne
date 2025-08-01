@@ -55,7 +55,7 @@ public:
     
     ~CollObj();
 
-    void _process(double delta) override;
+    void _process() override;
 
     virtual void collision_process();
 

@@ -3,7 +3,7 @@
 
 #include "box2d/types.h"
 
-#include "game.hpp"
+#include ".hpp/game.hpp"
 
 class CollObj;
 

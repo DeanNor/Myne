@@ -1,16 +1,13 @@
 
-#include "game.hpp"
+#include ".hpp/game.hpp"
 
-#include "process.hpp"
-#include "drawobj.hpp"
-#include "blendobj.hpp"
-#include "collobj.hpp"
+#include ".hpp/process.hpp"
+#include ".hpp/drawobj.hpp"
+#include ".hpp/blendobj.hpp"
+#include ".hpp/collobj.hpp"
 
 #include <SDL3/SDL_timer.h>
 #include <SDL3/SDL_init.h>
-
-#include <algorithm>
-#include <limits>
 
 game::game(const char* name, SDL_WindowFlags flags)
 {
@@ -24,7 +21,7 @@ game::game(const char* name, SDL_WindowFlags flags)
 
     game_window = new display({1000, 500}, name, flags);
 
-    root = new Process; // TODO remove
+    root = new Process; // TODO decide to remove
 
     /*std::cout.setf(std::ios::fixed | std::ios::showpoint);
     std::cout.precision(80);*/
@@ -92,7 +89,7 @@ void game::run_processes()
     SDL_GetMouseState(&x,&y);
     mouse.position = pos(x,y) + game_window->center - game_window->half_size;
 
-    delay = (long double)(SDL_GetTicksNS() - total_delay) / NSPS;
+    delta = (long double)(SDL_GetTicksNS() - total_delay) / NSPS;
     total_delay = SDL_GetTicksNS();
 
     process();
@@ -139,7 +136,7 @@ void game::process()
 {
     if (root != nullptr)
     {
-        root->_process(delay);
+        root->_process();
     }
 
     else

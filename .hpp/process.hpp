@@ -26,11 +26,11 @@ public:
 
     virtual void save(Saver* save) const;
 
-    virtual void _process(double delta);
+    virtual void _process();
 
-    virtual void process(double delta);
+    virtual void process();
 
-    void process_children(double delta);
+    void process_children();
 
     void add_child(Process* child);
 

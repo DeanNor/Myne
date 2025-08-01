@@ -1,7 +1,8 @@
 
-#include "process.hpp"
-#include "err.hpp"
-#include "game.hpp"
+#include ".hpp/process.hpp"
+
+#include ".hpp/err.hpp"
+#include ".hpp/game.hpp"
 
 Process::~Process()
 {
@@ -36,23 +37,23 @@ void Process::save(Saver* save) const
     }
 }
 
-void Process::_process(double delta)
+void Process::_process()
 {
-    process(delta);
+    process();
 
-    process_children(delta);
+    process_children();
 }
 
-void Process::process(double)
+void Process::process()
 {
     return;
 }
 
-void Process::process_children(double delta)
+void Process::process_children()
 {
     for (Process* child : children)
     {
-        child->_process(delta);
+        child->_process();
     }
 }
 

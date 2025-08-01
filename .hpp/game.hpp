@@ -1,6 +1,7 @@
 
 #pragma once
 
+#include "SDL3/SDL_mouse.h"
 #include "box2d/id.h"
 
 #include "display.hpp"
@@ -16,7 +17,7 @@ class CollObj;
 const static long double MSPS = 1000.;
 const static long double NSPS = 1.e+9;
 
-struct mouse_state // TODO Proper input handling and all mouse buttons
+struct mouse_state // TODO Proper input handling and keyboard
 {
 public:
     pos position;
@@ -24,6 +25,8 @@ public:
     bool ldown = false;
     bool mdown = false;
     bool rdown = false;
+    bool x1down = false;
+    bool x2down = false;
 
     mouse_state() = default;
 
@@ -35,15 +38,18 @@ public:
         {
         case SDL_BUTTON_LEFT:
             ldown = mse.down;
-            break;
 
         case SDL_BUTTON_MIDDLE:
             mdown = mse.down;
-            break;
             
         case SDL_BUTTON_RIGHT:
             rdown = mse.down;
-            break;
+
+        case SDL_BUTTON_X1:
+            x1down = mse.down;
+
+        case SDL_BUTTON_X2:
+            x2down = mse.down;
         }
     }
 };
@@ -74,7 +80,7 @@ struct game
 
     Uint64 total_ticks = 0; // Internal clock
     Uint64 total_delay = 0; // Internal clock #2, uses NS //TODO remove the #2
-    double delay; // Delta time
+    double delta; // Delta time for last frame, before all other calls.
 
     int coll_iterations = 4;
 

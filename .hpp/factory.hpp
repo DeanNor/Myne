@@ -4,7 +4,7 @@
 #include <unordered_map>
 #include <functional>
 
-#include "hash.hpp"
+#include ".hpp/hash.hpp"
 
 class Process;
 

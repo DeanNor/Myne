@@ -1,10 +1,13 @@
 
 // USER DEFINED STUFF ISH
-#include "factory.hpp"
+#include ".hpp/factory.hpp"
+
+#include ".hpp/game.hpp"
+
 static const int HUH = 1000000;
 static const int width = 500;
 
-#include "collobj.hpp"
+#include ".hpp/collobj.hpp"
 
 class StaticObj : public CollObj
 {
@@ -80,7 +83,7 @@ public:
         b2CreateCircleShape(collision_body, &def, &circ);
     }
 
-    void process(double) override
+    void process() override
     {
         float x,y;
 

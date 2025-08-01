@@ -7,17 +7,17 @@ struct tfm
 {
 private:
     // Storage of past values for quick compute
-    pos past_pos;
-    rad past_angle = 0;
+    pos past_pos = {0,0};
+    rad past_angle = {0};
 
-    pos par_pos;
-    rad par_angle = 0;
+    pos par_pos = {0,0};
+    rad par_angle = {0};
 
 public:
     // Internal values to quick compute transform and angle.
     // Should not normally be used.
-    pos transform;
-    rad transform_angle;
+    pos transform = {0,0};
+    rad transform_angle = {0};
 
     // Un-Owned position and angle variables, stored in the object class but not here.
     pos* position = nullptr;
@@ -34,6 +34,7 @@ public:
     void mult(pos other);
     void div(pos other);
 
+    // Set the underlying position to value, taking into account the global position the underlying position is scoped to.
     void set(pos value);
 
     bool has_changed();

@@ -1,11 +1,11 @@
 
-#include "object.hpp"
+#include ".hpp/object.hpp"
 
 void Object::load(Loader* load)
 {
     Process::load(load);
 
-    position = load->load_complex<pos>();
+    (int*)position = (int*)load->load_complex<pos>();
 
     angle = load->load_complex<rad>();
 }

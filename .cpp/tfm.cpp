@@ -1,5 +1,5 @@
 
-#include "tfm.hpp"
+#include ".hpp/tfm.hpp"
 
 tfm::tfm(pos* new_position, rad* new_angle) : position(new_position), angle(new_angle), parent(nullptr)
 {
@@ -63,10 +63,16 @@ void tfm::div(pos other)
     }
 }
 
+#include <iostream>
 void tfm::set(pos value)
 {
-   if (parent) *position = value - parent->compute();
-   else *position = value;
+    if (parent != nullptr)
+    {
+            std::cout << position << std::endl;
+            *position = value - parent->compute();
+    }
+
+    else *position = value;
 }
 
 // TODO: replace recursive calls to angle_changed and has_changed.
@@ -132,7 +138,7 @@ bool tfm::angle_changed()
 
     return false;
 }
-
+#include <iostream>
 rad tfm::compute_angle()
 {
     if (angle_changed())
@@ -140,6 +146,7 @@ rad tfm::compute_angle()
         if (parent != nullptr)
         {
             transform_angle = *angle;
+            std::cout << *angle << ' ';
             past_angle = transform_angle;
             
             par_angle = parent->compute_angle();
