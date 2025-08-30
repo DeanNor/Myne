@@ -19,7 +19,7 @@ public:
 
 class Float : public BlendObj
 {
-ASSIGN_CONSTRUCTOR(Float)
+ASSIGN_CONSTRUCTOR(Float);
 
 protected:
     pos offset;
@@ -68,7 +68,7 @@ public:
 
 class FloatScaled : public Float // Size is more of a readable value than usable, use scale instead
 {
-ASSIGN_CONSTRUCTOR(FloatScaled)
+ASSIGN_CONSTRUCTOR(FloatScaled);
 
 protected:
     pos scale;
@@ -131,7 +131,7 @@ public:
 // Due to the implementation of dragging, no children other than Dragables and child classes can be had. It also assumes that a base Dragable is the root position.
 class Dragable : public DrawObj
 {
-ASSIGN_CONSTRUCTOR(Dragable)
+ASSIGN_CONSTRUCTOR(Dragable);
 
 private:
     rect close_enough;

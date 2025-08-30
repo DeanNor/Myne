@@ -37,7 +37,7 @@ void DrawObj::load(Loader* ar)
     depth = ar->load_data<unsigned char>();
 }
 
-void DrawObj::save(Saver* ar) const override
+void DrawObj::save(Saver* ar) const
 {
     Object::save(ar);
 

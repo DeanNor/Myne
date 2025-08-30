@@ -6,7 +6,7 @@
 
 class Process
 {
-ASSIGN_CONSTRUCTOR_OVERRIDE(Process)
+ASSIGN_CONSTRUCTOR_OVERRIDE(Process);
 
 protected:
     Process* parent = nullptr;

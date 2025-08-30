@@ -7,17 +7,15 @@
 
 #include "editorstuff.hpp"
 
-#include "clang_tool.hpp"
-
-#include <thread>
-
 static double fps = 1 / 60.0;
 
 class ENDLESS : public Process
 {
-ASSIGN_CONSTRUCTOR(ENDLESS)
+ASSIGN_CONSTRUCTOR(ENDLESS);
 
     EditorObj* editor_var;
+
+    int remaining_boxes = 8 * 3;
 
 public:
     ENDLESS()
@@ -38,32 +36,40 @@ public:
 
     void process() override
     {
-        if (get_current_game()->delta >= fps)
+        if (remaining_boxes > 0)
         {
-            EditorObj* p_editor_var = editor_var;
+            if (get_current_game()->delta >= fps)
+            {
+                --remaining_boxes;
+                
+                EditorObj* p_editor_var = editor_var;
 
-            editor_var = new EditorObj;
-            editor_var->set_sprite(EDITOR::basic_positional, false);
-            editor_var->set_size(pos(EDITOR::basic_positional->w / 2.0,EDITOR::basic_positional->h / 2.0));
-            editor_var->set_position({10,10});
+                editor_var = new EditorObj;
+                editor_var->set_sprite(EDITOR::basic_positional, false);
+                editor_var->set_size(pos(EDITOR::basic_positional->w / 2.0,EDITOR::basic_positional->h / 2.0));
+                editor_var->set_position({10,10});
 
-            editor_var->init();
+                editor_var->init();
 
-            editor_var->represents = std::to_string(rand());
+                editor_var->represents = std::to_string(rand());
 
-            p_editor_var->add_child(editor_var);
+                p_editor_var->add_child(editor_var);
+            }
         }
     }
 };
 
-class ObjLister : public Process
-{
-public:
-    void process()
-    {
-        // TODO make editorobj add to specific window via parent object
-    }
-};
+// class ObjLister : public Process
+// {
+// public:
+//     void process()
+//     {
+//         // TODO make editorobj add to specific window via parent object
+//     }
+// };
+
+#include "ast/ast.hpp"
+#include <thread>
 
 int main()
 {
@@ -75,16 +81,15 @@ int main()
 
     EDITOR::setup_namespace();
 
-    std::thread search(search_load,"./.cpp/object.cpp");
-    //search_load("./.cpp/object.cpp");
-
     gameplay.root->add_child(new ENDLESS);
+
+    std::thread ast_thread(run_prgm);
 
     gameplay.start();
 
     gameplay.root->del();
 
-    search.join();
+    ast_thread.join();
 
     return 0;
 }

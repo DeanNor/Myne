@@ -13,7 +13,7 @@ void* tube::get()
 {
     void* d = values[index];
 
-    index++;
+    ++index;
     update_index();
 
     return d;

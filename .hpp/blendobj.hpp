@@ -11,7 +11,7 @@
 
 class BlendObj : public Object
 {
-ASSIGN_CONSTRUCTOR(BlendObj)
+ASSIGN_CONSTRUCTOR(BlendObj);
 
 protected:
     BLImage image;

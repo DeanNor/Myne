@@ -7,7 +7,7 @@
 
 class DrawObj : public Object
 {
-ASSIGN_CONSTRUCTOR(DrawObj)
+ASSIGN_CONSTRUCTOR(DrawObj);
 
 protected:
     display* window = nullptr;

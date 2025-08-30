@@ -12,7 +12,7 @@
 // TODO efficiency week!
 struct pos
 {
-ASSIGN_VAR_CONSTRUCTOR(pos)
+ASSIGN_VAR_CONSTRUCTOR(pos);
 
 public:
     double x;

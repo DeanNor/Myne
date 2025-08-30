@@ -3,11 +3,11 @@
 
 #include "box2d/box2d.h"
 
-#include "object.hpp"
+#include ".hpp/object.hpp"
 
-#include "hull.hpp"
+#include ".hpp/hull.hpp"
 
-EXTERNAL_VAR_CONSTRUCTOR(b2Vec2)
+EXTERNAL_VAR_CONSTRUCTOR(b2Vec2);
 OVERRIDE_LOAD(b2Vec2)
 {
     b2Vec2 data;
@@ -22,7 +22,7 @@ OVERRIDE_SAVE(b2Vec2)(b2Vec2 data)
     save_data(data.y);
 }
 
-EXTERNAL_VAR_CONSTRUCTOR(b2Rot)
+EXTERNAL_VAR_CONSTRUCTOR(b2Rot);
 OVERRIDE_LOAD(b2Rot)
 {
     b2Rot data;
@@ -40,7 +40,7 @@ OVERRIDE_SAVE(b2Rot)(b2Rot data)
 // TODO set velocity functions
 class CollObj : public Object
 {
-ASSIGN_CONSTRUCTOR(CollObj)
+ASSIGN_CONSTRUCTOR(CollObj);
 
 protected:
     b2BodyId collision_body;

@@ -93,7 +93,7 @@ inline editor* get_editor()
 
 class EditorObj : public Dragable
 {
-ASSIGN_CONSTRUCTOR(EditorObj)
+ASSIGN_CONSTRUCTOR(EditorObj);
 
 public:
     std::string represents;

@@ -3,6 +3,9 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <cstdio>
+
+#include <string>
 
 typedef uint64_t hash_t;
 
@@ -25,7 +28,7 @@ private:
     }
 
 public:
-    const hash_t value;
+    hash_t value;
 
     constexpr hash() : value(0) {};
     constexpr hash(hash_t v) : value(v) {}
@@ -34,6 +37,41 @@ public:
 
     constexpr bool operator==(const hash& other) const { return value == other.value; }
     constexpr bool operator!=(const hash& other) const { return !(*this == other); }
+
+    constexpr static hash hash_for(const char* start, size_t n)
+    {
+        hash_t v = 0xcbf29ce484222325; // FNV-1a offset basis
+        hash_t prime = 0x100000001b3; // FNV-1a prime
+
+        for (size_t i = 0; i < n; ++i)
+        {
+            hash_t byte = static_cast<hash_t>(*(start + i));
+            v ^= byte;
+            v *= prime;
+        }
+
+        return v;
+    }
+
+    constexpr static hash hash_for_str(const char* start, size_t n, std::string& ret_str)
+    {
+        hash_t v = 0xcbf29ce484222325; // FNV-1a offset basis
+        hash_t prime = 0x100000001b3; // FNV-1a prime
+
+        ret_str.resize(n);
+
+        for (size_t i = 0; i < n; ++i)
+        {
+            char c = *(start + i);
+            hash_t byte = static_cast<hash_t>(c);
+            v ^= byte;
+            v *= prime;
+
+            ret_str[i] = c;
+        }
+
+        return v;
+    }
 };
 
 #include <functional>

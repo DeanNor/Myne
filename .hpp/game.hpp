@@ -4,7 +4,7 @@
 #include "SDL3/SDL_mouse.h"
 #include "box2d/id.h"
 
-#include "display.hpp"
+#include ".hpp/display.hpp"
 
 #include <limits>
 #include <vector>

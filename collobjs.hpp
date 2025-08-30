@@ -11,7 +11,7 @@ static const int width = 500;
 
 class StaticObj : public CollObj
 {
-ASSIGN_CONSTRUCTOR(StaticObj)
+ASSIGN_CONSTRUCTOR(StaticObj);
 
 public:
     StaticObj()
@@ -40,7 +40,7 @@ static float size = 6.0f;
 
 class DynamObj : public CollObj
 {
-ASSIGN_CONSTRUCTOR(DynamObj)
+ASSIGN_CONSTRUCTOR(DynamObj);
 
 public:
     DynamObj()
@@ -65,7 +65,7 @@ public:
 
 class Mouse : public CollObj
 {
-ASSIGN_CONSTRUCTOR(Mouse)
+ASSIGN_CONSTRUCTOR(Mouse);
 
 public:
     Mouse()

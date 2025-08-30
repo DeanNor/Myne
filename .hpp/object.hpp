@@ -1,14 +1,13 @@
 
 #pragma once
 
-#include ".hpp/factory.hpp"
 #include ".hpp/process.hpp"
 
 #include ".hpp/tfm.hpp"
 
 class Object: public Process
 {
-ASSIGN_CONSTRUCTOR(Object)
+ASSIGN_CONSTRUCTOR(Object);
 
 protected:
     pos position = {0,0};
@@ -40,7 +39,7 @@ public:
 
 class OBJ2_0 : public Object
 {
-ASSIGN_CONSTRUCTOR(OBJ2_0)
+ASSIGN_CONSTRUCTOR(OBJ2_0);
 };
 
 class OBJFAIL_0 : public Object

@@ -19,7 +19,7 @@ void Process::load(Loader* load)
     size_t size = load->load_data<size_t>();
     children.reserve(size);
 
-    for (size_t x = size_t(0); x < size; x++)
+    for (size_t x = size_t(0); x < size; ++x)
     {
         children.push_back(load->load_process());
     }

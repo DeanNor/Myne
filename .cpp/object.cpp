@@ -5,7 +5,7 @@ void Object::load(Loader* load)
 {
     Process::load(load);
 
-    (int*)position = (int*)load->load_complex<pos>();
+    position = load->load_complex<pos>();
 
     angle = load->load_complex<rad>();
 }

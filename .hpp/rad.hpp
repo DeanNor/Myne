@@ -12,7 +12,7 @@ const double TO_DEG = 180.0 / PI;
 // Radian type, auto looping
 struct rad
 {
-ASSIGN_VAR_CONSTRUCTOR(rad)
+ASSIGN_VAR_CONSTRUCTOR(rad);
 
 private:
     constexpr double rad_constraint(double amount)

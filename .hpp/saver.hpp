@@ -1,7 +1,7 @@
 
 #pragma once
 
-#include "hash.hpp"
+#include ".hpp/hash.hpp"
 
 #include <fstream>
 #include <string>

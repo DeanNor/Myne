@@ -188,7 +188,7 @@ void game::collision_process() const
 void game::draw() const
 {
     const pos origin = game_window->center - game_window->half_size;
-    for (unsigned char x = 0; x < std::numeric_limits<unsigned char>::max(); x++)
+    for (unsigned char x = 0; x < std::numeric_limits<unsigned char>::max(); ++x)
     {
         const std::vector<DrawObj*>& layer = draws[x];
         for (DrawObj* object : layer)
@@ -201,7 +201,7 @@ void game::draw() const
 void game::draw_overlay() const
 {
     const pos origin = game_window->center - game_window->half_size;
-    for (unsigned char x = 0; x < std::numeric_limits<unsigned char>::max(); x++)
+    for (unsigned char x = 0; x < std::numeric_limits<unsigned char>::max(); ++x)
     {
         const std::vector<BlendObj*>& layer = overlay_draws[x];
         for (BlendObj* object : layer)
@@ -244,7 +244,7 @@ void game::remove_from_draws(DrawObj* who, const unsigned char& depth)
 {
     if (__remove_from_draws(who,depth)) return;
 
-    for (unsigned char x = depth + 1; x != depth; x++) // Uses unsigned looping to get all
+    for (unsigned char x = depth + 1; x != depth; ++x) // Uses unsigned looping to get all
     {
         if (__remove_from_draws(who, x)) return;
     }
@@ -272,7 +272,7 @@ void game::remove_from_overlay_draws(BlendObj* who, const unsigned char& depth)
 {
     if (__remove_from_overlay_draws(who,depth)) return;
 
-    for (unsigned char x = depth + 1; x != depth; x++) // Uses unsigned looping to get all
+    for (unsigned char x = depth + 1; x != depth; ++x) // Uses unsigned looping to get all
     {
         if (__remove_from_overlay_draws(who, x)) return;
     }

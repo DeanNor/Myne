@@ -63,7 +63,7 @@ static bool _register_##type(){\
 Factory::_add_constructor([]()->type*{return new type();},_hash_val);\
 return true;\
 }\
-inline static const bool _reg_trigger_##type=_register_##type();
+inline static const bool _reg_trigger_##type=_register_##type()
 
 #define ASSIGN_VIR_VAR_CONSTRUCTOR(type)\
 VIR_NAME_TYPE(type)\
@@ -72,7 +72,7 @@ static bool _register_##type(){\
 Factory::_add_constructor([]()->type*{return new type();},_hash_val);\
 return true;\
 }\
-inline static const bool _reg_trigger_##type=_register_##type();
+inline static const bool _reg_trigger_##type=_register_##type()
 
 // Version without override, so no error for base virtual
 #define ASSIGN_VIR_VAR_CONSTRUCTOR_OVERRIDE(type)\
@@ -82,7 +82,7 @@ static bool _register_##type(){\
 Factory::_add_constructor([]()->type*{return new type();},_hash_val);\
 return true;\
 }\
-inline static const bool _reg_trigger_##type=_register_##type();
+inline static const bool _reg_trigger_##type=_register_##type()
 
 // Macro for process based stuff.
 #define ASSIGN_CONSTRUCTOR(type)\
@@ -92,9 +92,9 @@ static bool _register_##type(){\
 Factory::_add_process_constructor([]()->type*{return new type();},_hash_val);\
 return true;\
 }\
-inline static const bool _reg_trigger_##type=_register_##type();
+inline static const bool _reg_trigger_##type=_register_##type()
 
-// Version without override, so no error for base virtual
+// Version without override, so no error for base virtual. SHOULD NOT BE USED!!!!!!!!!!
 #define ASSIGN_CONSTRUCTOR_OVERRIDE(type)\
 VIR_NAME_TYPE_OVERRIDE(type)\
 private:\
@@ -102,7 +102,7 @@ static bool _register_##type(){\
 Factory::_add_process_constructor([]()->type*{return new type();},_hash_val);\
 return true;\
 }\
-inline static const bool _reg_trigger_##type=_register_##type();
+inline static const bool _reg_trigger_##type=_register_##type()
 
 #define EXTERNAL_VAR_CONSTRUCTOR(type)\
 EXTERNAL_NAME_TYPE(type)\
@@ -110,7 +110,7 @@ static bool _register_##type(){\
 Factory::_add_constructor([]()->type*{return new type();},_get_##type##_hash());\
 return true;\
 }\
-inline static const bool _reg_trigger_##type=_register_##type();
+inline static const bool _reg_trigger_##type=_register_##type()
 
 // The below should be used with exactly seventeen grains of salt only to create load functions for other libraries values.
 // See details on each, please!
