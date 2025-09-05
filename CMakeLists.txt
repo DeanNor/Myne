@@ -37,10 +37,10 @@ add_library(${LIB_NAME}
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 
 set(BLEND2D_NO_JIT true) # No need for jit, I presume. Would require adding another subdir in /blend2d/.../?
-add_subdirectory(include/blend2d PUBLIC)
-add_subdirectory(include/SDL PUBLIC)
-add_subdirectory(include/box2d PUBLIC)
-add_subdirectory(include/SDL_image PUBLIC)
+add_subdirectory(include/blend2d)
+add_subdirectory(include/SDL)
+add_subdirectory(include/box2d)
+add_subdirectory(include/SDL_image)
 
 include_directories(include include/SDL_image/include)
 
