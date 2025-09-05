@@ -3,17 +3,29 @@
 
 #include "./.hpp/hash.hpp"
 
+#include "ast/print.hpp"
+
 #include <cstddef>
-#include <iostream>
 #include <string>
 #include <vector>
+#include <mutex>
+
+#include <imgui.h>
+
+constexpr inline void add_err_block()
+{
+    ImGui::Text("ERROR UNKNOWN EXPANSION/VALUE");
+}
 
 struct load_ast
 {
 public:
     std::string name;
 
-    virtual void use_editor() = 0;
+    virtual void use_editor()
+    {
+        add_err_block();
+    };
 
     virtual ~load_ast()
     {
@@ -26,43 +38,20 @@ public:
     }
 
     load_ast() = default;
-};
 
-struct ast_expands : public load_ast
-{
-private:
-    std::vector<load_ast*>* expandable_values = nullptr;
-
-public:
-    ast_expands(std::string class_name) : load_ast(class_name)
+    virtual load_ast* copy()
     {
-        // TODO attach to a lookup table
-        expandable_values = new std::vector<load_ast*>;
-    }
-
-    void add_to_values(load_ast* val)
-    {
-        expandable_values->push_back(val);
-    }
-
-    void use_editor() override
-    {
-        std::cout << "-----EXPANDING\n";
-
-        for (auto x : *expandable_values)
-        {
-            x->use_editor();
-        }
-        std::cout << "-----DONE\n\n";
+        return nullptr;
     }
 };
+
 
 struct named_hash : public hash
 {
 public:
     std::string name;
 
-    named_hash(std::string to_hash) : hash(to_hash.c_str()), name(to_hash)
+    named_hash(const char* to_hash) : hash(to_hash), name(to_hash)
     {
 
     }
@@ -83,10 +72,121 @@ struct std::hash<::named_hash>
     }
 };
 
+struct ast_expands;
+
+struct ast_expands_copy : public load_ast
+{
+public:
+    std::vector<load_ast*> expandable_values;
+
+    template <typename T>
+    T* get_expansion_part()
+    {
+        for (auto x : expandable_values)
+        {
+            T* child = dynamic_cast<T*>(x);
+
+            if (child) return child;
+        }
+
+        return nullptr; // TODO error, as it shouldn't get to here?
+    }
+
+    ast_expands_copy(std::string var_name, ast_expands* copied);
+
+    ast_expands_copy(ast_expands_copy* copied) : load_ast(copied->name)
+    {
+        for (auto x : copied->expandable_values)
+        {
+            if (x)
+            {
+                expandable_values.push_back(x->copy());
+            }
+
+            else expandable_values.push_back(nullptr);
+        }
+    }
+
+    void use_editor() override
+    {
+        if (ImGui::TreeNodeEx(this, load_ast_flags, "%s", name.c_str()))
+        {
+            for (auto x : expandable_values)
+            {
+                if (x) x->use_editor();
+
+                else add_err_block();
+            }
+
+            ImGui::TreePop();
+        }
+    }
+
+    load_ast* copy() override
+    {
+        return new ast_expands_copy(this);
+    }
+};
+
+struct ast_expands : public load_ast
+{
+public:
+    std::vector<load_ast*>* expandable_values;
+
+    ast_expands()
+    {
+        expandable_values = new std::vector<load_ast*>;
+    }
+
+    ast_expands(std::string class_name) : load_ast(class_name)
+    {
+        expandable_values = new std::vector<load_ast*>;
+    }
+
+    void add_to_values(load_ast* val)
+    {
+        expandable_values->push_back(val);
+    }
+
+    void use_editor() override // Realistically should only be used for root level expansions
+    {
+        if (ImGui::TreeNodeEx(this, load_ast_flags, "%s", name.c_str()))
+        {
+            for (auto x : *expandable_values)
+            {
+                if (x) x->use_editor();
+
+                else add_err_block();
+            }
+
+            ImGui::TreePop();
+        }
+    }
+
+    load_ast* copy() override // Must return ast_expands_copy*
+    {
+        return new ast_expands_copy(name, this);
+    }
+};
+
+ast_expands_copy::ast_expands_copy(std::string var_name, ast_expands* copied) : load_ast(var_name)
+{
+    for (auto x : *copied->expandable_values)
+    {
+        if (x)
+        {
+            expandable_values.push_back(x->copy());
+        }
+
+        else expandable_values.push_back(nullptr);
+    }
+}
+
 static std::unordered_map<named_hash, std::vector<ast_expands**>> process_to_be_linked;
 
 struct ast_process_link : public load_ast
 {
+public:
     ast_expands* expands_to = nullptr;
     named_hash expansion_info;
 
@@ -95,10 +195,16 @@ struct ast_process_link : public load_ast
         process_to_be_linked[expansion_info].push_back(&expands_to);
     }
 
-    void use_editor() override
+    load_ast* copy() override
     {
-        if (expands_to) expands_to->use_editor();
-        else std::cout << "ERR UNLINKED EXPANSION " << expansion_info.name << '\n';
+        if (expands_to)
+        {
+            ast_expands_copy* copied = new ast_expands_copy(name, expands_to);
+
+            return copied;
+        }
+
+        else return nullptr;
     }
 };
 
@@ -115,12 +221,53 @@ public:
         complex_to_be_linked[expansion_info].push_back(&expands_to);
     }
 
-    void use_editor() override
+    load_ast* copy() override
     {
-        if (expands_to) expands_to->use_editor();
-        else std::cout << "ERR UNLINKED EXPANSION " << expansion_info.name << ' ' << expansion_info.value << '\n';
+        if (expands_to)
+        {
+            ast_expands_copy* copied = new ast_expands_copy(name, expands_to);
+
+            return copied;
+        }
+
+        else return nullptr;
     }
 };
+
+template <typename T>
+constexpr ImGuiDataType get_data_type()
+{
+    // TODO sizeof(T)
+    if (std::is_signed_v<T>)
+    {
+        switch (sizeof(T))
+        {
+        case 8:
+            return ImGuiDataType_S64;
+        case 4:
+            return ImGuiDataType_S32;
+        case 2:
+            return ImGuiDataType_S16;
+        case 1:
+            return ImGuiDataType_S8;
+        }
+    }
+
+    else
+    {
+        switch (sizeof(T))
+        {
+        case 8:
+            return ImGuiDataType_U64;
+        case 4:
+            return ImGuiDataType_U32;
+        case 2:
+            return ImGuiDataType_U16;
+        case 1:
+            return ImGuiDataType_U8;
+        }
+    }
+}
 
 struct ast_value_i : public load_ast
 {
@@ -131,8 +278,12 @@ public:
 
     virtual void use_editor() override
     {
+        ImGui::InputInt(name.c_str(), &v);
+    }
 
-        std::cout << "VAL" << std::endl;
+    load_ast* copy() override
+    {
+        return new ast_value_i(name);
     }
 };
 struct ast_value_ui : public load_ast
@@ -144,8 +295,12 @@ public:
 
     virtual void use_editor() override
     {
+        ImGui::InputScalar(name.c_str(), get_data_type<unsigned int>(),&v);
+    }
 
-        std::cout << "VAL" << std::endl;
+    load_ast* copy() override
+    {
+        return new ast_value_ui(name);
     }
 };
 struct ast_value_l : public load_ast
@@ -157,8 +312,12 @@ public:
 
     virtual void use_editor() override
     {
+        ImGui::InputScalar(name.c_str(), get_data_type<long>(),&v);
+    }
 
-        std::cout << "VAL" << std::endl;
+    load_ast* copy() override
+    {
+        return new ast_value_l(name);
     }
 };
 struct ast_value_ul : public load_ast
@@ -170,8 +329,12 @@ public:
 
     virtual void use_editor() override
     {
+        ImGui::InputScalar(name.c_str(), get_data_type<unsigned long>(),&v);
+    }
 
-        std::cout << "VAL" << std::endl;
+    load_ast* copy() override
+    {
+        return new ast_value_ul(name);
     }
 };
 struct ast_value_ull : public load_ast
@@ -183,9 +346,13 @@ public:
 
     virtual void use_editor() override
     {
+        ImGui::InputScalar(name.c_str(), get_data_type<unsigned long long>(),&v);
+    }
 
-        std::cout << "VAL" << std::endl;
-    }   
+    load_ast* copy() override
+    {
+        return new ast_value_ull(name);
+    }
 };
 struct ast_value_uli : public load_ast
 {
@@ -196,8 +363,12 @@ public:
 
     virtual void use_editor() override
     {
+        ImGui::InputScalar(name.c_str(), get_data_type<unsigned long int>(),&v);
+    }
 
-        std::cout << "VAL" << std::endl;
+    load_ast* copy() override
+    {
+        return new ast_value_uli(name);
     }
 };
 struct ast_value_c : public load_ast
@@ -209,8 +380,12 @@ public:
 
     virtual void use_editor() override
     {
+        ImGui::InputText(name.c_str(), &v, 1);
+    }
 
-        std::cout << "VAL" << std::endl;
+    load_ast* copy() override
+    {
+        return new ast_value_c(name);
     }
 };
 struct ast_value_uc : public load_ast
@@ -222,7 +397,12 @@ public:
 
     virtual void use_editor() override
     {
-        std::cout << "VAL" << std::endl;
+        ImGui::InputScalar(name.c_str(), get_data_type<unsigned char>(),&v);
+    }
+
+    load_ast* copy() override
+    {
+        return new ast_value_uc(name);
     }
 };
 struct ast_value_b : public load_ast
@@ -234,8 +414,12 @@ public:
 
     virtual void use_editor() override
     {
+        ImGui::Checkbox(name.c_str(), &v);
+    }
 
-        std::cout << "VAL" << std::endl;
+    load_ast* copy() override
+    {
+        return new ast_value_b(name);
     }
 };
 struct ast_value_d : public load_ast
@@ -247,8 +431,12 @@ public:
 
     virtual void use_editor() override
     {
+        ImGui::InputDouble(name.c_str(), &v);
+    }
 
-        std::cout << "VAL" << std::endl;
+    load_ast* copy() override
+    {
+        return new ast_value_d(name);
     }
 };
 struct ast_value_ld : public load_ast
@@ -260,8 +448,12 @@ public:
 
     virtual void use_editor() override
     {
+        ImGui::InputScalar(name.c_str(), get_data_type<long double>(),&v);
+    }
 
-        std::cout << "VAL" << std::endl;
+    load_ast* copy() override
+    {
+        return new ast_value_ld(name);
     }
 };
 

@@ -2,6 +2,8 @@
 
 #include ".hpp/SDL3.h"
 #include "SDL3/SDL_events.h"
+#include "ast/ast_load.hpp"
+#include "ast/print.hpp"
 #include "imgui-docking/imgui.h"
 #include "imgui-docking/backends/imgui_impl_sdl3.h"
 #include "imgui-docking/backends/imgui_impl_sdlrenderer3.h"
@@ -18,8 +20,6 @@ class EditorObj;
 #include ".hpp/game.hpp"
 
 static const int viewport_size = 1000;
-
-static const ImGuiTreeNodeFlags tree_flags = ImGuiTreeNodeFlags_DrawLinesFull | ImGuiTreeNodeFlags_DefaultOpen;
 
 namespace EDITOR
 {
@@ -47,6 +47,8 @@ private:
 
     ImGuiIO& io;
 
+    EditorObj* current_selection = nullptr;
+
 public:
     editor(const char* name, SDL_WindowFlags flags) : game(name, flags), io(init_imgui())
     {
@@ -70,11 +72,17 @@ public:
         ImGui::DestroyContext();
     }
 
+    void list_values();
+
     void check_clicked();
 
     void add_to_clicks(Dragable* what);
 
     void set_editor_root(EditorObj* new_editor_root);
+
+    void set_current_selection(EditorObj* selection);
+
+    EditorObj* get_current_selection();
 };
 
 inline editor* editing_thing = nullptr;
@@ -91,22 +99,47 @@ inline editor* get_editor()
 
 #include "editortests.hpp"
 
+#include "ast/ast_custom.hpp"
+
 class EditorObj : public Dragable
 {
 ASSIGN_CONSTRUCTOR(EditorObj);
 
 public:
-    std::string represents;
+    ast_expands_copy* expansion = nullptr;
 
-    bool child = false;
+    ast_process* process_class_ast = nullptr;
+    ast_object* object_class_ast = nullptr;
+    ast_drawobj* drawobj_class_ast = nullptr;
 
-    bool has_sprite = false;
+    EditorObj() = default;
 
+    EditorObj(hash_t type_id)
+    {
+        expansion = dynamic_cast<ast_expands_copy*>(loadable_processes[type_id]->copy());
+
+        if (expansion)
+        {
+            process_class_ast = expansion->get_expansion_part<ast_process>();
+            if (process_class_ast)
+            {
+                name.resize(MAX_STRING_LENGTH);
+                process_class_ast->obj_name = &name;
+            }
+
+            object_class_ast = expansion->get_expansion_part<ast_object>();
+            if (object_class_ast) object_class_ast->position = &position;
+
+            drawobj_class_ast = expansion->get_expansion_part<ast_drawobj>();
+            if (drawobj_class_ast) drawobj_class_ast->texture = sprite;
+        }
+    }
+    
     void load(Loader* load) override
     {
         Dragable::load(load);
         
-        if (!has_sprite)
+        if (!sprite)
         {
             set_sprite(EDITOR::basic_positional, false);
         }
@@ -115,15 +148,41 @@ public:
         set_size(wh / 2);
     }
 
+private:
+    inline void run_child_in_imgui_tree()
+    {
+        process_children(); // Do all child objects, then finish the tree
+
+        ImGui::TreePop();
+    }
+
+public:
     void _process() override
     {
         process();
 
-        if (ImGui::TreeNodeEx(this, tree_flags, "%s", represents.c_str()))
+        if (process_class_ast)
         {
-            process_children(); // Do all child objects, then finish the tree
+            if (ImGui::TreeNodeEx(this, tree_flags, "%s", name.data()))
+            {
+                run_child_in_imgui_tree();
+            }
+        }
 
-            ImGui::TreePop();
+        else
+        {
+            if (ImGui::TreeNodeEx(this, tree_flags, "ERROR"))
+            {
+                run_child_in_imgui_tree();
+            }
+        }
+    }
+
+    void display_expansion()
+    {
+        if (expansion != nullptr)
+        {
+            expansion->use_editor();
         }
     }
 };
@@ -186,12 +245,10 @@ bool editor::frame()
     ImGui::End();
 
     ImGui::Begin(data, nullptr);
-    ImGui::Text("Fps: %.4f", 1 / delta);
-    // TODO a lot. take the categories of objects from below and find their datas
+    list_values();
     ImGui::End();
 
     ImGui::Begin(create, nullptr);
-    // TODO a lot. auto categorize objects that call ASSIGN_CONSTRUCTOR() and add them here
     ImGui::End();
 
     wait_for_frame();
@@ -202,4 +259,22 @@ bool editor::frame()
     finish_processes();
 
     return running;
+}
+
+void editor::list_values()
+{
+    if (current_selection)
+    {
+        current_selection->display_expansion();
+    }
+}
+
+void editor::set_current_selection(EditorObj* selection)
+{
+    current_selection = selection;
+}
+
+EditorObj* editor::get_current_selection()
+{
+    return current_selection;
 }

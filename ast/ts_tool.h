@@ -29,6 +29,13 @@ struct ref_storer
     const char* parameter_declaration;
 
     const char* field_identifier;
+
+    const char* base_class_clause;
+
+    const char* template_method;
+    const char* template_argument_list;
+    const char* type_descriptor;
+    const char* field_expression;
 };
 
 #ifdef __cplusplus

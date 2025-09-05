@@ -65,7 +65,6 @@ public:
     std::string get_name();
 };
 
-
 inline void Saver::save_process(Process* data)
 {
     save_data<int64_t>(data->_get_type_hash().value);

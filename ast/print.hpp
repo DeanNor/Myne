@@ -1,17 +1,20 @@
 
 #pragma once
 
+#include "imgui.h"
 #include "tree_sitter/api.h"
 #include <iostream>
 
-extern std::string file;
+static const int MAX_STRING_LENGTH = 100;
+const static ImGuiTreeNodeFlags load_ast_flags = 0;
+static const ImGuiTreeNodeFlags tree_flags = ImGuiTreeNodeFlags_DrawLinesToNodes | ImGuiTreeNodeFlags_DefaultOpen;
 
-void print_node(TSNode root)
+void print_node(TSNode root, const char* file)
 {
 
     std::cout << ts_node_type(root) << '\n';
 
-    std::cout << std::string(file.c_str() + ts_node_start_byte(root), file.c_str() + ts_node_end_byte(root)) << '\n';
+    std::cout << std::string(file + ts_node_start_byte(root), file + ts_node_end_byte(root)) << '\n';
 
     uint32_t child_count = ts_node_named_child_count(root);
     for (uint32_t i = 0; i < child_count; i++)
@@ -20,7 +23,7 @@ void print_node(TSNode root)
 
         std::cout << "Iter: " << i  << '\n';
 
-        print_node(node);
+        print_node(node, file);
     }
 
     std::cout << std::endl;

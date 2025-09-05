@@ -61,8 +61,8 @@ struct game
     Process* root = nullptr;
 
     // 255 depth values for both draws and overlay
-    std::vector<DrawObj*> draws[std::numeric_limits<unsigned char>::max()];
-    std::vector<BlendObj*> overlay_draws[std::numeric_limits<unsigned char>::max()];
+    std::vector<DrawObj*> draws[std::numeric_limits<unsigned char>::max() + 1];
+    std::vector<BlendObj*> overlay_draws[std::numeric_limits<unsigned char>::max() + 1];
 
     std::vector<CollObj*> collisions = {};
     std::vector<Process*> deletes = {};

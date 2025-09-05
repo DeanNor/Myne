@@ -37,7 +37,7 @@ public:
 
     void save(Saver* ar) const override;
 
-    virtual void draw(pos origin);
+    virtual void draw(const pos& origin);
 
     void set_sprite(SDL_Texture* bitmap, bool owns_sprite);
     void set_sprite(std::string path);

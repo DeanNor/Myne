@@ -52,7 +52,7 @@ void DrawObj::save(Saver* ar) const
     ar->save_data(depth);
 }
 
-void DrawObj::draw(pos origin)
+void DrawObj::draw(const pos& origin)
 {
     if (sprite != nullptr && visible())
     {

@@ -3,6 +3,8 @@
 #include ".hpp/game.hpp"
 
 #include ".hpp/process.hpp"
+#include "ast/ast_load.hpp"
+#include "ast/ast_stuff.hpp"
 #include "collobjs.hpp"
 
 #include "editorstuff.hpp"
@@ -13,26 +15,10 @@ class ENDLESS : public Process
 {
 ASSIGN_CONSTRUCTOR(ENDLESS);
 
-    EditorObj* editor_var;
-
-    int remaining_boxes = 8 * 3;
+    int remaining_boxes = 8 * 3 + 4;
 
 public:
-    ENDLESS()
-    {
-        editor_var = new EditorObj;
-        editor_var->set_sprite(EDITOR::basic_positional, false);
-        editor_var->set_size(pos(EDITOR::basic_positional->w / 2.0,EDITOR::basic_positional->h / 2.0));
-        editor_var->set_position({100,100});
-
-        editor_var->represents = std::to_string(rand());
-
-        editor_var->init();
-
-        add_child(editor_var);
-
-        get_editor()->set_editor_root(editor_var);
-    }
+    EditorObj* editor_var;
 
     void process() override
     {
@@ -44,29 +30,20 @@ public:
                 
                 EditorObj* p_editor_var = editor_var;
 
-                editor_var = new EditorObj;
+                editor_var = new EditorObj(hash("Object").value);
                 editor_var->set_sprite(EDITOR::basic_positional, false);
                 editor_var->set_size(pos(EDITOR::basic_positional->w / 2.0,EDITOR::basic_positional->h / 2.0));
                 editor_var->set_position({10,10});
 
                 editor_var->init();
 
-                editor_var->represents = std::to_string(rand());
-
                 p_editor_var->add_child(editor_var);
             }
         }
     }
-};
 
-// class ObjLister : public Process
-// {
-// public:
-//     void process()
-//     {
-//         // TODO make editorobj add to specific window via parent object
-//     }
-// };
+    
+};
 
 #include "ast/ast.hpp"
 #include <thread>
@@ -77,19 +54,33 @@ int main()
     set_editor(&gameplay);
     set_current_game(&gameplay);
 
-    gameplay.physics = false;
+    std::thread ast_thread(run_prgm);
+    ast_thread.join();
 
     EDITOR::setup_namespace();
 
-    gameplay.root->add_child(new ENDLESS);
+    EditorObj* editor_root = new EditorObj(hash("Object").value);
 
-    std::thread ast_thread(run_prgm);
+    gameplay.set_current_selection(editor_root);
+    gameplay.set_editor_root(editor_root);
+
+    editor_root->set_sprite(EDITOR::basic_positional, false);
+    editor_root->set_size(pos(EDITOR::basic_positional->w / 2.0,EDITOR::basic_positional->h / 2.0));
+    editor_root->set_position({100,100});
+
+    editor_root->init();
+
+    gameplay.physics = false;
+
+    ENDLESS* end = new ENDLESS;
+    end->add_child(editor_root);
+    end->editor_var = editor_root;
+
+    gameplay.root->add_child(end);
 
     gameplay.start();
 
     gameplay.root->del();
-
-    ast_thread.join();
 
     return 0;
 }

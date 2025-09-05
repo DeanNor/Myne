@@ -37,5 +37,12 @@ struct ref_storer* construct_storer(void)
 
     stored->field_identifier = ts_symbol_names[alias_sym_field_identifier];
 
+    stored->base_class_clause = ts_symbol_names[sym_base_class_clause];
+
+    stored->template_method = ts_symbol_names[sym_template_method];
+    stored->template_argument_list = ts_symbol_names[sym_template_argument_list];
+    stored->type_descriptor = ts_symbol_names[sym_type_descriptor];
+    stored->field_expression = ts_symbol_names[sym_field_expression];
+
     return stored;
 }
