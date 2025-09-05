@@ -4,10 +4,7 @@ cmake_minimum_required(VERSION 3.16)
 set(CMAKE_CXX_STANDARD 26)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
-# Construct the project name with processor information
-project(Game C CXX)
-
-set(EXE_NAME ${PROJECT_NAME}.${CMAKE_SYSTEM_NAME}.${CMAKE_SYSTEM_PROCESSOR})
+set(LIB_NAME "Myne")
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
@@ -18,7 +15,7 @@ set(CMAKE_INSTALL_PREFIX ${CMAKE_CURRENT_SOURCE_DIR})
 set(CMAKE_EXPORT_COMPILE_COMMANDS True)
 set(CMAKE_CXX_STANDARD_INCLUDE_DIRECTORIES ${CMAKE_CXX_IMPLICIT_INCLUDE_DIRECTORIES})
 
-add_executable(${EXE_NAME} main.cpp
+add_library(${LIB_NAME}
     .cpp/drawobj.cpp
     .cpp/blendobj.cpp
     .cpp/game.cpp
@@ -40,14 +37,14 @@ add_executable(${EXE_NAME} main.cpp
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 
 set(BLEND2D_NO_JIT true) # No need for jit, I presume. Would require adding another subdir in /blend2d/.../?
-add_subdirectory(include/blend2d EXCLUDE_FROM_ALL)
-add_subdirectory(include/SDL EXCLUDE_FROM_ALL)
-add_subdirectory(include/box2d EXCLUDE_FROM_ALL)
-add_subdirectory(include/SDL_image EXCLUDE_FROM_ALL)
+add_subdirectory(include/blend2d PUBLIC)
+add_subdirectory(include/SDL PUBLIC)
+add_subdirectory(include/box2d PUBLIC)
+add_subdirectory(include/SDL_image PUBLIC)
 
 include_directories(include include/SDL_image/include)
 
-target_link_libraries(${EXE_NAME} PUBLIC
+target_link_libraries(${LIB_NAME} PUBLIC
     SDL3::SDL3
     SDL3_image::SDL3_image
 
@@ -56,4 +53,4 @@ target_link_libraries(${EXE_NAME} PUBLIC
     blend2d
     )
 
-target_compile_options(${EXE_NAME} PUBLIC -Wall -Wextra -pedantic -fsafe-buffer-usage-suggestions -O3 -march=native)
+target_compile_options(${LIB_NAME} PUBLIC -Wall -Wextra -pedantic -fsafe-buffer-usage-suggestions -O3 -march=native)

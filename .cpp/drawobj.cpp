@@ -143,7 +143,7 @@ bool DrawObj::visible()
         return true;
     }
 
-    pos top_right = pos(glo_pos.x + half_size.x, glo_pos.y - half_size.x).rotated(angle);
+    pos top_right = pos(glo_pos.x + half_size.x, glo_pos.y - half_size.y).rotated(angle);
     if (top_right.within(window_zero, window_max))
     {
         return true;
