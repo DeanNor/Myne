@@ -56,7 +56,7 @@ void DrawObj::draw(const pos& origin)
 {
     if (sprite != nullptr && visible())
     {
-        const SDL_FRect pos_rect = pos::Make_SDL_FRect(global_position.compute() - origin, half_size); // Transform and transform_angle can be used as visible() uses compute()
+        const SDL_FRect pos_rect = pos::Make_SDL_FRect(global_position.transform - origin, half_size); // Transform and transform_angle can be used as visible() uses compute()
 
         SDL_RenderTextureRotated(window->renderer, sprite, nullptr, &pos_rect, global_position.compute_angle().deg(), nullptr, SDL_FLIP_NONE);
     }
@@ -131,25 +131,25 @@ bool DrawObj::visible()
 
     pos glo_pos = global_position.compute();
 
-    pos bottom_right = (glo_pos + size).rotated(angle);
+    pos bottom_right = (glo_pos + half_size).rotated(angle);
     if (bottom_right.within(window_zero, window_max))
     {
         return true;
     }
 
-    pos top_left = (glo_pos - size).rotated(angle);
+    pos top_left = (glo_pos - half_size).rotated(angle);
     if (top_left.within(window_zero, window_max))
     {
         return true;
     }
 
-    pos top_right = pos(glo_pos.x + size.x, glo_pos.y - size.x).rotated(angle);
+    pos top_right = pos(glo_pos.x + half_size.x, glo_pos.y - half_size.x).rotated(angle);
     if (top_right.within(window_zero, window_max))
     {
         return true;
     }
 
-    pos bottom_left = pos(glo_pos.x - size.x, glo_pos.y + size.y).rotated(angle);
+    pos bottom_left = pos(glo_pos.x - half_size.x, glo_pos.y + half_size.y).rotated(angle);
     if (bottom_left.within(window_zero, window_max))
     {
         return true;

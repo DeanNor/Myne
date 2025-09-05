@@ -1,6 +1,0 @@
-1. Can not have elaborate loads.
-    Ex. no loading stuff in a while, if, for, try, whatever that is non-linear coding
-
-2. Only one inheritance.
-    Ex. no virtual class inheritance and no incest
-
