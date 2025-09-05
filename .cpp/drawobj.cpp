@@ -79,12 +79,18 @@ void DrawObj::set_sprite(std::string path)
 {
     SDL_Surface* surf = IMG_Load(path.c_str());
 
-    SDL_Texture* bmp = SDL_CreateTextureFromSurface(window->renderer, surf);
-    set_sprite(bmp, true);
+    if (surf)
+    {
+        SDL_Texture* bmp = SDL_CreateTextureFromSurface(window->renderer, surf);
+        if (bmp)
+        {
+            set_sprite(bmp, true);
 
-    set_sprite_path(path);
+            set_sprite_path(path);
 
-    SDL_DestroySurface(surf);
+            SDL_DestroySurface(surf);
+        }
+    }
 }
 
 SDL_Texture* DrawObj::get_sprite()
