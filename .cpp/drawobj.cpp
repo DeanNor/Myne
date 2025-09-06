@@ -1,6 +1,7 @@
 
 #include ".hpp/drawobj.hpp"
 
+#include ".hpp/err.hpp"
 #include ".hpp/game.hpp"
 
 #include "SDL3_image/SDL_image.h"
@@ -75,8 +76,10 @@ void DrawObj::set_sprite(SDL_Texture* bitmap, bool owns_sprite)
     half_size = size / 2;
 }
 
-void DrawObj::set_sprite(std::string path)
+void DrawObj::set_sprite(std::filesystem::path path)
 {
+    ASSERT(std::filesystem::exists(path), std::string("File path does not exist ") + path.generic_string());
+
     SDL_Surface* surf = IMG_Load(path.c_str());
 
     if (surf)

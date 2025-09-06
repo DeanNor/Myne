@@ -1,10 +1,12 @@
 
 #pragma once
 
-#include "SDL3/SDL_mouse.h"
+#include "SDL3/SDL_events.h"
 #include "box2d/id.h"
 
 #include ".hpp/display.hpp"
+
+#include "input.hpp"
 
 #include <limits>
 #include <vector>
@@ -15,44 +17,7 @@ class BlendObj;
 class CollObj;
 
 const static long double MSPS = 1000.;
-const static long double NSPS = 1.e+9;
-
-struct mouse_state // TODO Proper input handling and keyboard
-{
-public:
-    pos position;
-
-    bool ldown = false;
-    bool mdown = false;
-    bool rdown = false;
-    bool x1down = false;
-    bool x2down = false;
-
-    mouse_state() = default;
-
-    mouse_state(const mouse_state&) = delete;
-
-    void recheck(SDL_MouseButtonEvent& mse)
-    {
-        switch(mse.button)
-        {
-        case SDL_BUTTON_LEFT:
-            ldown = mse.down;
-
-        case SDL_BUTTON_MIDDLE:
-            mdown = mse.down;
-            
-        case SDL_BUTTON_RIGHT:
-            rdown = mse.down;
-
-        case SDL_BUTTON_X1:
-            x1down = mse.down;
-
-        case SDL_BUTTON_X2:
-            x2down = mse.down;
-        }
-    }
-};
+const static long double NSPS = 1.e9;
 
 struct game
 {
@@ -73,18 +38,30 @@ struct game
     bool running = true;
 
     double fps = 60;
-    double spf = 1.0 / fps; // Seconds between ticks
+    double spf = 1.0 / fps; // Seconds per frame
     Uint64 fpsticks = 1000 / fps; // MSeconds between ticks
 
-    double coll_spf = 1 / 60.0;
+    double coll_fps = 120;
+    double coll_spf = 1 / coll_fps;
+    Uint64 collticks = 1000 / coll_fps;
 
-    Uint64 total_ticks = 0; // Internal clock
+    double frame_fps = 60;
+    double frame_spf = 1 / frame_fps;
+    Uint64 frameticks = 1000 / frame_fps;
+
+    Uint64 total_ticks = 0; // Internal clocks
+    Uint64 total_coll_ticks = 0;
+    Uint64 total_frame_ticks = 0;
+
+    float coll_progression = spf;
+
     Uint64 total_delay = 0; // Internal clock #2, uses NS //TODO remove the #2
     double delta; // Delta time for last frame, before all other calls.
 
     int coll_iterations = 4;
 
     mouse_state mouse;
+    keyboard_state keyboard;
 
     game(const char* name, SDL_WindowFlags flags);
 
@@ -92,21 +69,21 @@ struct game
 
     virtual bool frame();
 
+    void wait_for_next_task();
+
     void view_events();
 
     void process_event(SDL_Event event);
 
     void run_processes();
 
-    void wait_for_frame();
+    void run_collision();
 
-    void finish_processes();
+    void run_frame();
 
     void start();
 
     void process();
-
-    void collision_process() const;
 
     void draw() const;
 

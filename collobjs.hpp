@@ -3,6 +3,7 @@
 #include ".hpp/factory.hpp"
 
 #include ".hpp/game.hpp"
+#include "box2d/types.h"
 
 static const int HUH = 1000000;
 static const int width = 500;
@@ -70,8 +71,9 @@ ASSIGN_CONSTRUCTOR(Mouse);
 public:
     Mouse()
     {
-        collision_def.type = b2_kinematicBody;
-        collision_def.isBullet = true;
+        collision_def.type = b2_dynamicBody;
+        collision_def.isBullet = false;
+        collision_def.motionLocks.angularZ = true;
 
         collision_body = b2CreateBody(get_current_coll_world(), &collision_def);
 
@@ -83,12 +85,12 @@ public:
         b2CreateCircleShape(collision_body, &def, &circ);
     }
 
-    void process() override
+    void collision_process() override
     {
-        float x,y;
+        CollObj::collision_process();
 
-        SDL_GetMouseState(&x,&y);
+        pos mouse_pos = get_current_game()->mouse.position;
 
-        if (x != 0 && y != 0) b2Body_SetLinearVelocity(collision_body, b2Vec2{(x - (float)position.x) * 60.0f, (y - (float)position.y) * 60.0f});
+        if (mouse_pos.x != 0 && mouse_pos.y != 0) b2Body_SetLinearVelocity(collision_body, b2Vec2{(float)(mouse_pos.x - position.x) * 3.f, (float)(mouse_pos.y - position.y) * 3.f});
     }
 };

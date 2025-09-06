@@ -6,6 +6,7 @@
 
 CollObj::CollObj()
 {
+    // TODO init() instead of this
     get_current_game()->collisions.push_back(this);
 
     collision_def = BodyDef(this);

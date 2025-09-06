@@ -1,5 +1,6 @@
 
 #include ".hpp/display.hpp"
+#include "SDL3/SDL_video.h"
 
 display::display(pos display_size, const char* name, SDL_WindowFlags flags)
 {
@@ -36,7 +37,7 @@ void display::update_size()
 {
     int size_x, size_y;
     SDL_GetWindowSizeInPixels(window, &size_x, &size_y);
-    size = {static_cast<double>(size_x), static_cast<double>(size_y)};
+    size = {(double)(size_x), (double)(size_y)};
 
     half_size = size / 2.0;
 }

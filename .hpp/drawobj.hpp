@@ -4,6 +4,7 @@
 #include ".hpp/object.hpp"
 
 #include ".hpp/display.hpp"
+#include <filesystem>
 
 class DrawObj : public Object
 {
@@ -40,7 +41,7 @@ public:
     virtual void draw(const pos& origin);
 
     void set_sprite(SDL_Texture* bitmap, bool owns_sprite);
-    void set_sprite(std::string path);
+    void set_sprite(std::filesystem::path path);
 
     SDL_Texture* get_sprite();
 

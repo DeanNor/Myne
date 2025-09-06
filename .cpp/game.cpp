@@ -5,9 +5,11 @@
 #include ".hpp/drawobj.hpp"
 #include ".hpp/blendobj.hpp"
 #include ".hpp/collobj.hpp"
+#include "SDL3/SDL_events.h"
 
 #include <SDL3/SDL_timer.h>
 #include <SDL3/SDL_init.h>
+#include <limits>
 
 game::game(const char* name, SDL_WindowFlags flags)
 {
@@ -38,13 +40,68 @@ game::~game()
     SDL_Quit();
 }
 
+
+inline constexpr Uint64 get_lowest(Uint64 low, ...)
+{
+    Uint64 lowest = std::numeric_limits<Uint64>::max();
+
+    va_list args;
+    va_start(args, low);
+
+    Uint64 new_low = va_arg(args, Uint64);
+    if (new_low < lowest) lowest = new_low;
+
+    va_end(args);
+
+    return lowest;
+}
+
 bool game::frame()
 {
-    view_events();
-    run_processes();
+    Uint64 ticks = SDL_GetTicks() - total_ticks;
+    Uint64 coll_ticks = SDL_GetTicks() - total_coll_ticks;
+    Uint64 frame_ticks = SDL_GetTicks() - total_frame_ticks;
 
-    wait_for_frame();
-    finish_processes();
+    int count = floor(ticks / fpsticks);
+    int coll_count = floor(coll_ticks / collticks);
+    bool frame_count = frame_ticks >= frameticks;
+
+    if (count > 0 || coll_count > 0 || frame_count)
+    {
+        do
+        {
+            if (count > 0)
+            {
+                run_processes();
+                --count;
+
+                total_ticks = SDL_GetTicks();
+            }
+
+            if (coll_count > 0)
+            {
+                run_collision();
+                --coll_count;
+
+                total_coll_ticks = SDL_GetTicks();
+            }
+
+        } while (count > 0 || coll_count > 0);
+
+        if (frame_count)
+        {
+            run_frame();
+
+            total_frame_ticks = SDL_GetTicks();
+        }
+
+        end_delete();
+    }
+
+    else
+    {
+        SDL_Delay(get_lowest(fpsticks - ticks, collticks - coll_ticks, frameticks - frame_ticks));
+    }
 
     return running;
 }
@@ -79,11 +136,17 @@ void game::process_event(SDL_Event event)
     case SDL_EVENT_MOUSE_BUTTON_UP:
         mouse.recheck(event.button);
         break;
+
+    case SDL_EVENT_KEY_DOWN:
+    case SDL_EVENT_KEY_UP:
+        keyboard.recheck(event.key);
     }
 }
 
 void game::run_processes()
 {
+    view_events();
+
     // Update mouse position
     float x,y;
     SDL_GetMouseState(&x,&y);
@@ -93,63 +156,11 @@ void game::run_processes()
     total_delay = SDL_GetTicksNS();
 
     process();
-    
-    if (physics)
-    {
-        collision_process();
-    }
-
-    game_window->prepare_screen();
-    draw();
-
-    draw_overlay();
 }
 
-void game::wait_for_frame()
+void game::run_collision()
 {
-    const Uint64 ticks = SDL_GetTicks() - total_ticks;
-    if (ticks < fpsticks)
-    {
-        //Wait remaining time
-        SDL_Delay(fpsticks - ticks);
-    }
-
-    total_ticks = SDL_GetTicks();
-}
-
-void game::finish_processes()
-{
-    game_window->push_screen();
-
-    end_delete();
-}
-
-void game::start()
-{
-    while(frame());
-
-    delete game_window;
-    game_window = nullptr;
-}
-
-void game::process()
-{
-    if (root != nullptr)
-    {
-        root->_process();
-    }
-
-    else
-    {
-        std::cout << "No Root" << std::endl;
-        running = false;
-    }
-}
-
-void game::collision_process() const
-{
-    // TODO timeStep should be constant, 0.016 prolly
-    b2World_Step(coll_world, coll_spf, coll_iterations);
+    b2World_Step(coll_world, coll_progression, coll_iterations);
 
     const b2SensorEvents sensors = b2World_GetSensorEvents(coll_world);
 
@@ -182,6 +193,38 @@ void game::collision_process() const
     for (CollObj* collision : collisions)
     {
         collision->collision_process();
+    }
+}
+
+void game::run_frame()
+{
+    game_window->prepare_screen();
+
+    draw();
+    draw_overlay();
+
+    game_window->push_screen();
+}
+
+void game::start()
+{
+    while(frame());
+
+    delete game_window;
+    game_window = nullptr;
+}
+
+void game::process()
+{
+    if (root != nullptr)
+    {
+        root->_process();
+    }
+
+    else
+    {
+        std::cout << "No Root" << std::endl;
+        running = false;
     }
 }
 

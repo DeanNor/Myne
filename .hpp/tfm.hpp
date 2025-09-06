@@ -28,12 +28,6 @@ public:
     tfm(pos* new_position, rad* new_angle);
     tfm(pos* new_position, rad* new_angle, tfm* new_parent);
 
-    // Very basic math functions, the position should be separated for anything else, see efficiency rant
-    void add(pos other);
-    void subt(pos other);
-    void mult(pos other);
-    void div(pos other);
-
     // Set the underlying position to value, taking into account the global position the underlying position is scoped to.
     void set(pos value);
 

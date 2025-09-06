@@ -9,66 +9,10 @@ tfm::tfm(pos* new_position, rad* new_angle, tfm* new_parent) : position(new_posi
 
 }
 
-// TODO incorrect math, mainly mult and div
-void tfm::add(pos other)
-{
-    if (parent != nullptr)
-    {
-        pos par = parent->compute();
-        *position = par - ((*position + par) + other);
-    }
-
-    else
-    {
-        *position += other;
-    }
-}
-void tfm::subt(pos other)
-{
-    if (parent != nullptr)
-    {
-        pos par = parent->compute();
-        *position = par - ((*position + par) - other);
-    }
-
-    else
-    {
-        *position -= other;
-    }
-}
-void tfm::mult(pos other)
-{
-    if (parent != nullptr)
-    {
-        pos par = parent->compute();
-        *position = par - ((*position + par) * other);
-    }
-
-    else
-    {
-        *position *= other;
-    }
-}
-void tfm::div(pos other)
-{
-    if (parent != nullptr)
-    {
-        pos par = parent->compute();
-        *position = par - ((*position + par) / other);
-    }
-
-    else
-    {
-        *position /= other;
-    }
-}
-
-#include <iostream>
 void tfm::set(pos value)
 {
     if (parent != nullptr)
     {
-            std::cout << position << std::endl;
             *position = value - parent->compute();
     }
 
@@ -146,7 +90,6 @@ rad tfm::compute_angle()
         if (parent != nullptr)
         {
             transform_angle = *angle;
-            std::cout << *angle << ' ';
             past_angle = transform_angle;
             
             par_angle = parent->compute_angle();
