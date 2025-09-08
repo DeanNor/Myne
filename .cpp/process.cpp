@@ -134,7 +134,7 @@ void Process::start_delete()
             child->start_delete();
         }
 
-        get_current_game()->deletes.push_back(this);
+        get_current_game()->add_to_deletes(this);
     }
 }
 

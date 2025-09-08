@@ -1,5 +1,6 @@
 
 #include ".hpp/display.hpp"
+#include "SDL3/SDL_render.h"
 #include "SDL3/SDL_video.h"
 
 display::display(pos display_size, const char* name, SDL_WindowFlags flags)
@@ -16,7 +17,7 @@ display::display(pos display_size, const char* name, SDL_WindowFlags flags)
 
 display::~display()
 {
-    prepare_screen();
+    SDL_DestroyTexture(screen);
 
     SDL_DestroyWindow(window);
     SDL_DestroyRenderer(renderer);
@@ -24,20 +25,18 @@ display::~display()
 
 void display::prepare_screen()
 {
-    SDL_SetRenderTarget(renderer, nullptr);
+    SDL_SetRenderTarget(renderer, screen);
     SDL_RenderClear(renderer);
 }
 
 void display::push_screen()
 {
+    if (screen)
+    {
+        SDL_SetRenderTarget(renderer, nullptr);
+
+        SDL_RenderTexture(renderer, screen, nullptr, nullptr);
+    }
+    
     SDL_RenderPresent(renderer);
-}
-
-void display::update_size()
-{
-    int size_x, size_y;
-    SDL_GetWindowSizeInPixels(window, &size_x, &size_y);
-    size = {(double)(size_x), (double)(size_y)};
-
-    half_size = size / 2.0;
 }

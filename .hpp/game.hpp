@@ -21,6 +21,7 @@ const static long double NSPS = 1.e9;
 
 struct game
 {
+private:
     display* game_window = nullptr;
 
     Process* root = nullptr;
@@ -33,7 +34,7 @@ struct game
     std::vector<Process*> deletes = {};
 
     b2WorldId coll_world;
-    bool physics = true;
+    bool physics = false;
 
     bool running = true;
 
@@ -41,7 +42,7 @@ struct game
     double spf = 1.0 / fps; // Seconds per frame
     Uint64 fpsticks = 1000 / fps; // MSeconds between ticks
 
-    double coll_fps = 120;
+    double coll_fps = 60;
     double coll_spf = 1 / coll_fps;
     Uint64 collticks = 1000 / coll_fps;
 
@@ -63,6 +64,7 @@ struct game
     mouse_state mouse;
     keyboard_state keyboard;
 
+public:
     game(const char* name, SDL_WindowFlags flags);
 
     virtual ~game();
@@ -91,6 +93,10 @@ struct game
 
     void end_delete();
 
+    void add_to_deletes(Process* who);
+
+    void add_to_collisions(CollObj* who);
+
     void add_to_draws(DrawObj* who, const unsigned char& depth);
 
     void remove_from_draws(DrawObj* who, const unsigned char& depth);
@@ -100,6 +106,148 @@ struct game
     void remove_from_overlay_draws(BlendObj* who, const unsigned char& depth);
 
     void remove_from_collisions(CollObj* who);
+
+    constexpr display* get_game_window() const 
+    {
+        return game_window;
+    }
+
+    constexpr void set_root(Process* new_root)
+    {
+        root = new_root;
+    }
+
+    constexpr Process* get_root() const
+    {
+        return root;
+    }
+
+    constexpr void set_coll_world(b2WorldId new_coll_world)
+    {
+        coll_world = new_coll_world;
+    }
+
+    constexpr b2WorldId get_coll_world() const
+    {
+        return coll_world;
+    }
+
+    constexpr void set_physics(bool has)
+    {
+        physics = has;
+    }
+
+    constexpr bool has_physics() const
+    {
+        return physics;
+    }
+
+    void set_running(bool is_running)
+    {
+        running = is_running;
+    }
+
+    void set_fps(double val)
+    {
+        fps = val;
+        spf = 1.0 / fps;
+        fpsticks = 1000 / fps;
+    }
+
+    constexpr double get_fps() const
+    {
+        return fps;
+    }
+
+    constexpr double get_spf() const
+    {
+        return spf;
+    }
+    
+    constexpr Uint64 get_fpsticks() const
+    {
+        return fpsticks;
+    }
+
+    void set_coll_fps(double val)
+    {
+        coll_fps = val;
+        coll_spf = 1.0 / coll_fps;
+        collticks = 1000 / coll_fps;
+    }
+
+    constexpr double get_coll_fps() const
+    {
+        return coll_fps;
+    }
+
+    constexpr double get_coll_spf() const
+    {
+        return coll_spf;
+    }
+    
+    constexpr Uint64 get_coll_fpsticks() const
+    {
+        return collticks;
+    }
+
+    void set_frame_fps(double val)
+    {
+        frame_fps = val;
+        frame_spf = 1.0 / frame_fps;
+        frameticks = 1000 / frame_fps;
+    }
+
+    constexpr double get_frame_fps() const
+    {
+        return frame_fps;
+    }
+
+    constexpr double get_frame_spf() const
+    {
+        return frame_spf;
+    }
+    
+    constexpr Uint64 get_frame_fpsticks() const
+    {
+        return frameticks;
+    }
+
+    // FPS as known by the coll engine
+    constexpr void set_coll_progression(float new_coll_progression)
+    {
+        coll_progression = new_coll_progression;
+    }
+
+    constexpr float get_coll_progression()
+    {
+        return coll_progression;
+    }
+
+    constexpr double get_delta() const
+    {
+        return delta;
+    }
+
+    constexpr void set_coll_iterations(int iterations)
+    {
+        coll_iterations = iterations;
+    }
+
+    constexpr int get_coll_iterations() const
+    {
+        return coll_iterations;
+    }
+
+    constexpr mouse_state& get_mouse()
+    {
+        return mouse;
+    }
+
+    constexpr keyboard_state& get_keyboard()
+    {
+        return keyboard;
+    }
 
 private:
     bool __remove_from_draws(DrawObj* who, const unsigned char& depth);

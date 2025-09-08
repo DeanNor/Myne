@@ -1,6 +1,7 @@
 
 #include ".hpp/drawobj.hpp"
 
+#include ".hpp/SDL3.h"
 #include ".hpp/err.hpp"
 #include ".hpp/game.hpp"
 
@@ -8,12 +9,12 @@
 
 DrawObj::DrawObj()
 {
-    window = get_current_game()->game_window;
+    window = get_current_game()->get_game_window();
 }
 
 DrawObj::~DrawObj()
 {
-    if (ownership == true && sprite != nullptr)
+    if (sprite_ownership == true && sprite != nullptr)
     {
         SDL_DestroyTexture(sprite);
     }
@@ -26,13 +27,14 @@ void DrawObj::load(Loader* ar)
     Object::load(ar);
 
     scale = ar->load_complex<pos>();
-    ownership = ar->load_data<bool>();
+    sprite_ownership = ar->load_data<bool>();
 
-    if (ownership)
+    if (sprite_ownership)
     {
         sprite_path = ar->load_complex<std::string>();
+        sprite_scale_mode = ar->load_data<SDL_ScaleMode>();
 
-        set_sprite(sprite_path);
+        set_sprite(sprite_path, sprite_scale_mode);
     }
 
     depth = ar->load_data<unsigned char>();
@@ -43,11 +45,12 @@ void DrawObj::save(Saver* ar) const
     Object::save(ar);
 
     ar->save_complex(scale);
-    ar->save_data(ownership);
+    ar->save_data(sprite_ownership);
 
-    if (ownership)
+    if (sprite_ownership)
     {
         ar->save_complex(sprite_path);
+        ar->save_data(sprite_scale_mode);
     }
 
     ar->save_data(depth);
@@ -59,14 +62,14 @@ void DrawObj::draw(const pos& origin)
     {
         const SDL_FRect pos_rect = pos::Make_SDL_FRect(global_position.transform - origin, half_size); // Transform and transform_angle can be used as visible() uses compute()
 
-        SDL_RenderTextureRotated(window->renderer, sprite, nullptr, &pos_rect, global_position.compute_angle().deg(), nullptr, SDL_FLIP_NONE);
+        SDL_RenderTextureRotated(window->get_renderer(), sprite, nullptr, &pos_rect, global_position.transform_angle.deg(), nullptr, SDL_FLIP_NONE);
     }
 }
 
 void DrawObj::set_sprite(SDL_Texture* bitmap, bool owns_sprite)
 {
     sprite = bitmap;
-    ownership = owns_sprite;
+    sprite_ownership = owns_sprite;
 
     float x,y;
 
@@ -76,24 +79,15 @@ void DrawObj::set_sprite(SDL_Texture* bitmap, bool owns_sprite)
     half_size = size / 2;
 }
 
-void DrawObj::set_sprite(std::filesystem::path path)
+void DrawObj::set_sprite(std::filesystem::path path, SDL_ScaleMode scale_mode)
 {
     ASSERT(std::filesystem::exists(path), std::string("File path does not exist ") + path.generic_string());
 
-    SDL_Surface* surf = IMG_Load(path.c_str());
+    load_img(sprite, window->get_renderer(), path, scale_mode);
+    sprite_ownership = true;
+    sprite_scale_mode = scale_mode;
 
-    if (surf)
-    {
-        SDL_Texture* bmp = SDL_CreateTextureFromSurface(window->renderer, surf);
-        if (bmp)
-        {
-            set_sprite(bmp, true);
-
-            set_sprite_path(path);
-
-            SDL_DestroySurface(surf);
-        }
-    }
+    set_sprite_path(path);
 }
 
 SDL_Texture* DrawObj::get_sprite()
@@ -135,19 +129,20 @@ void DrawObj::init(unsigned char z)
 
 bool DrawObj::visible()
 {
-    const pos window_zero = window->center - window->half_size;
-    const pos window_max = window->center + window->half_size;
+    const pos window_zero = window->get_top_left();
+    const pos window_max = window->get_bottom_right();
 
     pos glo_pos = global_position.compute();
 
-    pos bottom_right = (glo_pos + half_size).rotated(angle);
-    if (bottom_right.within(window_zero, window_max))
+    // Shape inside of window
+    pos top_left = (glo_pos - half_size); // Needed for window inside of shape, so no rotation yet
+    if (top_left.rotated(angle).within(window_zero, window_max))
     {
         return true;
     }
 
-    pos top_left = (glo_pos - half_size).rotated(angle);
-    if (top_left.within(window_zero, window_max))
+    pos bottom_right = (glo_pos + half_size);
+    if (bottom_right.rotated(angle).within(window_zero, window_max))
     {
         return true;
     }
@@ -164,13 +159,34 @@ bool DrawObj::visible()
         return true;
     }
 
+    // Window inside of shape
+    if (window_zero.within(top_left, bottom_right))
+    {
+        return true;
+    }
+
+    if (window_max.within(top_left, bottom_right))
+    {
+        return true;
+    }
+
+    if (window->get_top_right().within(top_left, top_right))
+    {
+        return true;
+    }
+
+    if (window->get_bottom_left().within(top_left, top_right))
+    {
+        return true;
+    }
+
     return false;
 }
 
 bool DrawObj::fully_visible()
 {
-    const pos window_zero = window->center - window->half_size;
-    const pos window_max = window->center + window->half_size;
+    const pos window_zero = window->get_center() - window->get_half_size();
+    const pos window_max = window->get_center() + window->get_half_size();
 
     pos glo_pos = global_position.compute();
 

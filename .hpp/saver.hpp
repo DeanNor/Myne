@@ -33,13 +33,6 @@ public:
         file.write((const char*)(&data), sizeof(T));
     }
 
-    template <>
-    void save_data<bool>(bool data)
-    {
-        if (data) file << '\1';
-        else file << '\0';
-    }
-
     template <typename T>
     void save_enum(T data)
     {
@@ -54,13 +47,6 @@ public:
         data.save(this);
     }
 
-    template <>
-    void save_complex<std::string>(std::string data)
-    {
-        file << data;
-        file << '\0';
-    }
-
     template<CLS_PTR T>
     void save_complex_ptr(T data)
     {
@@ -70,3 +56,17 @@ public:
 
     void save_process(Process* data);
 };
+
+template <>
+inline void Saver::save_data<bool>(bool data)
+{
+    if (data == true) file << '\1';
+    else file << '\0';
+}
+
+template <>
+inline void Saver::save_complex<std::string>(std::string data)
+{
+    file << data;
+    file << '\0';
+}

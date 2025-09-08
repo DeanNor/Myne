@@ -72,7 +72,6 @@ public:
     Mouse()
     {
         collision_def.type = b2_dynamicBody;
-        collision_def.isBullet = false;
         collision_def.motionLocks.angularZ = true;
 
         collision_body = b2CreateBody(get_current_coll_world(), &collision_def);
@@ -89,7 +88,7 @@ public:
     {
         CollObj::collision_process();
 
-        pos mouse_pos = get_current_game()->mouse.position;
+        pos mouse_pos = get_current_game()->get_mouse().position;
 
         if (mouse_pos.x != 0 && mouse_pos.y != 0) b2Body_SetLinearVelocity(collision_body, b2Vec2{(float)(mouse_pos.x - position.x) * 3.f, (float)(mouse_pos.y - position.y) * 3.f});
     }

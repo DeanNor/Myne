@@ -58,9 +58,10 @@ inline constexpr Uint64 get_lowest(Uint64 low, ...)
 
 bool game::frame()
 {
-    Uint64 ticks = SDL_GetTicks() - total_ticks;
-    Uint64 coll_ticks = SDL_GetTicks() - total_coll_ticks;
-    Uint64 frame_ticks = SDL_GetTicks() - total_frame_ticks;
+    Uint64 tick_count = SDL_GetTicks();
+    Uint64 ticks = tick_count - total_ticks;
+    Uint64 coll_ticks = tick_count - total_coll_ticks;
+    Uint64 frame_ticks = tick_count - total_frame_ticks;
 
     int count = floor(ticks / fpsticks);
     int coll_count = floor(coll_ticks / collticks);
@@ -72,18 +73,18 @@ bool game::frame()
         {
             if (count > 0)
             {
+                total_ticks = tick_count;
+
                 run_processes();
                 --count;
-
-                total_ticks = SDL_GetTicks();
             }
 
             if (coll_count > 0)
             {
+                total_coll_ticks = tick_count;
+
                 run_collision();
                 --coll_count;
-
-                total_coll_ticks = SDL_GetTicks();
             }
 
         } while (count > 0 || coll_count > 0);
@@ -92,7 +93,7 @@ bool game::frame()
         {
             run_frame();
 
-            total_frame_ticks = SDL_GetTicks();
+            total_frame_ticks = tick_count;
         }
 
         end_delete();
@@ -120,13 +121,15 @@ void game::process_event(SDL_Event event)
     switch (event.type)
     {
     case SDL_EVENT_WINDOW_CLOSE_REQUESTED:
-        if (event.window.windowID == SDL_GetWindowID(game_window->window))
+        if (event.window.windowID == SDL_GetWindowID(game_window->get_window()))
         {
             running = false;
         }
+        break;
         
     case SDL_EVENT_QUIT:
         running = false;
+        break;
 
     case SDL_EVENT_WINDOW_RESIZED:
         game_window->update_size();
@@ -145,13 +148,17 @@ void game::process_event(SDL_Event event)
 
 void game::run_processes()
 {
+    // Reset just_pressed-s
+    keyboard.reset();
+
     view_events();
 
     // Update mouse position
     float x,y;
     SDL_GetMouseState(&x,&y);
-    mouse.position = pos(x,y) + game_window->center - game_window->half_size;
+    mouse.position = pos(x,y) + game_window->get_center() - game_window->get_half_size();
 
+    // Update delta
     delta = (long double)(SDL_GetTicksNS() - total_delay) / NSPS;
     total_delay = SDL_GetTicksNS();
 
@@ -230,7 +237,7 @@ void game::process()
 
 void game::draw() const
 {
-    const pos origin = game_window->center - game_window->half_size;
+    const pos origin = game_window->get_center() - game_window->get_half_size();
     for (unsigned char x = 0; x < std::numeric_limits<unsigned char>::max(); ++x)
     {
         const std::vector<DrawObj*>& layer = draws[x];
@@ -243,7 +250,7 @@ void game::draw() const
 
 void game::draw_overlay() const
 {
-    const pos origin = game_window->center - game_window->half_size;
+    const pos origin = game_window->get_center() - game_window->get_half_size();
     for (unsigned char x = 0; x < std::numeric_limits<unsigned char>::max(); ++x)
     {
         const std::vector<BlendObj*>& layer = overlay_draws[x];
@@ -265,6 +272,16 @@ void game::end_delete()
 
         deletes.clear();
     }
+}
+
+void game::add_to_deletes(Process* who)
+{
+    deletes.push_back(who);
+}
+
+void game::add_to_collisions(CollObj* who)
+{
+    collisions.push_back(who);
 }
 
 void game::add_to_draws(DrawObj* who, const unsigned char& depth)

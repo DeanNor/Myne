@@ -7,6 +7,7 @@
 // More of a racetrack, loops through the list, getting the next element with .get() and looping at the end of the elements
 struct tube
 {
+private:
     void update_index();
 
 public:

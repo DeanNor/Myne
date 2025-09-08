@@ -6,6 +6,7 @@
 #include ".hpp/object.hpp"
 
 #include ".hpp/hull.hpp"
+#include "box2d/id.h"
 
 EXTERNAL_VAR_CONSTRUCTOR(b2Vec2);
 OVERRIDE_LOAD(b2Vec2)
@@ -158,3 +159,5 @@ public:
         ar->save_enum(collision_def.type);
     }
 };
+
+CollObj* get_shape_owner(b2ShapeId shape);

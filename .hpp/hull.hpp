@@ -9,7 +9,7 @@
 #include <iostream>
 #include <vector>
 
-struct hull
+struct hull // TODO actually make this usable 
 {
 public:
     std::vector<std::pair<int,std::array<pos, B2_MAX_POLYGON_VERTICES>>> data;

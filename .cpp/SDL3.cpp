@@ -6,6 +6,8 @@
 #include <filesystem>
 
 #include ".hpp/err.hpp"
+#include "SDL3/SDL_render.h"
+#include "SDL3/SDL_surface.h"
 
 // Should not be called in the draw function as it clears the content of renderer, although YOLO
 // Saves the texture to path as a png, but does not add the .png to the end
@@ -32,10 +34,13 @@ void save_img(SDL_Texture* texture, SDL_Renderer* renderer, std::filesystem::pat
 }
 
 // Loads texture from path. The texture will be attached to the renderer
-void load_img(SDL_Texture*& texture, SDL_Renderer* renderer, std::filesystem::path path)
+void load_img(SDL_Texture*& texture, SDL_Renderer* renderer, std::filesystem::path path, SDL_ScaleMode scale_mode)
 {
     ASSERT(std::filesystem::exists(path), std::string("File path does not exist ") + path.generic_string());
 
     texture = IMG_LoadTexture(renderer, path.c_str());
+    
     ASSERT(texture, "ERROR with texture creation");
+
+    SDL_SetTextureScaleMode(texture, scale_mode);
 }

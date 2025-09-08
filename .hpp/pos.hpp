@@ -70,11 +70,9 @@ public:
 
     pos limited(double limit);
 
-    void stop();
+    pos scaled(pos start, pos end) const;
 
-    pos scaled(pos start, pos end);
-
-    bool within(const pos& min, const pos& max);
+    bool within(const pos& min, const pos& max) const;
 
     pos floor();
 

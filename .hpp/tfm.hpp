@@ -16,8 +16,8 @@ private:
 public:
     // Internal values to quick compute transform and angle.
     // Should not normally be used.
-    pos transform = {0,0};
-    rad transform_angle = {0};
+    pos transform;
+    rad transform_angle;
 
     // Un-Owned position and angle variables, stored in the object class but not here.
     pos* position = nullptr;

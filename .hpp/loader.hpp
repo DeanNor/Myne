@@ -14,7 +14,7 @@
 
 class Loader
 {
-public:
+private:
     tube* values = nullptr;
 
     std::ifstream file;
@@ -66,13 +66,6 @@ public:
 
             return d;
         }
-    }
-
-    // TODO make into load_data_ptr
-    template <>
-    const char* load_data<const char*>()
-    {
-        throw std::logic_error("Who wants to make this actually work?");
     }
 
     template<typename T>
@@ -170,45 +163,6 @@ public:
         }
     }
 
-    template <>
-    std::string load_complex<std::string>()
-    {
-        if (eof)
-        {
-            if (values)
-            {
-                std::string d = (char*)(values->get());
-                return d;
-            }
-
-            else throw std::bad_alloc();
-        }
-
-        else
-        {
-            char c = '\1';
-            std::string d;
-
-            while (c != '\0')
-            {
-                c = file.get();
-                d += c;
-            }
-
-            if (values)
-            {
-                char* c_str = (char*)malloc(d.size() + 1);
-                std::memcpy(c_str, d.c_str(), d.size() + 1);
-
-                values->add(c_str);
-            }
-
-            eof = file.peek() == -1;
-
-            return d;
-        }
-    }
-
     template<CLS_PTR T>
     T* load_complex_ptr()
     {
@@ -260,3 +214,51 @@ public:
 
     Process* load_process(); // Expanded in process.hpp
 };
+
+
+// TODO make into load_data_ptr
+template <>
+inline const char* Loader::load_data<const char*>()
+{
+    throw std::logic_error("Who wants to make this actually work?");
+}
+
+
+template <>
+inline std::string Loader::load_complex<std::string>()
+{
+    if (eof)
+    {
+        if (values)
+        {
+            std::string d = (char*)(values->get());
+            return d;
+        }
+
+        else throw std::bad_alloc();
+    }
+
+    else
+    {
+        char c = '\1';
+        std::string d;
+
+        while (c != '\0')
+        {
+            c = file.get();
+            d += c;
+        }
+
+        if (values)
+        {
+            char* c_str = (char*)malloc(d.size() + 1);
+            std::memcpy(c_str, d.c_str(), d.size() + 1);
+
+            values->add(c_str);
+        }
+
+        eof = file.peek() == -1;
+
+        return d;
+    }
+}

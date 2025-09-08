@@ -1,11 +1,11 @@
 
+#include ".hpp/factory.hpp"
+#include ".hpp/loader.hpp"
 #include ".hpp/pos.hpp"
 
 #include "SDL3/SDL_events.h"
-#include "SDL3/SDL_keyboard.h"
 #include "SDL3/SDL_keycode.h"
 #include "SDL3/SDL_mouse.h"
-#include <unordered_map>
 
 struct mouse_state
 {
@@ -44,11 +44,53 @@ public:
     }
 };
 
+struct keyboard_state;
+
 struct keyboard_watcher
 {
+ASSIGN_VAR_CONSTRUCTOR(keyboard_watcher);
+
+friend keyboard_state;
+
+private:
+    bool pressed_now = false;
+    bool released_now = false;
+    bool pressed = false;
+
 public:
-    bool* value;
     SDL_Keycode watched;
+
+    keyboard_watcher() = default;
+
+    keyboard_watcher(SDL_Keycode key) : watched(key)
+    {
+
+    }
+
+    constexpr bool down()
+    {
+        return pressed;
+    }
+
+    constexpr bool just_pressed()
+    {
+        return pressed_now;
+    }
+
+    constexpr bool just_released()
+    {
+        return released_now;
+    }
+
+    void load(Loader* loader)
+    {
+        watched = loader->load_data<SDL_Keycode>();
+    }
+
+    void save(Saver* saver)
+    {
+        saver->save_data(watched);
+    }
 };
 
 struct keyboard_state // TODO saveable and loadable
@@ -74,8 +116,29 @@ public:
         {
             if (x->watched == recent_change)
             {
-                *(x->value) = true;
+                if (key_change.down)
+                {
+                    x->pressed_now = !x->pressed; 
+                }
+
+                else
+                {
+                    x->released_now = x->pressed;
+                }
+
+                x->pressed = key_change.down;
             }
         }
+    }
+
+    void reset()
+    {
+        for (keyboard_watcher* x : watchers)
+        {
+            x->pressed_now = false;
+            x->released_now = false;
+        }
+
+        recent_change = SDLK_UNKNOWN;
     }
 };

@@ -23,7 +23,9 @@ protected:
     pos half_size;
 
     // If the sprite pointer is owned.
-    bool ownership = false;
+    bool sprite_ownership = false;
+
+    SDL_ScaleMode sprite_scale_mode;
 
     std::string sprite_path;
 
@@ -41,7 +43,7 @@ public:
     virtual void draw(const pos& origin);
 
     void set_sprite(SDL_Texture* bitmap, bool owns_sprite);
-    void set_sprite(std::filesystem::path path);
+    void set_sprite(std::filesystem::path path, SDL_ScaleMode scale_mode);
 
     SDL_Texture* get_sprite();
 

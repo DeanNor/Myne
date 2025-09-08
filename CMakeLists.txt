@@ -25,7 +25,6 @@ add_library(${LIB_NAME}
     .cpp/display.cpp
     .cpp/collobj.cpp
     .cpp/tfm.cpp
-    .cpp/ref.cpp
     .cpp/SDL3.cpp
     .cpp/hull.cpp
     .cpp/factory.cpp
@@ -53,4 +52,4 @@ target_link_libraries(${LIB_NAME} PUBLIC
     blend2d
     )
 
-target_compile_options(${LIB_NAME} PUBLIC -Wall -Wextra -pedantic -fsafe-buffer-usage-suggestions -O3 -march=native)
+target_compile_options(${LIB_NAME} PUBLIC -Wall -Wextra -pedantic -O3 -march=native)

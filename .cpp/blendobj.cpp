@@ -6,7 +6,7 @@
 
 BlendObj::BlendObj()
 {
-    window = get_current_game()->game_window;
+    window = get_current_game()->get_game_window();
 }
 
 BlendObj::~BlendObj()
@@ -26,7 +26,7 @@ void BlendObj::draw_overlay(pos origin)
         const pos glo_pos = global_position.transform - origin;
         const SDL_FRect pos_rect{(float)glo_pos.x,(float)glo_pos.y, (float)size.x, (float)size.y};
 
-        SDL_RenderTextureRotated(window->renderer, texture, nullptr, &pos_rect, global_position.transform_angle.deg(), nullptr, SDL_FLIP_NONE);
+        SDL_RenderTextureRotated(window->get_renderer(), texture, nullptr, &pos_rect, global_position.transform_angle.deg(), nullptr, SDL_FLIP_NONE);
     }
 }
 
@@ -45,7 +45,7 @@ void BlendObj::set_image(BLImage new_image)
     image_size.x = image.width();
     image_size.y = image.height();
 
-    texture = SDL_CreateTexture(window->renderer, SDL_FORMAT, SDL_TEXTUREACCESS_STREAMING, image_size.x, image_size.y);
+    texture = SDL_CreateTexture(window->get_renderer(), SDL_FORMAT, SDL_TEXTUREACCESS_STREAMING, image_size.x, image_size.y);
 
     update_image();
 }

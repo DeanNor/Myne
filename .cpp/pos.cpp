@@ -87,13 +87,7 @@ pos pos::limited(double limit)
     return temp_pos;
 }
 
-void pos::stop()
-{
-    x = 0;
-    y = 0;
-}
-
-pos pos::scaled(pos start, pos end)
+pos pos::scaled(pos start, pos end) const
 {
     pos temp_pos = *this;
 
@@ -102,7 +96,7 @@ pos pos::scaled(pos start, pos end)
     return temp_pos;
 }
 
-bool pos::within(const pos& min, const pos& max)
+bool pos::within(const pos& min, const pos& max) const
 {
     if (x < min.x || x > max.x)
     {
