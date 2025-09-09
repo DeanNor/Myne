@@ -41,7 +41,7 @@ add_subdirectory(include/SDL)
 add_subdirectory(include/box2d)
 add_subdirectory(include/SDL_image)
 
-include_directories(include include/SDL_image/include)
+include_directories(include include/SDL_image/include include/box2d/include /)
 
 target_link_libraries(${LIB_NAME} PUBLIC
     SDL3::SDL3

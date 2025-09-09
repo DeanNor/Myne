@@ -42,7 +42,7 @@ private:
     double spf = 1.0 / fps; // Seconds per frame
     Uint64 fpsticks = 1000 / fps; // MSeconds between ticks
 
-    double coll_fps = 60;
+    double coll_fps = 30;
     double coll_spf = 1 / coll_fps;
     Uint64 collticks = 1000 / coll_fps;
 
