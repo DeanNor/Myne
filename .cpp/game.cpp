@@ -11,7 +11,9 @@
 #include <SDL3/SDL_init.h>
 #include <limits>
 
-game::game(const char* name, SDL_WindowFlags flags)
+#include ".hpp/ranges.hpp"
+
+game::game(const char* name, SDL_WindowFlags flags, pos window_size)
 {
     if (!SDL_Init(SDL_INIT_AUDIO | SDL_INIT_VIDEO))
     {
@@ -21,7 +23,7 @@ game::game(const char* name, SDL_WindowFlags flags)
         std::cout << SDL_GetError() << '\n' << '\n';
     }
 
-    game_window = new display({1000, 500}, name, flags);
+    game_window = new display(window_size, name, flags);
 
     root = new Process; // TODO decide to remove
 
@@ -38,22 +40,6 @@ game::~game()
     }
 
     SDL_Quit();
-}
-
-
-inline constexpr Uint64 get_lowest(Uint64 low, ...)
-{
-    Uint64 lowest = std::numeric_limits<Uint64>::max();
-
-    va_list args;
-    va_start(args, low);
-
-    Uint64 new_low = va_arg(args, Uint64);
-    if (new_low < lowest) lowest = new_low;
-
-    va_end(args);
-
-    return lowest;
 }
 
 bool game::frame()
@@ -101,7 +87,7 @@ bool game::frame()
 
     else
     {
-        SDL_Delay(get_lowest(fpsticks - ticks, collticks - coll_ticks, frameticks - frame_ticks));
+        SDL_Delay(get_lowest(3, fpsticks - ticks, collticks - coll_ticks, frameticks - frame_ticks));
     }
 
     return running;
@@ -167,6 +153,11 @@ void game::run_processes()
 
 void game::run_collision()
 {
+    for (CollObj* collision : collisions)
+    {
+        collision->set_collision_info();
+    }
+
     b2World_Step(coll_world, coll_progression, coll_iterations);
 
     const b2SensorEvents sensors = b2World_GetSensorEvents(coll_world);
@@ -195,6 +186,11 @@ void game::run_collision()
     {
         b2ContactEndTouchEvent* event = contacts.endEvents + y;
         CollObj::CollisionEnd(event->shapeIdA, event->shapeIdB);
+    }
+
+    for (CollObj* collision : collisions)
+    {
+        collision->update_collision_info();
     }
 
     for (CollObj* collision : collisions)

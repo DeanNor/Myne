@@ -10,6 +10,7 @@
 #include "loader.hpp"
 
 // TODO efficiency week!
+// I dont know why I keep assuming I initialize this, it is a type, initialize it yourself!
 struct pos
 {
 ASSIGN_VAR_CONSTRUCTOR(pos);
@@ -22,23 +23,11 @@ public:
 
     constexpr pos() = default;
 
-    constexpr pos(const pos& past_pos) : x(past_pos.x), y(past_pos.y){}
+    constexpr operator b2Vec2() { return b2Vec2{(float)x,(float)y}; }
 
-    constexpr operator b2Vec2()
-    {
-        return b2Vec2{(float)x,(float)y};
-    }
+    constexpr pos(const b2Vec2& convert) : x(convert.x), y(convert.y) {}
 
-    constexpr pos(const b2Vec2& convert)
-    {
-        x = convert.x;
-        y = convert.y;
-    }
-
-    constexpr operator SDL_FPoint()
-    {
-        return SDL_FPoint{(float)x,(float)y};
-    }
+    constexpr operator SDL_FPoint() { return SDL_FPoint{(float)x,(float)y}; }
 
     constexpr pos(const SDL_FPoint& convert) : x(convert.x), y(convert.y) {};
 
@@ -56,33 +45,35 @@ public:
 
     void save(Saver* save);
 
-    double sum();
+    double sum() const;
 
-    rad direction();
+    rad direction() const;
 
-    pos ratio();
+    pos ratio() const;
 
-    double len();
+    double len() const;
 
-    pos rotated(rad angle);
+    pos rotated(rad angle) const;
 
-    rad angle_to(pos target);
+    rad angle_to(pos target) const;
 
-    pos limited(double limit);
+    // Limited by length, as in total pos offset length
+    pos limited(double limit) const;
+
+    // Limited by x length and y length as separate values not affecting each other
+    pos limited_separated(double limit) const;
 
     pos scaled(pos start, pos end) const;
 
     bool within(const pos& min, const pos& max) const;
 
-    pos floor();
+    pos floor() const;
 
-    pos ceil();
+    pos ceil() const;
 
-    pos round();
-
-    pos& operator= (const pos& convert);
-
-    pos operator+ (const pos amount);
+    pos round() const;
+    
+    pos operator+ (const pos amount); // TODO constexpr these
 
     pos operator+ (const double amount);
 

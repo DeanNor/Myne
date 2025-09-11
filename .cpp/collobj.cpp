@@ -19,36 +19,9 @@ CollObj::~CollObj()
     get_current_game()->remove_from_collisions(this);
 }
 
-void CollObj::_process()
-{
-    Object::_process();
-
-    b2Body_SetTransform(collision_body,global_position.compute(),global_position.compute_angle());
-}
-
 void CollObj::collision_process()
 {
-    if (b2Body_IsValid(collision_body))
-    {
-        pos body_pos = b2Body_GetPosition(collision_body);
-        
-        if (global_position.parent != nullptr)
-        {        
-            const pos offset = global_position.parent->compute();
-            rad offset_rad = global_position.parent->compute_angle();
-
-            position = (body_pos - offset).rotated(-offset_rad);
-
-            angle = rad(b2Body_GetRotation(collision_body)) - offset_rad;
-        }
-
-        else
-        {
-            position = body_pos;
-
-            angle = rad(b2Body_GetRotation(collision_body));
-        }
-    }
+    return;
 }
 
 void CollObj::set_collision_body(b2BodyId new_body, bool ownership)

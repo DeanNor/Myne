@@ -60,7 +60,7 @@ public:
 
     void init(unsigned char depth);
 
-    // If any pixel of the object is on the screen. Calls compute.
+    // If any pixel of the object is on the screen. Calls compute & compute_angle()
     bool visible();
 
     // If 100% of the object is on the screen. Calls compute. Note, rounding errors (and moveover, physics) make this a little inaccurate.

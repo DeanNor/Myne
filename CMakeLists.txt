@@ -1,7 +1,7 @@
 
 cmake_minimum_required(VERSION 3.16)
 
-set(CMAKE_CXX_STANDARD 26)
+set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 set(LIB_NAME "Myne")
@@ -51,5 +51,3 @@ target_link_libraries(${LIB_NAME} PUBLIC
     
     blend2d
     )
-
-target_compile_options(${LIB_NAME} PUBLIC -Wall -Wextra -pedantic -O3 -march=native)

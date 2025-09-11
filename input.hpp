@@ -67,17 +67,17 @@ public:
 
     }
 
-    constexpr bool down()
+    bool down()
     {
         return pressed;
     }
 
-    constexpr bool just_pressed()
+    bool just_pressed()
     {
         return pressed_now;
     }
 
-    constexpr bool just_released()
+    bool just_released()
     {
         return released_now;
     }

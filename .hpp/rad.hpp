@@ -6,28 +6,28 @@
 #include "loader.hpp"
 #include "saver.hpp"
 
-const double PI = 3.14159265358979323846;
-const double TO_DEG = 180.0 / PI;
-
-// Radian type, auto looping
+// Radian type, auto loo_PIng
 struct rad
 {
 ASSIGN_VAR_CONSTRUCTOR(rad);
 
 private:
+    constexpr static const double _PI = 3.14159265358979323846;
+    constexpr static const double TO_DEG = 180.0 / _PI;
+
     constexpr double rad_constraint(double amount)
     {
         if (amount > 0)
         {
-            return fmod(amount, PI) - PI;
+            return fmod(amount, _PI) - _PI;
         }
         
-        return fmod(amount, PI) + PI;
+        return fmod(amount, _PI) + _PI;
     }
 
     constexpr double constrain_rad(double amount)
     {
-        if (amount > PI || amount <= -PI)
+        if (amount > _PI || amount <= -_PI)
         {
             return rad_constraint(amount);
         }
@@ -37,7 +37,7 @@ private:
 
     constexpr rad constrain_rad(rad amount)
     {
-        if (amount.radian > PI || amount.radian <= -PI)
+        if (amount.radian > _PI || amount.radian <= -_PI)
         {
             return rad_constraint(amount.radian);
         }
@@ -47,6 +47,16 @@ private:
 
 public:
     double radian;
+
+    static constexpr rad PI()
+    {
+        return rad(_PI);
+    }
+
+    static constexpr double DEG_CONV_CONST()
+    {
+        return TO_DEG;
+    }
 
     constexpr double deg() const
     {
@@ -230,7 +240,7 @@ public:
 // Degree to radian
 constexpr rad drad(double degree)
 {
-    return rad(degree / TO_DEG);
+    return rad(degree / rad::DEG_CONV_CONST());
 }
 
 constexpr rad operator ""_r(long double v)

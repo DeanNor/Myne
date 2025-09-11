@@ -1,5 +1,6 @@
 
 #include ".hpp/pos.hpp"
+#include <cmath>
 
 void pos::load(Loader* load)
 {
@@ -13,18 +14,18 @@ void pos::save(Saver* save)
     save->save_data(y);
 }
 
-double pos::sum()
+double pos::sum() const
 {
     return std::abs(x) + std::abs(y);
 }
 
-rad pos::direction()
+rad pos::direction() const
 {
-    rad dir = pos(0,0).angle_to(*this);
+    rad dir = pos{0,0}.angle_to(*this);
     return dir;
 }
 
-pos pos::ratio()
+pos pos::ratio() const
 {
     pos x_to_y = {0,0};
 
@@ -36,12 +37,12 @@ pos pos::ratio()
     return x_to_y;
 }
 
-double pos::len()
+double pos::len() const
 {
     return std::sqrt(std::pow(x,2) + std::pow(y,2));
 }
 
-pos pos::rotated(rad angle)
+pos pos::rotated(rad angle) const
 {
     if (angle != rad(0.0))
     {
@@ -63,25 +64,36 @@ pos pos::rotated(rad angle)
     }
 }
 
-rad pos::angle_to(pos target)
+rad pos::angle_to(pos target) const
 {
     return atan2(target.y - y,target.x - x);
 }
 
-pos pos::limited(double limit)
+pos pos::limited(double limit) const
 {
-    const double len = std::abs(x) + std::abs(y);
-    pos temp_pos = {0,0};
+    const double length = len();
+    pos temp_pos = *this;
 
-    if (len > limit)
+    if (length > limit)
     {
-        const double ratio_over = (len) / limit;
+        temp_pos = ratio() * limit;
+    }
 
-        if (ratio_over > 0)
-        {
-            temp_pos.x = x / ratio_over;
-            temp_pos.y = y / ratio_over;
-        }
+    return temp_pos;
+}
+
+pos pos::limited_separated(double limit) const
+{
+    pos temp_pos = *this;
+    
+    if (std::abs(x) > limit)
+    {
+        temp_pos.x = limit * ((x > 0) ? 1 : ((x < 0) ? -1 : 0));
+    }
+
+    if (std::abs(y) > limit)
+    {
+        temp_pos.y = limit * ((y > 0) ? 1 : ((y < 0) ? -1 : 0));
     }
 
     return temp_pos;
@@ -111,7 +123,7 @@ bool pos::within(const pos& min, const pos& max) const
     return true;
 }
 
-pos pos::floor()
+pos pos::floor() const
 {
     pos temp_pos = *this;
 
@@ -121,7 +133,7 @@ pos pos::floor()
     return temp_pos;
 }
 
-pos pos::ceil()
+pos pos::ceil() const
 {
     pos temp_pos = *this;
 
@@ -131,7 +143,7 @@ pos pos::ceil()
     return temp_pos;
 }
 
-pos pos::round()
+pos pos::round() const
 {
     pos temp_pos = *this;
 
@@ -139,13 +151,6 @@ pos pos::round()
     temp_pos.y = std::round(temp_pos.y);
 
     return temp_pos;
-}
-
-pos& pos::operator= (const pos& convert)
-{
-    x = convert.x;
-    y = convert.y;
-    return *this;
 }
 
 pos pos::operator+ (const pos amount)

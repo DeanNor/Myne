@@ -51,12 +51,51 @@ protected:
 
     std::string hull_path = "";
 
+    pos lin_velocity = {0,0};
+    rad rot_velocity = 0;
+
 public:
     CollObj();
     
     ~CollObj();
 
-    void _process() override;
+    // Update all b2 values to be up to date with this
+    void set_collision_info()
+    {
+        b2Body_SetTransform(collision_body,global_position.compute(),global_position.compute_angle());
+
+        b2Body_SetLinearVelocity(collision_body, lin_velocity);
+        b2Body_SetAngularVelocity(collision_body, rot_velocity);
+    }
+
+    // Updates all values to be up to date with b2
+    void update_collision_info()
+    {
+        if (b2Body_IsValid(collision_body))
+        {
+            pos body_pos = b2Body_GetPosition(collision_body);
+            
+            if (global_position.parent != nullptr)
+            {        
+                const pos offset = global_position.parent->compute();
+                rad offset_rad = global_position.parent->compute_angle();
+
+                position = (body_pos - offset).rotated(-offset_rad);
+
+                angle = rad(b2Body_GetRotation(collision_body)) - offset_rad;
+            }
+
+            else
+            {
+                position = body_pos;
+
+                angle = rad(b2Body_GetRotation(collision_body));
+            }
+
+            lin_velocity = b2Body_GetLinearVelocity(collision_body);
+            rot_velocity = b2Body_GetAngularVelocity(collision_body);
+        }
+    }
 
     virtual void collision_process();
 
@@ -73,6 +112,26 @@ public:
     bool owns_body();
 
     void delete_body();
+
+    void set_lin_velocity(pos new_velocity)
+    {
+        lin_velocity = new_velocity;
+    }
+
+    pos get_lin_velocity() const
+    {
+        return lin_velocity;
+    }
+
+    void set_rot_velocity(rad new_velocity)
+    {
+        rot_velocity = new_velocity;
+    }
+
+    rad get_rot_velocity() const
+    {
+        return rot_velocity;
+    }
 
     // ---------- COLLISION CALLBACK ISH STUFF
     static void CollisionBegin(b2ShapeId a, b2ShapeId b);

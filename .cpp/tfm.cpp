@@ -82,7 +82,7 @@ bool tfm::angle_changed()
 
     return false;
 }
-#include <iostream>
+
 rad tfm::compute_angle()
 {
     if (angle_changed())

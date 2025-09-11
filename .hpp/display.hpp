@@ -21,7 +21,7 @@ private:
 
     SDL_Texture* screen = nullptr;
 
-    inline constexpr void update_corners()
+    void update_corners()
     {
         top_left = center - half_size;
         top_right = {center.x + half_size.x, center.y - half_size.y};
@@ -29,7 +29,7 @@ private:
         bottom_right = center + half_size;
     }
 
-    inline constexpr void update_screen_size()
+    void update_screen_size()
     {
         size = {(double)screen->w, (double)screen->h};
 
@@ -47,7 +47,7 @@ public:
 
     void push_screen();
 
-    constexpr void update_size()
+    void update_size()
     {
         if (!screen)
         {
@@ -108,7 +108,7 @@ public:
         return bottom_right;
     }
 
-    constexpr void set_center(pos new_center)
+    void set_center(pos new_center)
     {
         center = new_center;
 
@@ -120,12 +120,12 @@ public:
         return center;
     }
 
-    constexpr SDL_Window* get_window() const
+    SDL_Window* get_window() const
     {
         return window;
     }
 
-    constexpr SDL_Renderer* get_renderer() const
+    SDL_Renderer* get_renderer() const
     {
         return renderer;
     }

@@ -42,7 +42,7 @@ private:
     double spf = 1.0 / fps; // Seconds per frame
     Uint64 fpsticks = 1000 / fps; // MSeconds between ticks
 
-    double coll_fps = 30;
+    double coll_fps = 60;
     double coll_spf = 1 / coll_fps;
     Uint64 collticks = 1000 / coll_fps;
 
@@ -65,7 +65,7 @@ private:
     keyboard_state keyboard;
 
 public:
-    game(const char* name, SDL_WindowFlags flags);
+    game(const char* name, SDL_WindowFlags flags, pos window_size);
 
     virtual ~game();
 
@@ -107,37 +107,37 @@ public:
 
     void remove_from_collisions(CollObj* who);
 
-    constexpr display* get_game_window() const 
+    display* get_game_window() const 
     {
         return game_window;
     }
 
-    constexpr void set_root(Process* new_root)
+    void set_root(Process* new_root)
     {
         root = new_root;
     }
 
-    constexpr Process* get_root() const
+    Process* get_root() const
     {
         return root;
     }
 
-    constexpr void set_coll_world(b2WorldId new_coll_world)
+    void set_coll_world(b2WorldId new_coll_world)
     {
         coll_world = new_coll_world;
     }
 
-    constexpr b2WorldId get_coll_world() const
+    b2WorldId get_coll_world() const
     {
         return coll_world;
     }
 
-    constexpr void set_physics(bool has)
+    void set_physics(bool has)
     {
         physics = has;
     }
 
-    constexpr bool has_physics() const
+    bool has_physics() const
     {
         return physics;
     }
@@ -154,17 +154,17 @@ public:
         fpsticks = 1000 / fps;
     }
 
-    constexpr double get_fps() const
+    double get_fps() const
     {
         return fps;
     }
 
-    constexpr double get_spf() const
+    double get_spf() const
     {
         return spf;
     }
     
-    constexpr Uint64 get_fpsticks() const
+    Uint64 get_fpsticks() const
     {
         return fpsticks;
     }
@@ -176,17 +176,17 @@ public:
         collticks = 1000 / coll_fps;
     }
 
-    constexpr double get_coll_fps() const
+    double get_coll_fps() const
     {
         return coll_fps;
     }
 
-    constexpr double get_coll_spf() const
+    double get_coll_spf() const
     {
         return coll_spf;
     }
     
-    constexpr Uint64 get_coll_fpsticks() const
+    Uint64 get_coll_fpsticks() const
     {
         return collticks;
     }
@@ -198,53 +198,53 @@ public:
         frameticks = 1000 / frame_fps;
     }
 
-    constexpr double get_frame_fps() const
+    double get_frame_fps() const
     {
         return frame_fps;
     }
 
-    constexpr double get_frame_spf() const
+    double get_frame_spf() const
     {
         return frame_spf;
     }
     
-    constexpr Uint64 get_frame_fpsticks() const
+    Uint64 get_frame_fpsticks() const
     {
         return frameticks;
     }
 
     // FPS as known by the coll engine
-    constexpr void set_coll_progression(float new_coll_progression)
+    void set_coll_progression(float new_coll_progression)
     {
         coll_progression = new_coll_progression;
     }
 
-    constexpr float get_coll_progression()
+    float get_coll_progression()
     {
         return coll_progression;
     }
 
-    constexpr double get_delta() const
+    double get_delta() const
     {
         return delta;
     }
 
-    constexpr void set_coll_iterations(int iterations)
+    void set_coll_iterations(int iterations)
     {
         coll_iterations = iterations;
     }
 
-    constexpr int get_coll_iterations() const
+    int get_coll_iterations() const
     {
         return coll_iterations;
     }
 
-    constexpr mouse_state& get_mouse()
+    mouse_state& get_mouse()
     {
         return mouse;
     }
 
-    constexpr keyboard_state& get_keyboard()
+    keyboard_state& get_keyboard()
     {
         return keyboard;
     }
