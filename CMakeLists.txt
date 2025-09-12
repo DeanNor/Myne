@@ -8,9 +8,6 @@ set(LIB_NAME "Myne")
 
 #set(CMAKE_CXX_CLANG_TIDY "clang-tidy;-checks=misc-const-correctness") # Do not have the compile time for this, but good debug
 
-set(CMAKE_EXPORT_COMPILE_COMMANDS True)
-set(CMAKE_CXX_STANDARD_INCLUDE_DIRECTORIES ${CMAKE_CXX_IMPLICIT_INCLUDE_DIRECTORIES})
-
 add_library(${LIB_NAME}
     .cpp/drawobj.cpp
     .cpp/blendobj.cpp
