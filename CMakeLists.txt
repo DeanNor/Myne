@@ -6,10 +6,6 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 set(LIB_NAME "Myne")
 
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
-set(CMAKE_INSTALL_PREFIX ${CMAKE_CURRENT_SOURCE_DIR})
-
 #set(CMAKE_CXX_CLANG_TIDY "clang-tidy;-checks=misc-const-correctness") # Do not have the compile time for this, but good debug
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS True)
