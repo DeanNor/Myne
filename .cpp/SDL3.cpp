@@ -28,7 +28,7 @@ void save_img(SDL_Texture* texture, SDL_Renderer* renderer, std::filesystem::pat
     SDL_SetRenderTarget(renderer, nullptr);
     SDL_DestroyTexture(target);
 
-    IMG_SavePNG(surface, path.c_str());
+    IMG_SavePNG(surface, path.generic_string().c_str());
 
     SDL_DestroySurface(surface);
 }
@@ -38,7 +38,7 @@ void load_img(SDL_Texture*& texture, SDL_Renderer* renderer, std::filesystem::pa
 {
     ASSERT(std::filesystem::exists(path), std::string("File path does not exist ") + path.generic_string());
 
-    texture = IMG_LoadTexture(renderer, path.c_str());
+    texture = IMG_LoadTexture(renderer, path.generic_string().c_str());
     
     ASSERT(texture, "ERROR with texture creation");
 

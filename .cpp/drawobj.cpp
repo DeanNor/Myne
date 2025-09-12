@@ -87,7 +87,7 @@ void DrawObj::set_sprite(std::filesystem::path path, SDL_ScaleMode scale_mode)
     sprite_ownership = true;
     sprite_scale_mode = scale_mode;
 
-    set_sprite_path(path);
+    set_sprite_path(path.generic_string());
 }
 
 SDL_Texture* DrawObj::get_sprite()
