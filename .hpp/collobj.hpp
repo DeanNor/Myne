@@ -39,6 +39,8 @@ OVERRIDE_SAVE(b2Rot)(b2Rot data)
 }
 
 // TODO set velocity functions
+// CollObjs have a global position and will not follow an object that they are a child of. The position will still be relative to the object (with a slight determinancy issue)
+// Any changed b2 values will not be up to date until after the collision_process() call
 class CollObj : public Object
 {
 ASSIGN_CONSTRUCTOR(CollObj);

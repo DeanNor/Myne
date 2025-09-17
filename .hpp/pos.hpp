@@ -49,6 +49,7 @@ public:
 
     rad direction() const;
 
+    // Normalized length. (10,5) -> (0.66,.33)
     pos ratio() const;
 
     double len() const;

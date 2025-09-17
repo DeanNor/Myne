@@ -59,7 +59,7 @@ private:
     Uint64 total_delay = 0; // Internal clock #2, uses NS //TODO remove the #2
     double delta; // Delta time for last frame, before all other calls.
 
-    int coll_iterations = 4;
+    int coll_iterations = 10;
 
     mouse_state mouse;
     keyboard_state keyboard;

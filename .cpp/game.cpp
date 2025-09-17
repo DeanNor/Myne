@@ -11,8 +11,6 @@
 #include <SDL3/SDL_init.h>
 #include <limits>
 
-#include ".hpp/ranges.hpp"
-
 game::game(const char* name, SDL_WindowFlags flags, pos window_size)
 {
     if (!SDL_Init(SDL_INIT_AUDIO | SDL_INIT_VIDEO))
@@ -87,7 +85,7 @@ bool game::frame()
 
     else
     {
-        SDL_Delay(get_lowest(3, fpsticks - ticks, collticks - coll_ticks, frameticks - frame_ticks));
+        SDL_Delay(std::min({fpsticks - ticks, collticks - coll_ticks, frameticks - frame_ticks}));
     }
 
     return running;
@@ -153,12 +151,17 @@ void game::run_processes()
 
 void game::run_collision()
 {
-    for (CollObj* collision : collisions)
+    for (CollObj* collision : collisions) // Update b2 values before b2 process
     {
         collision->set_collision_info();
     }
 
     b2World_Step(coll_world, coll_progression, coll_iterations);
+
+    for (CollObj* collision : collisions) // Update CollObj values to b2 values before process frame and events
+    {
+        collision->update_collision_info();
+    }
 
     const b2SensorEvents sensors = b2World_GetSensorEvents(coll_world);
 
@@ -186,11 +189,6 @@ void game::run_collision()
     {
         b2ContactEndTouchEvent* event = contacts.endEvents + y;
         CollObj::CollisionEnd(event->shapeIdA, event->shapeIdB);
-    }
-
-    for (CollObj* collision : collisions)
-    {
-        collision->update_collision_info();
     }
 
     for (CollObj* collision : collisions)

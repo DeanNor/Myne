@@ -3,12 +3,13 @@
 
 #include "SDL3/SDL_render.h"
 
-#include "blend2d.h"
+#include ".hpp/blend.h"
 
-#include "display.hpp"
+#include ".hpp/display.hpp"
 
-#include "object.hpp"
+#include ".hpp/object.hpp"
 
+// Requires that init is called and the size is set for drawing
 class BlendObj : public Object
 {
 ASSIGN_CONSTRUCTOR(BlendObj);
@@ -21,9 +22,9 @@ protected:
     display* window = nullptr;
 
     pos image_size;
-    pos size;
+    pos size = {0,0};
 
-    unsigned char depth;
+    unsigned char depth = 0;
 
 public:
     BlendObj();
@@ -50,6 +51,11 @@ public:
 
     void update_image();
 
+    void init();
+
+    void init(unsigned char z);
+
+    // Updates image (calling update_image) to new_image and sets it
     void set_image(BLImage new_image);
 
     BLImage get_image();

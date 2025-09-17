@@ -19,14 +19,18 @@ BlendObj::~BlendObj()
     get_current_game()->remove_from_overlay_draws(this, depth);
 }
 
+#include <iostream>
+
 void BlendObj::draw_overlay(pos origin)
 {
     if (texture != nullptr)
     {
-        const pos glo_pos = global_position.transform - origin;
+        const pos glo_pos = global_position.compute() - origin;
         const SDL_FRect pos_rect{(float)glo_pos.x,(float)glo_pos.y, (float)size.x, (float)size.y};
 
-        SDL_RenderTextureRotated(window->get_renderer(), texture, nullptr, &pos_rect, global_position.transform_angle.deg(), nullptr, SDL_FLIP_NONE);
+        std::cout << pos_rect.x << ' ' << pos_rect.y << std::endl;
+
+        SDL_RenderTextureRotated(window->get_renderer(), texture, nullptr, &pos_rect, global_position.compute_angle().deg(), nullptr, SDL_FLIP_NONE);
     }
 }
 
@@ -36,6 +40,18 @@ void BlendObj::update_image()
     image.getData(&data);
 
     SDL_UpdateTexture(texture, NULL, data.pixelData, data.stride);
+}
+
+void BlendObj::init()
+{
+    get_current_game()->add_to_overlay_draws(this, depth);
+}
+
+void BlendObj::init(unsigned char z)
+{
+    depth = z;
+
+    get_current_game()->add_to_overlay_draws(this, depth);
 }
 
 void BlendObj::set_image(BLImage new_image)

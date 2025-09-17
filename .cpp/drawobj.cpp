@@ -5,8 +5,6 @@
 #include ".hpp/err.hpp"
 #include ".hpp/game.hpp"
 
-#include ".hpp/ranges.hpp"
-
 DrawObj::DrawObj()
 {
     window = get_current_game()->get_game_window();
@@ -142,11 +140,11 @@ bool DrawObj::visible()
     pos c = pos{glo_pos.x + half_size.x, glo_pos.y - rotated.y};
     pos d = pos{glo_pos.x - half_size.x, glo_pos.y + rotated.y};
 
-    double x_min = get_lowest(4, a.x, b.x, c.x, d.x);
-    double x_max = get_largest(4, a.x,b.x,c.x,d.x);
+    double x_min = std::min({a.x, b.x, c.x, d.x});
+    double x_max = std::max({a.x,b.x,c.x,d.x});
 
-    double y_min = get_lowest(4, a.y, b.y, c.y, d.y);
-    double y_max = get_largest(4, a.y,b.y,c.y,d.y);
+    double y_min = std::min({a.y, b.y, c.y, d.y});
+    double y_max = std::max({a.y,b.y,c.y,d.y});
 
     return (x_max >= top_left.x and bottom_right.x >= x_min) and (y_max >= top_left.y and bottom_right.y >= y_min);
 }

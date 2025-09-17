@@ -6,6 +6,7 @@
 #include "SDL3/SDL_events.h"
 #include "SDL3/SDL_keycode.h"
 #include "SDL3/SDL_mouse.h"
+#include "SDL3/SDL_stdinc.h"
 
 struct mouse_state
 {
@@ -57,6 +58,8 @@ private:
     bool released_now = false;
     bool pressed = false;
 
+    uint64_t last_press_time = 0;
+
 public:
     SDL_Keycode watched;
 
@@ -67,19 +70,24 @@ public:
 
     }
 
-    bool down()
+    bool down() const
     {
         return pressed;
     }
 
-    bool just_pressed()
+    bool just_pressed() const
     {
         return pressed_now;
     }
 
-    bool just_released()
+    bool just_released() const
     {
         return released_now;
+    }
+
+    Uint64 get_press_time() const
+    {
+        return last_press_time;
     }
 
     void load(Loader* loader)
@@ -118,7 +126,9 @@ public:
             {
                 if (key_change.down)
                 {
-                    x->pressed_now = !x->pressed; 
+                    x->pressed_now = !x->pressed;
+
+                    if (x->pressed_now) x->last_press_time = key_change.timestamp;
                 }
 
                 else
