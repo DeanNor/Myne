@@ -4,10 +4,11 @@
 #include ".hpp/SDL3.h"
 #include ".hpp/err.hpp"
 #include ".hpp/game.hpp"
+#include "SDL3/SDL_render.h"
 
 DrawObj::DrawObj()
 {
-    window = get_current_game()->get_game_window();
+    renderer = get_current_game()->get_game_window()->get_renderer();
 }
 
 DrawObj::~DrawObj()
@@ -17,14 +18,15 @@ DrawObj::~DrawObj()
         SDL_DestroyTexture(sprite);
     }
 
-    get_current_game()->remove_from_draws(this, depth);
+    if (has_target) draw_target->remove_from_draws(this);
+    
+    else get_current_game()->remove_from_draws(this, depth);
 }
 
 void DrawObj::load(Loader* ar)
 {
     Object::load(ar);
 
-    scale = ar->load_complex<pos>();
     sprite_ownership = ar->load_data<bool>();
 
     if (sprite_ownership)
@@ -42,7 +44,6 @@ void DrawObj::save(Saver* ar) const
 {
     Object::save(ar);
 
-    ar->save_complex(scale);
     ar->save_data(sprite_ownership);
 
     if (sprite_ownership)
@@ -60,7 +61,17 @@ void DrawObj::draw(const pos& origin)
     {
         const SDL_FRect pos_rect = pos::Make_SDL_FRect(global_position.transform - origin, half_size); // Transform can be used as visible() uses compute()
 
-        SDL_RenderTextureRotated(window->get_renderer(), sprite, nullptr, &pos_rect, global_position.compute_angle().deg(), nullptr, SDL_FLIP_NONE);
+        SDL_RenderTextureRotated(renderer, sprite, nullptr, &pos_rect, global_position.transform_angle.deg(), nullptr, SDL_FLIP_NONE);
+    }
+}
+
+void DrawObj::draw_diva(const pos& origin)
+{
+    if (sprite != nullptr && visible())
+    {
+        const SDL_FRect pos_rect = pos::Make_SDL_FRect(global_position.transform - origin, half_size); // Transform can be used as visible() uses compute()
+        std::cout << pos_rect.x << ' ' << pos_rect.y << ' ' << pos_rect.w << ' ' << pos_rect.h << std::endl;
+        SDL_RenderTextureRotated(renderer, sprite, nullptr, &pos_rect, global_position.transform_angle.deg(), nullptr, SDL_FLIP_NONE);
     }
 }
 
@@ -81,7 +92,7 @@ void DrawObj::set_sprite(std::filesystem::path path, SDL_ScaleMode scale_mode)
 {
     ASSERT(std::filesystem::exists(path), std::string("File path does not exist ") + path.generic_string());
 
-    load_img(sprite, window->get_renderer(), path, scale_mode);
+    load_img(sprite, renderer, path, scale_mode);
     sprite_ownership = true;
     sprite_scale_mode = scale_mode;
 
@@ -115,23 +126,49 @@ unsigned char DrawObj::get_depth()
 
 void DrawObj::init()
 {
+    has_target = false;
+    window = get_current_game()->get_game_window();
+
     get_current_game()->add_to_draws(this, depth);
 }
 
 void DrawObj::init(unsigned char z)
 {
+    has_target = false;
+    window = get_current_game()->get_game_window();
+
     depth = z;
 
     get_current_game()->add_to_draws(this, depth);
 }
 
+void DrawObj::init(DrawTarget* target)
+{
+    has_target = true;
+    draw_target = target;
+
+    target->add_to_draws(this);
+}
+
 bool DrawObj::visible()
 {
-    pos top_left = window->get_top_left();
-    pos bottom_right = window->get_bottom_right();
+    pos top_left;
+    pos bottom_right;
 
     pos glo_pos = global_position.compute();
     rad glo_angle = global_position.compute_angle();
+
+    if (has_target)
+    {
+        top_left = draw_target->get_zero();
+        bottom_right = draw_target->get_max();
+    }
+
+    else
+    {
+        top_left = window->get_top_left();
+        bottom_right = window->get_bottom_right();
+    }
 
     pos rotated = half_size.rotated(glo_angle);
 
@@ -151,8 +188,20 @@ bool DrawObj::visible()
 
 bool DrawObj::fully_visible()
 {
-    const pos window_zero = window->get_top_left();
-    const pos window_max = window->get_bottom_right();
+    pos window_zero;
+    pos window_max;
+
+    if (has_target)
+    {
+        window_zero = draw_target->get_zero();
+        window_max = draw_target->get_max();
+    }
+
+    else
+    {
+        window_zero = window->get_top_left();
+        window_max = window->get_bottom_right();
+    }
 
     pos glo_pos = global_position.compute();
     rad glo_angle = global_position.compute_angle();
