@@ -64,7 +64,7 @@ public:
     // Update all b2 values to be up to date with this
     void set_collision_info()
     {
-        b2Body_SetTransform(collision_body,global_position.compute(),global_position.compute_angle());
+        b2Body_SetTransform(collision_body,global_transform.compute(),global_transform.compute_angle());
 
         b2Body_SetLinearVelocity(collision_body, lin_velocity);
         b2Body_SetAngularVelocity(collision_body, rot_velocity);
@@ -77,10 +77,10 @@ public:
         {
             pos body_pos = b2Body_GetPosition(collision_body);
             
-            if (global_position.parent != nullptr)
+            if (global_transform.parent != nullptr)
             {        
-                const pos offset = global_position.parent->compute();
-                rad offset_rad = global_position.parent->compute_angle();
+                const pos offset = global_transform.parent->compute();
+                rad offset_rad = global_transform.parent->compute_angle();
 
                 position = (body_pos - offset).rotated(-offset_rad);
 

@@ -4,7 +4,7 @@
 #include ".hpp/SDL3.h"
 #include ".hpp/err.hpp"
 #include ".hpp/game.hpp"
-#include "SDL3/SDL_render.h"
+#include ".hpp/drawtarget.hpp"
 
 DrawObj::DrawObj()
 {
@@ -59,19 +59,9 @@ void DrawObj::draw(const pos& origin)
 {
     if (sprite != nullptr && visible())
     {
-        const SDL_FRect pos_rect = pos::Make_SDL_FRect(global_position.transform - origin, half_size); // Transform can be used as visible() uses compute()
+        const SDL_FRect pos_rect = pos::Make_SDL_FRect(global_transform.transform - origin, half_size); // Transform can be used as visible() uses compute()
 
-        SDL_RenderTextureRotated(renderer, sprite, nullptr, &pos_rect, global_position.transform_angle.deg(), nullptr, SDL_FLIP_NONE);
-    }
-}
-
-void DrawObj::draw_diva(const pos& origin)
-{
-    if (sprite != nullptr && visible())
-    {
-        const SDL_FRect pos_rect = pos::Make_SDL_FRect(global_position.transform - origin, half_size); // Transform can be used as visible() uses compute()
-        std::cout << pos_rect.x << ' ' << pos_rect.y << ' ' << pos_rect.w << ' ' << pos_rect.h << std::endl;
-        SDL_RenderTextureRotated(renderer, sprite, nullptr, &pos_rect, global_position.transform_angle.deg(), nullptr, SDL_FLIP_NONE);
+        SDL_RenderTextureRotated(renderer, sprite, nullptr, &pos_rect, global_transform.transform_angle.deg(), nullptr, SDL_FLIP_NONE);
     }
 }
 
@@ -155,8 +145,8 @@ bool DrawObj::visible()
     pos top_left;
     pos bottom_right;
 
-    pos glo_pos = global_position.compute();
-    rad glo_angle = global_position.compute_angle();
+    pos glo_pos = global_transform.compute();
+    rad glo_angle = global_transform.compute_angle();
 
     if (has_target)
     {
@@ -203,8 +193,8 @@ bool DrawObj::fully_visible()
         window_max = window->get_bottom_right();
     }
 
-    pos glo_pos = global_position.compute();
-    rad glo_angle = global_position.compute_angle();
+    pos glo_pos = global_transform.compute();
+    rad glo_angle = global_transform.compute_angle();
 
     pos bottom_right = (glo_pos + size).rotated(glo_angle);
     if (!bottom_right.within(window_zero, window_max))

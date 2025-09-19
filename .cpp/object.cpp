@@ -26,18 +26,18 @@ void Object::set_parent(Process* new_parent)
     Object* p = dynamic_cast<Object*>(new_parent);
     if (p != nullptr)
     {
-        global_position.parent = p->get_tfm();
+        global_transform.parent = p->get_tfm();
     }
 }
 
 tfm* Object::get_tfm()
 {
-    return &global_position;
+    return &global_transform;
 }
 
 pos Object::get_global_position()
 {
-    return global_position.compute();
+    return global_transform.compute();
 }
 
 void Object::set_position(pos new_pos)
@@ -62,5 +62,5 @@ rad Object::get_angle()
 
 rad Object::get_global_angle()
 {
-    return global_position.compute_angle();
+    return global_transform.compute_angle();
 }

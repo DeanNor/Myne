@@ -52,8 +52,6 @@ public:
 
     virtual void draw(const pos& origin);
 
-    void draw_diva(const pos& origin);
-
     void set_sprite(SDL_Texture* bitmap, bool owns_sprite);
     void set_sprite(std::filesystem::path path, SDL_ScaleMode scale_mode);
 
@@ -89,64 +87,5 @@ public:
     pos get_half_size() const
     {
         return half_size;
-    }
-};
-
-class DrawTarget : public DrawObj
-{
-protected:
-    std::vector<DrawObj*> drawers;
-
-    pos origin = {0,0};
-
-public:
-    virtual void draw(const pos& global_origin) override
-    {
-        SDL_Texture* global_draw_target = SDL_GetRenderTarget(renderer);
-        SDL_SetRenderTarget(renderer, sprite);
-        SDL_RenderClear(renderer);
-
-        for (DrawObj* drawer : drawers)
-        {
-            drawer->draw_diva(origin - half_size);
-        }
-
-        SDL_SetRenderTarget(renderer, global_draw_target);
-
-        DrawObj::draw(global_origin);
-    }
-
-    void add_to_draws(DrawObj* who)
-    {
-        drawers.push_back(who);
-    }
-
-    void remove_from_draws(DrawObj* who)
-    {
-        auto index = std::find(drawers.begin(), drawers.end(), who);
-
-        if (index == drawers.end()) return;
-
-        drawers.erase(index);
-    }
-
-    void set_origin(pos new_origin)
-    {
-        origin = new_origin;
-    }
-
-    pos get_origin() const
-    {
-        return origin;
-    }
-
-    pos get_zero()
-    {
-        return origin - half_size;
-    }
-
-    pos get_max()
-    {
-        return origin + half_size;
     }
 };

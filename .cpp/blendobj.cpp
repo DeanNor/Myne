@@ -25,12 +25,12 @@ void BlendObj::draw_overlay(pos origin)
 {
     if (texture != nullptr)
     {
-        const pos glo_pos = global_position.compute() - origin;
+        const pos glo_pos = global_transform.compute() - origin;
         const SDL_FRect pos_rect{(float)glo_pos.x,(float)glo_pos.y, (float)size.x, (float)size.y};
 
         std::cout << pos_rect.x << ' ' << pos_rect.y << std::endl;
 
-        SDL_RenderTextureRotated(window->get_renderer(), texture, nullptr, &pos_rect, global_position.compute_angle().deg(), nullptr, SDL_FLIP_NONE);
+        SDL_RenderTextureRotated(window->get_renderer(), texture, nullptr, &pos_rect, global_transform.compute_angle().deg(), nullptr, SDL_FLIP_NONE);
     }
 }
 

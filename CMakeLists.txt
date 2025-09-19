@@ -10,6 +10,7 @@ set(LIB_NAME "Myne")
 
 add_library(${LIB_NAME}
     .cpp/drawobj.cpp
+    .cpp/drawtarget.cpp
     .cpp/blendobj.cpp
     .cpp/game.cpp
     .cpp/object.cpp

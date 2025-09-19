@@ -13,7 +13,7 @@ protected:
     pos position = {0,0};
     rad angle = {0};
 
-    tfm global_position = {&position, &angle};
+    tfm global_transform = {&position, &angle};
 
 public:
     virtual void load(Loader* load) override;
@@ -35,14 +35,4 @@ public:
     rad get_angle();
 
     rad get_global_angle();
-};
-
-class OBJ2_0 : public Object
-{
-ASSIGN_CONSTRUCTOR(OBJ2_0);
-};
-
-class OBJFAIL_0 : public Object
-{
-
 };
