@@ -37,6 +37,11 @@ add_subdirectory(include/SDL_image)
 
 include_directories(include include/SDL_image/include include/box2d/include)
 
+find_package(box2d QUIET)
+if (!box2d_FOUND)
+    add_dependencies(box2d)
+endif()
+
 target_link_libraries(${LIB_NAME}
     PUBLIC SDL3::SDL3
     PUBLIC SDL3_image::SDL3_image
@@ -49,3 +54,8 @@ target_link_libraries(${LIB_NAME}
 if (!win32)
     target_compile_options(${LIB_NAME} PUBLIC -pedantic -O3 -march=native)
 endif ()
+
+add_custom_command(TARGET ${LIB_NAME} POST_BUILD
+  COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_RUNTIME_DLLS:${LIB_NAME}> $<TARGET_FILE_DIR:${LIB_NAME}>
+  COMMAND_EXPAND_LISTS
+  )
