@@ -1,5 +1,5 @@
 
-cmake_minimum_required(VERSION 3.16)
+cmake_minimum_required(VERSION 3.21)
 
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
@@ -46,9 +46,6 @@ target_link_libraries(${LIB_NAME}
     PUBLIC blend2d
 )
 
-if (win32)
-    add_custom_command(TARGET ${LIB_NAME} POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy -t $<TARGET_FILE_DIR:${LIB_NAME}> $<TARGET_RUNTIME_DLLS:${LIB_NAME}>
-    COMMAND_EXPAND_LISTS
-    )
+if (!win32)
+    target_compile_options(${LIB_NAME} PUBLIC -pedantic -O3 -march=native)
 endif ()

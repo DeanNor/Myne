@@ -134,6 +134,7 @@ void game::run_processes()
 {
     // Reset just_pressed-s
     keyboard.reset();
+    mouse.reset();
 
     view_events();
 

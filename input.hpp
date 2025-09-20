@@ -11,6 +11,7 @@
 struct mouse_state
 {
 public:
+    // Position relative to the game zero
     pos position;
 
     bool ldown = false;
@@ -18,6 +19,18 @@ public:
     bool rdown = false;
     bool x1down = false;
     bool x2down = false;
+
+    bool ljust_down = false;
+    bool mjust_down = false;
+    bool rjust_down = false;
+    bool x1just_down = false;
+    bool x2just_down = false;
+
+    bool ljust_released = false;
+    bool mjust_released = false;
+    bool rjust_released = false;
+    bool x1just_released = false;
+    bool x2just_released = false;
 
     mouse_state() = default;
 
@@ -28,20 +41,51 @@ public:
         switch(mse.button)
         {
         case SDL_BUTTON_LEFT:
+            ljust_down = mse.down && !ldown;
+            ljust_released = !mse.down && ldown;
             ldown = mse.down;
+            break;
 
         case SDL_BUTTON_MIDDLE:
+
+            mjust_down = mse.down && !ldown;
+            mjust_released = !mse.down && ldown;
             mdown = mse.down;
+            break;
             
         case SDL_BUTTON_RIGHT:
+            rjust_down = mse.down && !ldown;
+            rjust_released = !mse.down && ldown;
             rdown = mse.down;
+            break;
 
         case SDL_BUTTON_X1:
+            x1just_down = mse.down && !ldown;
+            x1just_released = !mse.down && ldown;
             x1down = mse.down;
+            break;
 
         case SDL_BUTTON_X2:
+            x2just_down = mse.down && !ldown;
+            x2just_released = !mse.down && ldown;
             x2down = mse.down;
+            break;
         }
+    }
+
+    void reset()
+    {
+        ljust_down = false;
+        rjust_down = false;
+        mjust_down = false;
+        x1just_down = false;
+        x2just_down = false;
+
+        ljust_released = false;
+        mjust_released = false;
+        rjust_released = false;
+        x1just_released = false;
+        x2just_released = false;
     }
 };
 

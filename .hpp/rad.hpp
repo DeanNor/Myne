@@ -15,7 +15,7 @@ private:
     constexpr static const double _PI = 3.14159265358979323846;
     constexpr static const double TO_DEG = 180.0 / _PI;
 
-    constexpr double rad_constraint(double amount)
+    constexpr double rad_constraint(double amount) const
     {
         if (amount > 0)
         {
@@ -25,7 +25,7 @@ private:
         return fmod(amount, _PI) + _PI;
     }
 
-    constexpr double constrain_rad(double amount)
+    constexpr double constrain_rad(double amount) const
     {
         if (amount > _PI || amount <= -_PI)
         {
@@ -35,7 +35,7 @@ private:
         return amount;
     }
 
-    constexpr rad constrain_rad(rad amount)
+    constexpr rad constrain_rad(rad amount) const
     {
         if (amount.radian > _PI || amount.radian <= -_PI)
         {
@@ -90,43 +90,43 @@ public:
     }
 
     // ----- ?
-    constexpr bool operator> (rad compare)
+    constexpr bool operator> (rad compare) const
     {
         return constrain_rad(radian - compare.radian) > 0;
     }
 
-    constexpr bool operator< (rad compare)
+    constexpr bool operator< (rad compare) const
     {
         return constrain_rad(radian - compare.radian) < 0;
     }
 
-    constexpr bool operator>= (rad compare)
+    constexpr bool operator>= (rad compare) const
     {
         return constrain_rad(radian - compare.radian) >= 0;
     }
 
-    constexpr bool operator<= (rad compare)
+    constexpr bool operator<= (rad compare) const
     {
         return constrain_rad(radian - compare.radian) <= 0;
     }
 
-    constexpr bool operator== (rad compare)
+    constexpr bool operator== (rad compare) const
     {
         return radian == compare.radian;
     }
 
-    constexpr bool operator!= (rad compare)
+    constexpr bool operator!= (rad compare) const
     {
         return radian != compare.radian;
     }
 
     // ----- +
-    constexpr rad operator+ (rad amount)
+    constexpr rad operator+ (rad amount) const
     {
         return amount.radian + radian;
     }
 
-    constexpr rad operator+ (double amount)
+    constexpr rad operator+ (double amount) const
     {
         return rad(amount + radian);
     }
@@ -150,12 +150,12 @@ public:
     }
 
     // ----- -
-    constexpr rad operator- (rad amount)
+    constexpr rad operator- (rad amount) const
     {
         return radian - amount.radian;
     }
 
-    constexpr rad operator- (double amount)
+    constexpr rad operator- (double amount) const
     {
         return rad(radian - amount);
     }
@@ -179,12 +179,12 @@ public:
     }
 
     // ----- *
-    constexpr rad operator* (rad amount)
+    constexpr rad operator* (rad amount) const
     {
         return amount.radian * radian;
     }
 
-    constexpr rad operator* (double amount)
+    constexpr rad operator* (double amount) const
     {
         return rad(radian * amount);
     }
@@ -208,12 +208,12 @@ public:
     }
 
     // ----- /
-    constexpr rad operator/ (rad amount)
+    constexpr rad operator/ (rad amount) const
     {
         return amount.radian / radian;
     }
 
-    constexpr rad operator/ (double amount)
+    constexpr rad operator/ (double amount) const
     {
         return rad(radian / amount);
     }
