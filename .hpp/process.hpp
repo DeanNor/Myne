@@ -48,6 +48,7 @@ public:
 
     std::vector<Process*> get_named_children(std::string term);
 
+    // Most lilely looking for remove_child(). This does not do any removing
     virtual void set_parent(Process* new_parent);
 
     Process* get_parent();

@@ -8,7 +8,7 @@ set(LIB_NAME "Myne")
 
 #set(CMAKE_CXX_CLANG_TIDY "clang-tidy;-checks=misc-const-correctness") # Do not have the compile time for this, but good debug
 
-add_library(${LIB_NAME}
+add_library(${LIB_NAME} MODULE
     .cpp/drawobj.cpp
     .cpp/drawtarget.cpp
     .cpp/blendobj.cpp
@@ -55,7 +55,9 @@ if (!win32)
     target_compile_options(${LIB_NAME} PUBLIC -pedantic -O3 -march=native)
 endif ()
 
-add_custom_command(TARGET ${LIB_NAME} POST_BUILD
-  COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_RUNTIME_DLLS:${LIB_NAME}> $<TARGET_FILE_DIR:${LIB_NAME}>
-  COMMAND_EXPAND_LISTS
-  )
+if (win32)
+    add_custom_command(TARGET ${LIB_NAME} POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_RUNTIME_DLLS:${LIB_NAME}> $<TARGET_FILE_DIR:${LIB_NAME}>
+        COMMAND_EXPAND_LISTS
+    )
+endif()

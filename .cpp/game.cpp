@@ -48,7 +48,7 @@ bool game::frame()
     Uint64 frame_ticks = tick_count - total_frame_ticks;
 
     int count = floor(ticks / fpsticks);
-    int coll_count = floor(coll_ticks / collticks);
+    int coll_count = physics ? floor(coll_ticks / collticks) : 0;
     bool frame_count = frame_ticks >= frameticks;
 
     if (count > 0 || coll_count > 0 || frame_count)
@@ -63,12 +63,15 @@ bool game::frame()
                 --count;
             }
 
-            if (coll_count > 0)
+            if (physics)
             {
-                total_coll_ticks = tick_count;
+                if (coll_count > 0)
+                {
+                    total_coll_ticks = tick_count;
 
-                run_collision();
-                --coll_count;
+                    run_collision();
+                    --coll_count;
+                }
             }
 
         } while (count > 0 || coll_count > 0);

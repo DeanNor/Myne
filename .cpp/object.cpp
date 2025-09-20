@@ -28,6 +28,11 @@ void Object::set_parent(Process* new_parent)
     {
         global_transform.parent = p->get_tfm();
     }
+
+    else
+    {
+        global_transform.parent = nullptr;
+    }
 }
 
 tfm* Object::get_tfm()

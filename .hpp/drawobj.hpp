@@ -6,7 +6,6 @@
 #include ".hpp/display.hpp"
 #include "SDL3/SDL_render.h"
 #include <filesystem>
-#include <iostream>
 
 class DrawTarget;
 
@@ -41,6 +40,8 @@ protected:
 
     unsigned char depth = 0;
 
+    bool active_drawer = true;
+
 public:
     DrawObj();
 
@@ -55,15 +56,15 @@ public:
     void set_sprite(SDL_Texture* bitmap, bool owns_sprite);
     void set_sprite(std::filesystem::path path, SDL_ScaleMode scale_mode);
 
-    SDL_Texture* get_sprite();
+    SDL_Texture* get_sprite() const;
 
     void set_sprite_path(std::string path);
 
-    std::string get_sprite_path();
+    std::string get_sprite_path() const;
 
     void set_depth(unsigned char depth);
 
-    unsigned char get_depth();
+    unsigned char get_depth() const;
 
     // Assumes that the depth is already assigned.
     void init();
@@ -87,5 +88,15 @@ public:
     pos get_half_size() const
     {
         return half_size;
+    }
+
+    void make_active(bool is)
+    {
+        active_drawer = is;
+    }
+
+    bool is_active() const
+    {
+        return active_drawer;
     }
 };

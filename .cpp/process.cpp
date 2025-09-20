@@ -65,11 +65,16 @@ void Process::add_child(Process* child)
 
 void Process::remove_child(Process* child)
 {
-    std::vector<Process*>::iterator index = std::find(children.begin(), children.end(), child);
+    if (child)
+    {
+        child->set_parent(nullptr);
 
-    ASSERT(index != children.end(), "Error with remove child");
+        std::vector<Process*>::iterator index = std::find(children.begin(), children.end(), child);
 
-    children.erase(index);
+        ASSERT(index != children.end(), "Error with remove child");
+
+        children.erase(index);
+    }
 }
 
 Process* Process::get_child(size_t index)

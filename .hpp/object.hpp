@@ -20,7 +20,7 @@ public:
 
     virtual void save(Saver* save) const override;
 
-    void set_parent(Process* new_parent) override;
+    virtual void set_parent(Process* new_parent) override;
 
     tfm* get_tfm();
 

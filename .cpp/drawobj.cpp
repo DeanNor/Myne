@@ -57,11 +57,14 @@ void DrawObj::save(Saver* ar) const
 
 void DrawObj::draw(const pos& origin)
 {
-    if (sprite != nullptr && visible())
+    if (active_drawer)
     {
-        const SDL_FRect pos_rect = pos::Make_SDL_FRect(global_transform.transform - origin, half_size); // Transform can be used as visible() uses compute()
+        if (sprite != nullptr && visible())
+        {
+            const SDL_FRect pos_rect = pos::Make_SDL_FRect(global_transform.transform - origin, half_size); // Transform can be used as visible() uses compute()
 
-        SDL_RenderTextureRotated(renderer, sprite, nullptr, &pos_rect, global_transform.transform_angle.deg(), nullptr, SDL_FLIP_NONE);
+            SDL_RenderTextureRotated(renderer, sprite, nullptr, &pos_rect, global_transform.transform_angle.deg(), nullptr, SDL_FLIP_NONE);
+        }
     }
 }
 
@@ -86,10 +89,17 @@ void DrawObj::set_sprite(std::filesystem::path path, SDL_ScaleMode scale_mode)
     sprite_ownership = true;
     sprite_scale_mode = scale_mode;
 
+    float x,y;
+
+    SDL_GetTextureSize(sprite, &x, &y);
+
+    size = {x,y};
+    half_size = size / 2;
+
     set_sprite_path(path.generic_string());
 }
 
-SDL_Texture* DrawObj::get_sprite()
+SDL_Texture* DrawObj::get_sprite() const
 {
     return sprite;
 }
@@ -99,7 +109,7 @@ void DrawObj::set_sprite_path(std::string path)
     sprite_path = path;
 }
 
-std::string DrawObj::get_sprite_path()
+std::string DrawObj::get_sprite_path() const
 {
     return sprite_path;
 }
@@ -109,7 +119,7 @@ void DrawObj::set_depth(unsigned char z)
     depth = z;
 }
 
-unsigned char DrawObj::get_depth()
+unsigned char DrawObj::get_depth() const
 {
     return depth;
 }
