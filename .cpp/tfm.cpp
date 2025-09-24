@@ -105,3 +105,11 @@ rad tfm::compute_angle()
 
     return transform_angle;
 }
+
+void tfm::deparent()
+{
+    transform = *position;
+    transform_angle = *angle;
+
+    parent = nullptr;
+}

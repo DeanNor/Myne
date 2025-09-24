@@ -10,7 +10,7 @@ void DrawTarget::draw(const pos& global_origin)
 
     for (DrawObj* drawer : drawers)
     {
-        drawer->draw(origin - half_size);
+        drawer->draw(origin - half_size + global_transform.compute());
     }
 
     SDL_SetRenderTarget(renderer, global_draw_target);

@@ -23,7 +23,7 @@ public:
     pos* position = nullptr;
     rad* angle = nullptr;
 
-    tfm* parent = nullptr; // Parent transform obj, also a good notifier if the parent is an object instead of a process
+    tfm* parent = nullptr; // Parent transform obj, also a good notifier if the parent is an object (and acting like one) instead of a process
 
     tfm(pos* new_position, rad* new_angle);
     tfm(pos* new_position, rad* new_angle, tfm* new_parent);
@@ -41,4 +41,6 @@ public:
 
     // Gives the angle
     rad compute_angle();
+
+    void deparent();
 };

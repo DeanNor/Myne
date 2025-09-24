@@ -88,12 +88,12 @@ pos pos::limited_separated(double limit) const
     
     if (std::abs(x) > limit)
     {
-        temp_pos.x = limit * ((x > 0) ? 1 : ((x < 0) ? -1 : 0));
+        temp_pos.x = std::copysign(limit,x);
     }
 
     if (std::abs(y) > limit)
     {
-        temp_pos.y = limit * ((y > 0) ? 1 : ((y < 0) ? -1 : 0));
+        temp_pos.y = std::copysign(limit,y);
     }
 
     return temp_pos;
@@ -153,7 +153,17 @@ pos pos::round() const
     return temp_pos;
 }
 
-pos pos::operator+ (const pos amount)
+pos pos::tilefy(pos tile_size) const
+{
+    pos temp_pos = *this;
+
+    temp_pos.x = std::round(x / tile_size.x) * tile_size.x;
+    temp_pos.y = std::round(y / tile_size.y) * tile_size.y;
+
+    return temp_pos;
+}
+
+pos pos::operator+ (const pos amount) const
 {
     pos temp_pos = *this;
     temp_pos.x += amount.x;
@@ -162,7 +172,7 @@ pos pos::operator+ (const pos amount)
     return temp_pos;
 }
 
-pos pos::operator+ (const double amount)
+pos pos::operator+ (const double amount) const
 {
     const pos amount_over = ratio();
     pos temp_pos = *this;
@@ -191,7 +201,7 @@ pos& pos::operator+= (const double amount)
     return *this;
 }
 
-pos pos::operator- (const pos amount)
+pos pos::operator- (const pos amount) const
 {
     pos temp_pos = *this;
     temp_pos.x -= amount.x;
@@ -200,7 +210,7 @@ pos pos::operator- (const pos amount)
     return temp_pos;
 }
 
-pos pos::operator- (const double amount)
+pos pos::operator- (const double amount) const
 {
     const pos amount_over = ratio();
     pos temp_pos = *this;
@@ -230,7 +240,7 @@ pos& pos::operator-= (const double amount)
 }
 
 
-pos pos::operator* (const pos amount)
+pos pos::operator* (const pos amount) const
 {
     pos temp_pos = *this;
     temp_pos.x *= amount.x;
@@ -239,7 +249,7 @@ pos pos::operator* (const pos amount)
     return temp_pos;
 }
 
-pos pos::operator* (const double amount)
+pos pos::operator* (const double amount) const
 {
     pos temp_pos = *this;
 
@@ -266,7 +276,7 @@ pos& pos::operator*= (const double amount)
 }
 
 
-pos pos::operator/ (const pos amount)
+pos pos::operator/ (const pos amount) const
 {
     pos temp_pos = *this;
     temp_pos.x /= amount.x;
@@ -275,7 +285,7 @@ pos pos::operator/ (const pos amount)
     return temp_pos;
 }
 
-pos pos::operator/ (const double amount)
+pos pos::operator/ (const double amount) const
 {
     pos temp_pos = *this;
 
@@ -301,7 +311,7 @@ pos& pos::operator/= (const double amount)
     return *this;
 }
 
-bool pos::operator== (const pos& to_compare)
+bool pos::operator== (const pos& to_compare) const
 {
     if (x == to_compare.x && y == to_compare.y)
     {
@@ -311,7 +321,7 @@ bool pos::operator== (const pos& to_compare)
     return false;
 }
 
-bool pos::operator!= (const pos& to_compare)
+bool pos::operator!= (const pos& to_compare) const
 {
     if (*this == to_compare)
     {

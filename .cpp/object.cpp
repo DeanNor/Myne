@@ -31,7 +31,7 @@ void Object::set_parent(Process* new_parent)
 
     else
     {
-        global_transform.parent = nullptr;
+        global_transform.deparent();
     }
 }
 

@@ -9,7 +9,7 @@
 #include "saver.hpp"
 #include "loader.hpp"
 
-// TODO efficiency week!
+// TODO efficiency week! aka constexpr members
 // I dont know why I keep assuming I initialize this, it is a type, initialize it yourself!
 struct pos
 {
@@ -73,42 +73,45 @@ public:
     pos ceil() const;
 
     pos round() const;
-    
-    pos operator+ (const pos amount); // TODO constexpr these
 
-    pos operator+ (const double amount);
+    // Round down to nearest multiple of tile_size
+    pos tilefy(pos tile_size) const;
+    
+    pos operator+ (const pos amount) const;
+
+    pos operator+ (const double amount) const;
 
     pos& operator+= (const pos amount);
 
     pos& operator+= (const double amount);
 
-    pos operator- (const pos amount);
+    pos operator- (const pos amount) const;
 
-    pos operator- (const double amount);
+    pos operator- (const double amount) const;
 
     pos& operator-= (const pos amount);
 
     pos& operator-= (const double amount);
 
-    pos operator* (const pos amount);
+    pos operator* (const pos amount) const;
 
-    pos operator* (const double amount);
+    pos operator* (const double amount) const;
 
     pos& operator*= (const pos amount);
 
     pos& operator*= (const double amount);
 
-    pos operator/ (const pos amount);
+    pos operator/ (const pos amount) const;
 
-    pos operator/ (const double amount);
+    pos operator/ (const double amount) const;
 
     pos& operator/= (const pos amount);
 
     pos& operator/= (const double amount);
 
-    bool operator== (const pos& to_compare);
+    bool operator== (const pos& to_compare) const;
 
-    bool operator!= (const pos& to_compare);
+    bool operator!= (const pos& to_compare) const;
 
     friend std::ostream& operator<< (std::ostream& os, const pos& convert);
 };

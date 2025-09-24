@@ -4,6 +4,8 @@
 #include "loader.hpp"
 #include "saver.hpp"
 
+#include ".hpp/tfm.hpp"
+
 class Process
 {
 ASSIGN_CONSTRUCTOR_OVERRIDE(Process);
@@ -54,7 +56,7 @@ public:
     Process* get_parent();
 
     // Starts and queues deletion for the end of the frame _Safe_
-    void start_delete();
+    virtual void start_delete();
 
     // Immediately deletes the object _Extrodinarily Unsafe_ when the object is in the call tree and should only be called outside of the main loop or on parentless objects in the process function
     void del();

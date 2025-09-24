@@ -6,7 +6,9 @@
 #include "loader.hpp"
 #include "saver.hpp"
 
-// Radian type, auto loo_PIng
+#include <cmath>
+
+// Radian type, auto looping
 struct rad
 {
 ASSIGN_VAR_CONSTRUCTOR(rad);
@@ -15,17 +17,17 @@ private:
     constexpr static const double _PI = 3.14159265358979323846;
     constexpr static const double TO_DEG = 180.0 / _PI;
 
-    constexpr double rad_constraint(double amount) const
+    constexpr double rad_constraint(const double amount) const
     {
         if (amount > 0)
         {
-            return fmod(amount, _PI) - _PI;
+            return std::fmod(amount, _PI) - _PI;
         }
         
-        return fmod(amount, _PI) + _PI;
+        return std::fmod(amount, _PI) + _PI;
     }
 
-    constexpr double constrain_rad(double amount) const
+    constexpr double constrain_rad(const double amount) const
     {
         if (amount > _PI || amount <= -_PI)
         {
@@ -35,7 +37,7 @@ private:
         return amount;
     }
 
-    constexpr rad constrain_rad(rad amount) const
+    constexpr rad constrain_rad(const rad amount) const
     {
         if (amount.radian > _PI || amount.radian <= -_PI)
         {
@@ -238,27 +240,27 @@ public:
 };
 
 // Degree to radian
-constexpr rad drad(double degree)
+constexpr rad drad(const double degree)
 {
     return rad(degree / rad::DEG_CONV_CONST());
 }
 
-constexpr rad operator ""_r(long double v)
+constexpr rad operator ""_r(const long double v)
 {
     return rad(v);
 }
 
-constexpr long double operator ""_d(long double v)
+constexpr long double operator ""_d(const long double v)
 {
     return drad(v);
 }
 
-constexpr rad operator ""_r(unsigned long long v)
+constexpr rad operator ""_r(const unsigned long long v)
 {
     return rad(v);
 }
 
-constexpr long double operator ""_d(unsigned long long v)
+constexpr long double operator ""_d(const unsigned long long v)
 {
     return drad(v);
 }
