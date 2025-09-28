@@ -9,15 +9,18 @@
 struct display
 {
 private:
-    SDL_Window* window = nullptr;
+    SDL_Window* window;
 
-    SDL_Renderer* renderer = nullptr;
+    SDL_Renderer* renderer;
 
     pos center;
     pos size;
     pos half_size;
 
     pos top_left, top_right, bottom_left, bottom_right;
+
+    pos real_size;
+    pos screen_scale = {1,1};
 
     SDL_Texture* screen = nullptr;
 
@@ -29,11 +32,20 @@ private:
         bottom_right = center + half_size;
     }
 
+    void update_real_size()
+    {
+        int size_x, size_y;
+        SDL_GetWindowSizeInPixels(window, &size_x, &size_y);
+        real_size = {(double)(size_x), (double)(size_y)};
+    }
+
     void update_screen_size()
     {
         size = {(double)screen->w, (double)screen->h};
 
         half_size = size / 2.0;
+
+        update_real_size();
 
         update_corners();
     }
@@ -49,16 +61,19 @@ public:
 
     void update_size()
     {
+        update_real_size();
+
         if (!screen)
         {
-            int size_x, size_y;
-            SDL_GetWindowSizeInPixels(window, &size_x, &size_y);
-            size = {(double)(size_x), (double)(size_y)};
+            size = real_size;
+            screen_scale = {1,1};
 
             half_size = size / 2.0;
 
             update_corners();
         }
+
+        else screen_scale = real_size / size;
     }
 
     // New_screen is owned by this
@@ -78,32 +93,32 @@ public:
         return screen;
     }
 
-    constexpr pos get_size() const
+    pos get_size() const
     {
         return size;
     }
 
-    constexpr pos get_half_size() const
+    pos get_half_size() const
     {
         return half_size;
     }
 
-    constexpr pos get_top_left() const
+    pos get_top_left() const
     {
         return top_left;
     }
 
-    constexpr pos get_top_right() const
+    pos get_top_right() const
     {
         return top_right;
     }
 
-    constexpr pos get_bottom_left() const
+    pos get_bottom_left() const
     {
         return bottom_left;
     }
 
-    constexpr pos get_bottom_right() const
+    pos get_bottom_right() const
     {
         return bottom_right;
     }
@@ -115,9 +130,19 @@ public:
         update_corners();
     }
 
-    constexpr pos get_center() const
+    pos get_center() const
     {
         return center;
+    }
+
+    pos get_scale() const
+    {
+        return screen_scale;
+    }
+
+    pos get_real_size() const
+    {
+        return real_size;
     }
 
     SDL_Window* get_window() const

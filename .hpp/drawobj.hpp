@@ -16,7 +16,7 @@ ASSIGN_CONSTRUCTOR(DrawObj);
 protected:
     SDL_Renderer* renderer = nullptr;
 
-    bool has_target = true;
+    bool has_target = false;
     union
     {
         display* window = nullptr;
@@ -30,6 +30,8 @@ protected:
     // Both size and half size of the sprite
     pos size;
     pos half_size;
+
+    pos scale = {1,1};
 
     // If the sprite pointer is owned.
     bool sprite_ownership = false;
@@ -98,5 +100,15 @@ public:
     bool is_active() const
     {
         return active_drawer;
+    }
+
+    void set_scale(pos new_scale)
+    {
+        scale = new_scale;
+    }
+
+    pos get_scale() const
+    {
+        return scale;
     }
 };

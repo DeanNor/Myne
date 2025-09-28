@@ -1,14 +1,6 @@
 
 #include ".hpp/tfm.hpp"
 
-tfm::tfm(pos* new_position, rad* new_angle) : position(new_position), angle(new_angle), parent(nullptr)
-{
-}
-tfm::tfm(pos* new_position, rad* new_angle, tfm* new_parent) : position(new_position), angle(new_angle), parent(new_parent)
-{
-
-}
-
 void tfm::set(pos value)
 {
     if (parent != nullptr)
@@ -34,6 +26,11 @@ bool tfm::has_changed()
             return true;
         }
 
+        if (parent->scale_changed())
+        {
+            return true;
+        }
+
         return parent->has_changed();
     }
 
@@ -48,14 +45,21 @@ pos tfm::compute()
         {
             par_pos = parent->compute();
             transform = position->rotated(parent->compute_angle());
+
+            if (parent->scale != nullptr)
+            {
+                transform += *(parent->scale) * par_pos;
+            }
             
-            transform += par_pos;
+            else transform += par_pos;
         }
 
         else
         {
             transform = *position;
         }
+
+        if (scale) past_scale = *scale;
 
         past_pos = *position;
     }
@@ -104,6 +108,13 @@ rad tfm::compute_angle()
     }
 
     return transform_angle;
+}
+
+bool tfm::scale_changed()
+{
+    if (scale) return past_scale == *scale;
+
+    return false;
 }
 
 void tfm::deparent()

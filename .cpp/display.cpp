@@ -10,7 +10,7 @@ display::display(pos display_size, const char* name, SDL_WindowFlags flags)
     half_size = size / 2.0;
 
     window = SDL_CreateWindow(name, size.x, size.y, flags);
-    renderer = SDL_CreateRenderer(window, nullptr);
+    renderer = SDL_CreateRenderer(window, "vulkan");
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, SDL_ALPHA_OPAQUE);
     SDL_SetRenderVSync(renderer, false);
 }

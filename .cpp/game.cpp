@@ -53,6 +53,8 @@ bool game::frame()
 
     if (count > 0 || coll_count > 0 || frame_count)
     {
+        update_run_data();
+        
         do
         {
             if (count > 0)
@@ -133,7 +135,7 @@ void game::process_event(SDL_Event event)
     }
 }
 
-void game::run_processes()
+void game::update_run_data()
 {
     // Reset just_pressed-s
     keyboard.reset();
@@ -144,8 +146,11 @@ void game::run_processes()
     // Update mouse position
     float x,y;
     SDL_GetMouseState(&x,&y);
-    mouse.position = pos(x,y) + game_window->get_center() - game_window->get_half_size();
+    mouse.position = (pos(x,y) / game_window->get_scale()) + game_window->get_center() - game_window->get_half_size();
+}
 
+void game::run_processes()
+{
     // Update delta
     delta = (long double)(SDL_GetTicksNS() - total_delay) / NSPS;
     total_delay = SDL_GetTicksNS();
@@ -206,7 +211,6 @@ void game::run_frame()
     game_window->prepare_screen();
 
     draw();
-    draw_overlay();
 
     game_window->push_screen();
 }
@@ -214,9 +218,6 @@ void game::run_frame()
 void game::start()
 {
     while(frame());
-
-    delete game_window;
-    game_window = nullptr;
 }
 
 void game::process()
@@ -236,27 +237,18 @@ void game::process()
 void game::draw() const
 {
     const pos origin = game_window->get_center() - game_window->get_half_size();
-    for (unsigned char x = 0; x < std::numeric_limits<unsigned char>::max(); ++x)
+
+    unsigned char x = 0;
+    do
     {
         const std::vector<DrawObj*>& layer = draws[x];
         for (DrawObj* object : layer)
         {
             object->draw(origin);
         }
-    }
-}
-
-void game::draw_overlay() const
-{
-    const pos origin = game_window->get_center() - game_window->get_half_size();
-    for (unsigned char x = 0; x < std::numeric_limits<unsigned char>::max(); ++x)
-    {
-        const std::vector<BlendObj*>& layer = overlay_draws[x];
-        for (BlendObj* object : layer)
-        {
-            object->draw_overlay(origin);
-        }
-    }
+        
+        ++x;
+    } while (x != 0);
 }
 
 void game::end_delete()
@@ -308,34 +300,6 @@ void game::remove_from_draws(DrawObj* who, const unsigned char& depth)
     }
 
     std::cout << "Huh Draws" << std::endl;
-}
-
-void game::add_to_overlay_draws(BlendObj* who, const unsigned char& depth)
-{
-    overlay_draws[depth].push_back(who);
-}
-
-bool game::__remove_from_overlay_draws(BlendObj* who, const unsigned char& depth)
-{
-    std::vector<BlendObj*>& layer = overlay_draws[depth];
-    auto index = std::find(layer.begin(), layer.end(), who);
-
-    if (index == layer.end()) return false;
-
-    layer.erase(index);
-    return true;
-}
-
-void game::remove_from_overlay_draws(BlendObj* who, const unsigned char& depth)
-{
-    if (__remove_from_overlay_draws(who,depth)) return;
-
-    for (unsigned char x = depth + 1; x != depth; ++x) // Uses unsigned looping to get all
-    {
-        if (__remove_from_overlay_draws(who, x)) return;
-    }
-
-    std::cout << "HUH Overlay Draws" << std::endl;
 }
 
 void game::remove_from_collisions(CollObj* who)

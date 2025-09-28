@@ -28,7 +28,6 @@ private:
 
     // 255 depth values for both draws and overlay
     std::vector<DrawObj*> draws[std::numeric_limits<unsigned char>::max() + 1];
-    std::vector<BlendObj*> overlay_draws[std::numeric_limits<unsigned char>::max() + 1];
 
     std::vector<CollObj*> collisions = {};
     std::vector<Process*> deletes = {};
@@ -77,6 +76,8 @@ public:
 
     void process_event(SDL_Event event);
 
+    void update_run_data();
+
     void run_processes();
 
     void run_collision();
@@ -89,8 +90,6 @@ public:
 
     void draw() const;
 
-    void draw_overlay() const;
-
     void end_delete();
 
     void add_to_deletes(Process* who);
@@ -100,10 +99,6 @@ public:
     void add_to_draws(DrawObj* who, const unsigned char& depth);
 
     void remove_from_draws(DrawObj* who, const unsigned char& depth);
-
-    void add_to_overlay_draws(BlendObj* who, const unsigned char& depth);
-
-    void remove_from_overlay_draws(BlendObj* who, const unsigned char& depth);
 
     void remove_from_collisions(CollObj* who);
 

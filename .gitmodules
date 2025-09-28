@@ -7,15 +7,6 @@
 [submodule "include/blend2d"]
 	path = include/blend2d
 	url = https://github.com/blend2d/blend2d
-[submodule "include/--force"]
-	path = include/--force
-	url = https://github.com/libsdl-org/SDL_image
 [submodule "include/SDL_image"]
 	path = include/SDL_image
 	url = https://github.com/libsdl-org/SDL_image
-[submodule "include/tree-sitter-cpp"]
-	path = include/tree-sitter-cpp
-	url = https://github.com/tree-sitter/tree-sitter-cpp
-[submodule "include/tree-sitter"]
-	path = include/tree-sitter
-	url = https://github.com/tree-sitter/tree-sitter

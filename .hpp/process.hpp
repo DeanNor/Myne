@@ -45,7 +45,7 @@ public:
     // Gets the number of direct children
     size_t get_total_children();
 
-    // Gets the total number of children and their children.
+    // Gets the total number of children, including their children.
     size_t get_sum_total_children();
 
     std::vector<Process*> get_named_children(std::string term);

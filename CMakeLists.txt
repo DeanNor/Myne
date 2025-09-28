@@ -14,7 +14,6 @@ add_library(${LIB_NAME} MODULE
     .cpp/blendobj.cpp
     .cpp/game.cpp
     .cpp/object.cpp
-    .cpp/pos.cpp
     .cpp/process.cpp
     .cpp/display.cpp
     .cpp/collobj.cpp
@@ -52,7 +51,7 @@ target_link_libraries(${LIB_NAME}
 )
 
 if (!win32)
-    target_compile_options(${LIB_NAME} PUBLIC -pedantic -O3 -march=native)
+    target_compile_options(${LIB_NAME} PUBLIC -pedantic)# -O3 -march=native)
 endif ()
 
 if (win32)

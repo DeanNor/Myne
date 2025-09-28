@@ -9,6 +9,8 @@
 DrawObj::DrawObj()
 {
     renderer = get_current_game()->get_game_window()->get_renderer();
+
+    global_transform.scale = &scale;
 }
 
 DrawObj::~DrawObj()
@@ -61,7 +63,7 @@ void DrawObj::draw(const pos& origin)
     {
         if (sprite != nullptr && visible())
         {
-            const SDL_FRect pos_rect = pos::Make_SDL_FRect(global_transform.transform - origin, half_size); // Transform can be used as visible() uses compute()
+            const SDL_FRect pos_rect = pos::Make_SDL_FRect(global_transform.transform - origin, half_size * scale); // Transform can be used as visible() uses compute()
 
             SDL_RenderTextureRotated(renderer, sprite, nullptr, &pos_rect, global_transform.transform_angle.deg(), nullptr, SDL_FLIP_NONE);
         }
@@ -86,6 +88,7 @@ void DrawObj::set_sprite(std::filesystem::path path, SDL_ScaleMode scale_mode)
     ASSERT(std::filesystem::exists(path), std::string("File path does not exist ") + path.generic_string());
 
     load_img(sprite, renderer, path, scale_mode);
+
     sprite_ownership = true;
     sprite_scale_mode = scale_mode;
 

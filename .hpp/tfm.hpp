@@ -9,6 +9,7 @@ private:
     // Storage of past values for quick compute
     pos past_pos = {0,0};
     rad past_angle = {0};
+    pos past_scale = {0,0};
 
     pos par_pos = {0,0};
     rad par_angle = {0};
@@ -22,11 +23,19 @@ public:
     // Un-Owned position and angle variables, stored in the object class but not here.
     pos* position = nullptr;
     rad* angle = nullptr;
+    pos* scale = nullptr;
 
     tfm* parent = nullptr; // Parent transform obj, also a good notifier if the parent is an object (and acting like one) instead of a process
 
-    tfm(pos* new_position, rad* new_angle);
-    tfm(pos* new_position, rad* new_angle, tfm* new_parent);
+    tfm(pos* new_position, rad* new_angle) : position(new_position), angle(new_angle), parent(nullptr)
+    {
+        
+    }
+
+    tfm(pos* new_position, rad* new_angle, tfm* new_parent) : position(new_position), angle(new_angle), parent(new_parent)
+    {
+
+    }
 
     // Set the underlying position to value, taking into account the global position the underlying position is scoped to.
     void set(pos value);
@@ -41,6 +50,8 @@ public:
 
     // Gives the angle
     rad compute_angle();
+
+    bool scale_changed();
 
     void deparent();
 };
