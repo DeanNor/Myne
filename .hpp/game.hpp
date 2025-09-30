@@ -21,7 +21,7 @@ const static long double NSPS = 1.e9;
 
 struct game
 {
-private:
+protected:
     display* game_window = nullptr;
 
     Process* root = nullptr;

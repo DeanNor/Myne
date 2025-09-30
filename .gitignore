@@ -5,3 +5,4 @@ Game
 lib*
 *.so
 *.0
+Game.Linux.x86_64
