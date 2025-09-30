@@ -160,6 +160,8 @@ void game::run_processes()
 
 void game::run_collision()
 {
+    uint64_t tim = SDL_GetTicksNS();
+    
     for (CollObj* collision : collisions) // Update b2 values before b2 process
     {
         collision->set_collision_info();
@@ -204,6 +206,8 @@ void game::run_collision()
     {
         collision->collision_process();
     }
+
+    std::cout << SDL_GetTicksNS() - tim << std::endl;
 }
 
 void game::run_frame()
