@@ -8,22 +8,22 @@ struct tfm
 private:
     // Storage of past values for quick compute
     pos past_pos = {0,0};
-    rad past_angle = {0};
+    rad past_angle{0.};
     pos past_scale = {0,0};
 
-    pos par_pos = {0,0};
-    rad par_angle = {0};
+    pos par_pos;
+    rad par_angle;
 
 public:
     // Internal values to quick compute transform and angle.
     // Should not normally be used.
     pos transform = {0,0};
-    rad transform_angle = 0;
+    rad transform_angle{0.};
 
     // Un-Owned position and angle variables, stored in the object class but not here.
     pos* position = nullptr;
     rad* angle = nullptr;
-    pos* scale = nullptr;
+    pos* scale = nullptr; // Assigned by DrawObj
 
     tfm* parent = nullptr; // Parent transform obj, also a good notifier if the parent is an object (and acting like one) instead of a process
 
@@ -34,11 +34,15 @@ public:
 
     tfm(pos* new_position, rad* new_angle, tfm* new_parent) : position(new_position), angle(new_angle), parent(new_parent)
     {
-
+        par_pos = parent->compute();
+        par_angle = parent->compute_angle();
     }
 
     // Set the underlying position to value, taking into account the global position the underlying position is scoped to.
     void set(pos value);
+
+    // Set the underlying angle to value, taking into account the global angle the underlying angle is scoped to.
+    void set_angle(rad value);
 
     bool has_changed();
 
@@ -49,9 +53,11 @@ public:
     bool angle_changed();
 
     // Gives the angle
-    rad compute_angle();
+    rad compute_angle(); // TODO bool to turn off copying angle / position from parent
 
     bool scale_changed();
+
+    pos compute_scale();
 
     void deparent();
 };

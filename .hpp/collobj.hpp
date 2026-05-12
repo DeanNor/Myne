@@ -44,7 +44,6 @@ OVERRIDE_SAVE(b2Rot)(b2Rot data)
 class CollObj : public Object
 {
 ASSIGN_CONSTRUCTOR(CollObj);
-
 protected:
     b2BodyId collision_body;
     b2BodyDef collision_def;
@@ -54,7 +53,7 @@ protected:
     std::string hull_path = "";
 
     pos lin_velocity = {0,0};
-    rad rot_velocity = 0;
+    double rot_velocity = 0;
 
 public:
     CollObj();
@@ -62,9 +61,11 @@ public:
     ~CollObj();
 
     // Update all b2 values to be up to date with this
-    void set_collision_info()
+    void set_collision_info(float timestep)
     {
-        b2Body_SetTransform(collision_body,global_transform.compute(),global_transform.compute_angle());
+        pos past_pos = global_transform.compute();
+        pos body_pos = b2Body_GetPosition(collision_body);
+        if (past_pos != body_pos) b2Body_SetTransform(collision_body,global_transform.compute(),global_transform.compute_angle());
 
         b2Body_SetLinearVelocity(collision_body, lin_velocity);
         b2Body_SetAngularVelocity(collision_body, rot_velocity);
@@ -75,6 +76,7 @@ public:
     {
         if (b2Body_IsValid(collision_body))
         {
+            pos past_pos = global_transform.compute();
             pos body_pos = b2Body_GetPosition(collision_body);
             
             if (global_transform.parent != nullptr)
@@ -130,7 +132,7 @@ public:
         rot_velocity = new_velocity;
     }
 
-    rad get_rot_velocity() const
+    double get_rot_velocity() const
     {
         return rot_velocity;
     }

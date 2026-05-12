@@ -7,12 +7,16 @@
 #include "SDL3/SDL_keycode.h"
 #include "SDL3/SDL_mouse.h"
 #include "SDL3/SDL_stdinc.h"
+#include <stdexcept>
 
 struct mouse_state
 {
 public:
     // Position relative to the game zero
     pos position;
+
+    // Unscaled Position relative to top left screen. A little bit of a lie because it does not go outside of the screen
+    pos global_position;
 
     bool ldown = false;
     bool mdown = false;
@@ -32,9 +36,53 @@ public:
     bool x1just_released = false;
     bool x2just_released = false;
 
+    bool mmoved_x = false;
+    bool mmoved_y = false;
+
+    bool mjust_moved_x = false;
+    bool mjust_moved_y = false;
+
+    bool mjust_stopped_x = false;
+    bool mjust_stopped_y = false;
+
+    // Middle scroll speed
+    pos mspeed = {0,0};
+
+    // Global speed
+    pos speed = {0,0};
+
     mouse_state() = default;
 
     mouse_state(const mouse_state&) = delete;
+
+    void move(SDL_MouseMotionEvent& mse)
+    {
+        speed = {mse.x - global_position.x, mse.y - global_position.y};
+    }
+
+    void scroll(SDL_MouseWheelEvent& mse) // TODO decide if we use integer_x as well, for mouse 'ticks'
+    {
+        if (mse.direction == SDL_MOUSEWHEEL_FLIPPED)
+        {
+            mspeed.x = -mse.x;
+            mspeed.y = -mse.y;
+        }
+
+        else
+        {
+            mspeed.x = mse.x;
+            mspeed.y = mse.y;
+        }
+
+        mjust_moved_x = mse.x && !mmoved_x;
+        mjust_moved_y = mse.y && !mmoved_y;
+
+        mjust_stopped_x = !mse.x && mmoved_x;
+        mjust_stopped_y = !mse.y && mmoved_y;
+
+        mmoved_x = mse.x != 0;
+        mmoved_y = mse.y != 0;
+    }
 
     void recheck(SDL_MouseButtonEvent& mse)
     {
@@ -47,27 +95,26 @@ public:
             break;
 
         case SDL_BUTTON_MIDDLE:
-
-            mjust_down = mse.down && !ldown;
-            mjust_released = !mse.down && ldown;
+            mjust_down = mse.down && !mdown;
+            mjust_released = !mse.down && mdown;
             mdown = mse.down;
             break;
             
         case SDL_BUTTON_RIGHT:
-            rjust_down = mse.down && !ldown;
-            rjust_released = !mse.down && ldown;
+            rjust_down = mse.down && !rdown;
+            rjust_released = !mse.down && rdown;
             rdown = mse.down;
             break;
 
         case SDL_BUTTON_X1:
-            x1just_down = mse.down && !ldown;
-            x1just_released = !mse.down && ldown;
+            x1just_down = mse.down && !x1down;
+            x1just_released = !mse.down && x1down;
             x1down = mse.down;
             break;
 
         case SDL_BUTTON_X2:
-            x2just_down = mse.down && !ldown;
-            x2just_released = !mse.down && ldown;
+            x2just_down = mse.down && !x2down;
+            x2just_released = !mse.down && x2down;
             x2down = mse.down;
             break;
         }
@@ -86,6 +133,54 @@ public:
         rjust_released = false;
         x1just_released = false;
         x2just_released = false;
+
+        mmoved_x = false;
+        mmoved_y = false;
+
+        mjust_moved_x = false;
+        mjust_moved_y = false;
+
+        mjust_stopped_x = false;
+        mjust_stopped_y = false;
+
+        mspeed = {0,0};
+
+        speed = {0,0};
+    }
+
+    // Reset all, including clicked
+    void blank()
+    {
+        ljust_down = false;
+        rjust_down = false;
+        mjust_down = false;
+        x1just_down = false;
+        x2just_down = false;
+
+        ljust_released = ldown;
+        mjust_released = mdown;
+        rjust_released = rdown;
+        x1just_released = x1down;
+        x2just_released = x2down;
+
+        mjust_moved_x = false;
+        mjust_moved_y = false;
+
+        mjust_stopped_x = mmoved_x;
+        mjust_stopped_y = mmoved_y;
+
+        mspeed = {0,0};
+
+        speed = {0,0};
+
+        ldown = false;
+        mdown = false;
+        rdown = false;
+        x1down = false;
+        x2down = false;
+
+        mmoved_x = false;
+        mmoved_y = false;
     }
 };
 
@@ -157,6 +252,18 @@ public:
     void add_watcher(keyboard_watcher* watcher)
     {
         watchers.push_back(watcher);
+    }
+
+    void remove_watcher(keyboard_watcher* watcher)
+    {
+        auto index = std::find(watchers.begin(), watchers.end(), watcher);
+
+        if (index == watchers.end())
+        {
+            throw std::invalid_argument("No watcher found");
+        }
+
+        watchers.erase(index);
     }
 
     void recheck(SDL_KeyboardEvent key_change)

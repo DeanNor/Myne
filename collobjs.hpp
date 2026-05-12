@@ -46,7 +46,7 @@ ASSIGN_CONSTRUCTOR(DynamObj);
 public:
     DynamObj()
     {
-        collision_def.type = b2_dynamicBody;
+        collision_def.type = b2_kinematicBody;
         collision_def.enableSleep = false;
 
         collision_body = b2CreateBody(get_current_coll_world(), &collision_def);

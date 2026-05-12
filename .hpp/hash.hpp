@@ -3,19 +3,31 @@
 
 #include <cstddef>
 #include <cstdint>
-#include <cstdio>
 
 #include <string>
 
+class Saver;
+class Loader;
+
 typedef uint64_t hash_t;
 
+// Definitely not a secure hash type, but it'll work for non-breaking users
 class hash
 {
+public:
+    const constexpr hash &_get_type_hash() const
+    {
+        static hash v("hash"); return v;
+    }
+
 private:
+    static bool _register_hash();
+    inline static const bool _reg_trigger_hash = _register_hash();
+
     constexpr hash_t _FNV1a(const char* key) const
     {
-        hash_t v = 0xcbf29ce484222325; // FNV-1a offset basis
-        hash_t prime = 0x100000001b3; // FNV-1a prime
+        hash_t v = 0xcbf29ce484222325; // FNV-1a offset basis?
+        hash_t prime = 0x100000001b3; // FNV-1a prime?
 
         for (size_t i = 0; key[i] != '\0'; ++i)
         {
@@ -72,6 +84,10 @@ public:
 
         return v;
     }
+
+    void save(Saver* saver);
+
+    void load(Loader* loader);
 };
 
 #include <functional>

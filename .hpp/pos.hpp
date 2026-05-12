@@ -1,8 +1,9 @@
 
 #pragma once
 
-#include "box2d/math_functions.h"
-#include "SDL3/SDL_rect.h"
+#include <box2d/math_functions.h>
+#include <SDL3/SDL_rect.h>
+#include <SDL3/SDL_render.h>
 
 #include "rad.hpp"
 
@@ -19,7 +20,7 @@ public:
     double x;
     double y;
         
-    constexpr pos(const double& new_x, const double& new_y) : x(new_x), y(new_y) {}
+    constexpr pos(const double new_x, const double new_y) : x(new_x), y(new_y) {}
 
     constexpr pos() = default;
 
@@ -30,6 +31,16 @@ public:
     constexpr operator SDL_FPoint() { return SDL_FPoint{(float)x,(float)y}; }
 
     constexpr pos(const SDL_FPoint& convert) : x(convert.x), y(convert.y) {};
+
+    explicit pos(SDL_Texture* a)
+    {
+        float f_x, f_y;
+
+        SDL_GetTextureSize(a, &f_x, &f_y);
+
+        x = f_x;
+        y = f_y;
+    }
 
     static constexpr SDL_FRect Make_SDL_FRect(const pos& center, const pos& offset)
     {
@@ -60,29 +71,58 @@ public:
 
     constexpr rad direction() const
     {
-        rad dir = pos{0,0}.angle_to(*this);
-        return dir;
+        return rad::force(std::atan2(y,x));
     }
 
-    // Normalized length. (10,5) -> (0.66,.33)
+    // Percent length for x and y. (10,5) -> (0.66,0.33)
     constexpr pos ratio() const
     {
-        pos x_to_y = {0,0};
-
         const double scale = sum();
 
-        x_to_y.x = x / scale;
-        x_to_y.y = y / scale;
+        if (scale != 0)
+        {
+            pos x_to_y;
 
-        return x_to_y;
+            x_to_y.x = x / scale;
+            x_to_y.y = y / scale;
+
+            return x_to_y;
+        }
+
+        else
+        {
+            return {0,0};
+        }
     }
 
+    // Normalized length for x and y. (10, 5) -> (0.894428,0.447214)
+    constexpr pos normal() const
+    {
+        const double scale = len();
+
+        if (scale != 0)
+        {
+            pos x_to_y;
+
+            x_to_y.x = x / scale;
+            x_to_y.y = y / scale;
+
+            return x_to_y;
+        }
+
+        else
+        {
+            return {0,0};
+        }
+    }
+
+    // Hypotenuse distance
     constexpr double len() const
     {
         return std::sqrt(std::pow(x,2) + std::pow(y,2));
     }
 
-    pos rotated(rad angle) const
+    pos rotated(const rad angle) const
     {
         if (angle != rad(0.0))
         {
@@ -104,27 +144,27 @@ public:
         }
     }
 
-    constexpr rad angle_to(pos target) const
+    constexpr rad angle_to(const pos& target) const
     {
-        return atan2(target.y - y,target.x - x);
+        return rad::force(std::atan2(target.y - y,target.x - x));
     }
 
     // Limited by length, as in total pos offset length
-    constexpr pos limited(double limit) const
+    constexpr pos limited(const double limit) const
     {
         const double length = len();
         pos temp_pos = *this;
 
         if (length > limit)
         {
-            temp_pos = ratio() * limit;
+            temp_pos = normal() * limit;
         }
 
         return temp_pos;
     }
 
     // Limited by x length and y length as separate values not affecting each other
-    constexpr pos limited_separated(double limit) const
+    constexpr pos limited_separated(const double limit) const
     {
         pos temp_pos = *this;
         
@@ -141,7 +181,7 @@ public:
         return temp_pos;
     }
 
-    constexpr pos scaled(pos start, pos end) const
+    constexpr pos scaled(const pos& start, const pos& end) const
     {
         pos temp_pos = *this;
 
@@ -195,13 +235,13 @@ public:
         return temp_pos;
     }
 
-    constexpr double distance_to(pos where) const
+    constexpr double distance_to(const pos& where) const
     {
         return std::sqrt(std::pow(where.x - x, 2) + std::pow(where.y - y, 2));
     }
 
     // Round down to nearest multiple of tile_size
-    constexpr pos tilefy(pos tile_size) const
+    constexpr pos tilefy(const pos& tile_size) const
     {
         pos temp_pos = *this;
 
@@ -211,27 +251,39 @@ public:
         return temp_pos;
     }
 
-    constexpr pos operator+ (const pos amount) const
+    // Largest of x or y.
+    constexpr double large() const
+    {
+        return x > y ? x : y;
+    }
+
+    // Smallest of x or y.
+    constexpr double small() const
+    {
+        return x < y ? x : y;
+    }
+
+    constexpr pos modulo(const pos& a) const
+    {
+        return {std::fmod(x, a.x), std::fmod(y,a.y)};
+    }
+    
+    constexpr const pos& operator+() const
+    {
+        return *this;
+    }
+
+    constexpr pos operator+ (const pos& amount) const
     {
         pos temp_pos = *this;
+
         temp_pos.x += amount.x;
         temp_pos.y += amount.y;
 
         return temp_pos;
     }
 
-    constexpr pos operator+ (const double amount) const
-    {
-        const pos amount_over = ratio();
-        pos temp_pos = *this;
-
-        temp_pos.x += amount * amount_over.x;
-        temp_pos.y += amount * amount_over.y;
-
-        return temp_pos;
-    }
-
-    pos& operator+= (const pos amount)
+    pos& operator+= (const pos& amount)
     {
         x += amount.x;
         y += amount.y;
@@ -239,37 +291,28 @@ public:
         return *this;
     }
 
-    pos& operator+= (const double amount)
+    void add_in_direction(const double amount, const rad angle)
     {
-        const pos amount_over = ratio();
-
-        x += amount * amount_over.x;
-        y += amount * amount_over.y;
-
-        return *this;
+        x += amount * std::cos(angle);
+        y += amount * std::sin(angle); 
     }
 
-    constexpr pos operator- (const pos amount) const
+    constexpr pos operator- () const
+    {
+        return {-x,-y};
+    }
+
+    constexpr pos operator- (const pos& amount) const
     {
         pos temp_pos = *this;
+
         temp_pos.x -= amount.x;
         temp_pos.y -= amount.y;
 
         return temp_pos;
     }
 
-    constexpr pos operator- (const double amount) const
-    {
-        const pos amount_over = ratio();
-        pos temp_pos = *this;
-
-        temp_pos.x -= amount * amount_over.x;
-        temp_pos.y -= amount * amount_over.y;
-
-        return temp_pos;
-    }
-
-    pos& operator-= (const pos amount)
+    pos& operator-= (const pos& amount)
     {
         x -= amount.x;
         y -= amount.y;
@@ -277,20 +320,10 @@ public:
         return *this;
     }
 
-    pos& operator-= (const double amount)
-    {
-        const pos amount_over = ratio();
-
-        x -= amount * amount_over.x;
-        y -= amount * amount_over.y;
-
-        return *this;
-    }
-
-
-    constexpr pos operator* (const pos amount) const
+    constexpr pos operator* (const pos& amount) const
     {
         pos temp_pos = *this;
+
         temp_pos.x *= amount.x;
         temp_pos.y *= amount.y;
 
@@ -307,7 +340,7 @@ public:
         return temp_pos;
     }
 
-    pos& operator*= (const pos amount)
+    pos& operator*= (const pos& amount)
     {
         x *= amount.x;
         y *= amount.y;
@@ -323,8 +356,7 @@ public:
         return *this;
     }
 
-
-    constexpr pos operator/ (const pos amount) const
+    constexpr pos operator/ (const pos& amount) const
     {
         pos temp_pos = *this;
         temp_pos.x /= amount.x;
@@ -343,7 +375,7 @@ public:
         return temp_pos;
     }
 
-    pos& operator/= (const pos amount)
+    pos& operator/= (const pos& amount)
     {
         x /= amount.x;
         y /= amount.y;
@@ -384,4 +416,58 @@ inline std::ostream& operator<< (std::ostream& os, const pos& convert)
 {
     os << "X: " << convert.x << " Y: " << convert.y;
     return os;
+}
+
+namespace std
+{
+    inline constexpr pos copysign(const pos& v, double c)
+    {
+        return {std::copysign(v.x,c), std::copysign(v.y, c)};
+    }
+
+    inline constexpr pos copysign(const pos& v, const pos& c)
+    {
+        return {std::copysign(v.x, c.x), std::copysign(v.y,c.y)};
+    }
+
+    inline constexpr pos abs(pos v)
+    {
+        return {abs(v.x), abs(v.y)};
+    }
+}
+
+inline pos& operator-= (const double a, pos& b)
+{
+    b.x = a - b.x;
+    b.y = a - b.y;
+
+    return b;
+}
+
+inline constexpr pos operator- (const double a, const pos& b)
+{
+    return pos{a - b.x, a - b.y};
+}
+
+inline pos& operator*= (const double a, pos& b)
+{
+    return b *= a;
+}
+
+inline constexpr pos operator* (const double a, const pos& b)
+{
+    return b * a;
+}
+
+inline pos& operator/= (const double a, pos& b)
+{
+    b.x = a / b.x;
+    b.y = a / b.y;
+
+    return b;
+}
+
+inline constexpr pos operator/ (const double a, const pos& b)
+{
+    return {a / b.x, a / b.y};
 }

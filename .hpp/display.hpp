@@ -13,14 +13,17 @@ private:
 
     SDL_Renderer* renderer;
 
-    pos center;
+    pos center = {0,0};
     pos size;
     pos half_size;
 
     pos top_left, top_right, bottom_left, bottom_right;
 
     pos real_size;
+    pos real_half_size;
     pos screen_scale = {1,1};
+
+    pos scale = {1,1};
 
     SDL_Texture* screen = nullptr;
 
@@ -37,21 +40,31 @@ private:
         int size_x, size_y;
         SDL_GetWindowSizeInPixels(window, &size_x, &size_y);
         real_size = {(double)(size_x), (double)(size_y)};
+        real_half_size = real_size / 2.;
     }
 
-    void update_screen_size()
+    void compute_screen_size()
     {
-        size = {(double)screen->w, (double)screen->h};
+        size = pos{(double)screen->w, (double)screen->h} / scale;
 
-        half_size = size / 2.0;
+        half_size = real_half_size / scale;
 
+        update_corners();
+    }
+
+    void compute_window_size()
+    {
         update_real_size();
+
+        size = real_size / scale;
+
+        half_size = real_half_size / scale;
 
         update_corners();
     }
 
 public:
-    display(pos display_size, const char* name, SDL_WindowFlags flags);
+    display(const pos& display_size, const char* name, SDL_WindowFlags flags);
 
     ~display();
 
@@ -61,19 +74,19 @@ public:
 
     void update_size()
     {
-        update_real_size();
-
         if (!screen)
         {
-            size = real_size;
+            compute_window_size();
+
             screen_scale = {1,1};
-
-            half_size = size / 2.0;
-
-            update_corners();
         }
 
-        else screen_scale = real_size / size;
+        else
+        {
+            update_real_size();
+
+            screen_scale = real_size / size;
+        }
     }
 
     // New_screen is owned by this
@@ -85,7 +98,7 @@ public:
 
         screen = new_screen;
 
-        update_screen_size();
+        compute_screen_size();
     }
 
     SDL_Texture* get_screen()
@@ -93,56 +106,64 @@ public:
         return screen;
     }
 
-    pos get_size() const
+    const pos& get_size() const
     {
         return size;
     }
 
-    pos get_half_size() const
+    const pos& get_half_size() const
     {
         return half_size;
     }
 
-    pos get_top_left() const
+    const pos& get_top_left() const
     {
         return top_left;
     }
 
-    pos get_top_right() const
+    const pos& get_top_right() const
     {
         return top_right;
     }
 
-    pos get_bottom_left() const
+    const pos& get_bottom_left() const
     {
         return bottom_left;
     }
 
-    pos get_bottom_right() const
+    const pos& get_bottom_right() const
     {
         return bottom_right;
     }
 
-    void set_center(pos new_center)
-    {
-        center = new_center;
+    void set_center(pos new_center);
 
-        update_corners();
-    }
-
-    pos get_center() const
+    const pos& get_center() const
     {
         return center;
     }
 
-    pos get_scale() const
+    void set_scale(pos new_scale);
+
+    const pos& get_scale() const
+    {
+        return scale;
+    }
+
+    // Scale of the monitor to the backbuffer, not the rendering scale. You most likely want get_display_scale()
+    const pos& get_screen_scale() const
     {
         return screen_scale;
     }
 
-    pos get_real_size() const
+    const pos& get_real_size() const
     {
         return real_size;
+    }
+
+    const pos& get_real_half_size() const
+    {
+        return real_half_size;
     }
 
     SDL_Window* get_window() const

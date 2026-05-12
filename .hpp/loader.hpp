@@ -38,6 +38,7 @@ public:
     void repeat();
 
     template <VAR T>
+    [[nodiscard]]
     T load_data()
     {
         if (eof)
@@ -69,6 +70,7 @@ public:
     }
 
     template<typename T>
+    [[nodiscard]]
     T load_enum()
     {
         if (eof)
@@ -100,6 +102,7 @@ public:
     }
 
     template<CLS T>
+    [[nodiscard]]
     T load_complex()
     {
         if (eof)
@@ -164,6 +167,7 @@ public:
     }
 
     template<CLS_PTR T>
+    [[nodiscard]]
     T* load_complex_ptr()
     {
         if (eof)
@@ -212,12 +216,14 @@ public:
         }
     }
 
+    [[nodiscard]]
     Process* load_process(); // Expanded in process.hpp
 };
 
 
 // TODO make into load_data_ptr
 template <>
+[[nodiscard]]
 inline const char* Loader::load_data<const char*>()
 {
     throw std::logic_error("Who wants to make this actually work?");
@@ -225,6 +231,7 @@ inline const char* Loader::load_data<const char*>()
 
 
 template <>
+[[nodiscard]]
 inline std::string Loader::load_complex<std::string>()
 {
     if (eof)

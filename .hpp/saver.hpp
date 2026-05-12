@@ -50,7 +50,7 @@ public:
     template<CLS_PTR T>
     void save_complex_ptr(T data)
     {
-        save_data<hash_t>(data->get_type_hash().value);
+        save_data<hash_t>(data->_get_type_hash().value);
         data->save(this);
     }
 

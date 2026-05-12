@@ -15,6 +15,8 @@ protected:
 
     std::vector<Process*> children = {};
 
+    std::vector<Process*> new_children;
+
     std::string name = std::string{"Undefined"};
 
     bool to_delete = false;
@@ -38,9 +40,13 @@ public:
 
     void remove_child(Process* child);
 
+    void add_children();
+
     Process* get_child(size_t index);
 
-    std::vector<Process*> get_children();
+    std::vector<Process*>& get_children();
+
+    std::vector<Process*>& get_new_children();
 
     // Gets the number of direct children
     size_t get_total_children();
@@ -74,6 +80,7 @@ inline void Saver::save_process(Process* data)
     data->save(this);  
 }
 
+[[nodiscard]]
 inline Process* Loader::load_process()
 {
     if (eof)

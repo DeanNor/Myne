@@ -48,6 +48,9 @@ public:
 // To be stored a type needs a void load(const data* root) and void save(const Saver* os) function, along with a void onload(), all of which are virtual for inheriting types.
 // At minimum, the type needs to be named (NAME_TYPE(type)), and to store a stack version it needs to have a ASSIGN_*_CONSTRUCTOR(type) macro, which will use NAME_TYPE(type)
 
+// Sorry, the ; at the end is an ast thing
+//                                                  ALSO NOTE!!!!!! the override means no override
+
 // Viratual and non virtual naming
 #define NAME_TYPE(type) private: static constexpr hash _hash_val = hash(#type); public: constexpr const hash& _get_type_hash() const {return _hash_val;}
 #define VIR_NAME_TYPE(type) private: static constexpr hash _hash_val = hash(#type); public: virtual const hash& _get_type_hash() const override {return _hash_val;}

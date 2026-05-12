@@ -16,3 +16,9 @@
 [submodule "include/tree-sitter-cpp"]
 	path = include/tree-sitter-cpp
 	url = https://github.com/tree-sitter/tree-sitter-cpp
+[submodule "include/json"]
+	path = include/json
+	url = https://github.com/nlohmann/json
+[submodule "include/imgui-docking"]
+	path = include/imgui-docking
+	url = https://github.com/ocornut/imgui/tree/docking

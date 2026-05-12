@@ -11,7 +11,7 @@ ASSIGN_CONSTRUCTOR(Object);
 
 protected:
     pos position = {0,0};
-    rad angle = {0};
+    rad angle{0.};
 
     tfm global_transform = {&position, &angle};
 

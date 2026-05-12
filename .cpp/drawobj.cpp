@@ -1,10 +1,15 @@
 
 #include ".hpp/drawobj.hpp"
 
-#include ".hpp/SDL3.h"
 #include ".hpp/err.hpp"
 #include ".hpp/game.hpp"
 #include ".hpp/drawtarget.hpp"
+#include ".hpp/sprite.hpp"
+#include "SDL3/SDL_surface.h"
+
+#ifdef EDITOR
+#include "edit.hpp"
+#endif
 
 DrawObj::DrawObj()
 {
@@ -15,14 +20,17 @@ DrawObj::DrawObj()
 
 DrawObj::~DrawObj()
 {
-    if (sprite_ownership == true && sprite != nullptr)
+    if (sprite_ownership == true && texture != nullptr)
     {
-        SDL_DestroyTexture(sprite);
+        delete texture;
     }
 
-    if (has_target) draw_target->remove_from_draws(this);
+    if (initialized)
+    {
+        if (has_target) draw_target->remove_from_draws(this);
     
-    else get_current_game()->remove_from_draws(this, depth);
+        else get_current_game()->remove_from_draws(this, depth);
+    }
 }
 
 void DrawObj::load(Loader* ar)
@@ -33,10 +41,7 @@ void DrawObj::load(Loader* ar)
 
     if (sprite_ownership)
     {
-        sprite_path = ar->load_complex<std::string>();
-        sprite_scale_mode = ar->load_data<SDL_ScaleMode>();
-
-        set_sprite(sprite_path, sprite_scale_mode);
+        texture = ar->load_complex_ptr<sprite>();
     }
 
     depth = ar->load_data<unsigned char>();
@@ -50,76 +55,75 @@ void DrawObj::save(Saver* ar) const
 
     if (sprite_ownership)
     {
-        ar->save_complex(sprite_path);
-        ar->save_data(sprite_scale_mode);
+        ar->save_complex_ptr(texture);
     }
 
     ar->save_data(depth);
 }
 
-void DrawObj::draw(const pos& origin)
+void DrawObj::draw(const pos& origin, const pos& global_scale)
 {
     if (active_drawer)
     {
-        if (sprite != nullptr && visible())
+        if (texture != nullptr)
         {
-            const SDL_FRect pos_rect = pos::Make_SDL_FRect(global_transform.transform - origin, half_size * scale); // Transform can be used as visible() uses compute()
-
-            SDL_RenderTextureRotated(renderer, sprite, nullptr, &pos_rect, global_transform.transform_angle.deg(), nullptr, SDL_FLIP_NONE);
+            texture->display(global_transform.compute() * global_scale - origin, global_transform.compute_scale() * global_scale, get_global_angle().deg(), renderer);
         }
+
+#ifdef EDITOR
+        else
+        {
+            const SDL_FRect pos_rect = pos::Make_SDL_FRect(global_transform.compute() * global_scale - origin, EDIT::positional_half_size);
+
+            SDL_RenderTextureRotated(renderer, EDIT::basic_positional, nullptr, &pos_rect, global_transform.compute_angle().deg(), nullptr, SDL_FLIP_NONE);
+        }
+#endif
     }
 }
 
-void DrawObj::set_sprite(SDL_Texture* bitmap, bool owns_sprite)
+void DrawObj::set_sprite(basic_sprite* new_sprite, bool owns_sprite)
 {
-    sprite = bitmap;
+    texture = new_sprite;
     sprite_ownership = owns_sprite;
-
-    float x,y;
-
-    SDL_GetTextureSize(sprite, &x, &y);
-
-    size = {x,y};
-    half_size = size / 2;
 }
 
 void DrawObj::set_sprite(std::filesystem::path path, SDL_ScaleMode scale_mode)
 {
-    ASSERT(std::filesystem::exists(path), std::string("File path does not exist ") + path.generic_string());
+    ASSERT(std::filesystem::exists(path), std::string("File path does not exist: ") + path.generic_string());
 
-    load_img(sprite, renderer, path, scale_mode);
+    texture = new sprite(path, renderer);
 
     sprite_ownership = true;
-    sprite_scale_mode = scale_mode;
-
-    float x,y;
-
-    SDL_GetTextureSize(sprite, &x, &y);
-
-    size = {x,y};
-    half_size = size / 2;
-
-    set_sprite_path(path.generic_string());
 }
 
-SDL_Texture* DrawObj::get_sprite() const
+basic_sprite* DrawObj::get_texture() const
 {
-    return sprite;
-}
-
-void DrawObj::set_sprite_path(std::string path)
-{
-    sprite_path = path;
-}
-
-std::string DrawObj::get_sprite_path() const
-{
-    return sprite_path;
+    return texture;
 }
 
 void DrawObj::set_depth(unsigned char z)
 {
+    if (initialized)
+    {
+        if (has_target)
+        {
+            draw_target->remove_from_draws(this);
+        }
+
+        else
+        {
+            get_current_game()->remove_from_draws(this, depth);
+        }
+    }
+
     depth = z;
+        
+    has_target = false;
+    window = get_current_game()->get_game_window();
+
+    get_current_game()->add_to_draws(this, depth);
+
+    initialized = true;
 }
 
 unsigned char DrawObj::get_depth() const
@@ -127,111 +131,109 @@ unsigned char DrawObj::get_depth() const
     return depth;
 }
 
-void DrawObj::init()
-{
-    has_target = false;
-    window = get_current_game()->get_game_window();
-
-    get_current_game()->add_to_draws(this, depth);
-}
-
-void DrawObj::init(unsigned char z)
-{
-    has_target = false;
-    window = get_current_game()->get_game_window();
-
-    depth = z;
-
-    get_current_game()->add_to_draws(this, depth);
-}
-
-void DrawObj::init(DrawTarget* target)
+void DrawObj::target(DrawTarget* target)
 {
     has_target = true;
     draw_target = target;
 
     target->add_to_draws(this);
+
+    initialized = true;
 }
 
 bool DrawObj::visible()
 {
-    pos top_left;
-    pos bottom_right;
+    sprite* spr = dynamic_cast<sprite*>(texture);
 
-    pos glo_pos = global_transform.compute();
-    rad glo_angle = global_transform.compute_angle();
-
-    if (has_target)
+    if (spr)
     {
-        top_left = draw_target->get_zero();
-        bottom_right = draw_target->get_max();
+        pos top_left;
+        pos bottom_right;
+
+        pos glo_pos = global_transform.compute();
+        rad glo_angle = global_transform.compute_angle();
+
+        if (has_target)
+        {
+            top_left = draw_target->get_zero();
+            bottom_right = draw_target->get_max();
+        }
+
+        else
+        {
+            top_left = window->get_top_left();
+            bottom_right = window->get_bottom_right();
+        }
+
+        pos rotated = spr->half_size.rotated(glo_angle);
+
+        pos a = glo_pos + rotated;
+        pos b = glo_pos - rotated;
+        pos c = pos{glo_pos.x + spr->half_size.x, glo_pos.y - rotated.y};
+        pos d = pos{glo_pos.x - spr->half_size.x, glo_pos.y + rotated.y};
+
+        double x_min = std::min({a.x, b.x, c.x, d.x});
+        double x_max = std::max({a.x,b.x,c.x,d.x});
+
+        double y_min = std::min({a.y, b.y, c.y, d.y});
+        double y_max = std::max({a.y,b.y,c.y,d.y});
+
+        return ((x_max > top_left.x and bottom_right.x > x_min) and (y_max > top_left.y and bottom_right.y > y_min));
     }
 
-    else
-    {
-        top_left = window->get_top_left();
-        bottom_right = window->get_bottom_right();
-    }
-
-    pos rotated = half_size.rotated(glo_angle);
-
-    pos a = glo_pos + rotated;
-    pos b = glo_pos - rotated;
-    pos c = pos{glo_pos.x + half_size.x, glo_pos.y - rotated.y};
-    pos d = pos{glo_pos.x - half_size.x, glo_pos.y + rotated.y};
-
-    double x_min = std::min({a.x, b.x, c.x, d.x});
-    double x_max = std::max({a.x,b.x,c.x,d.x});
-
-    double y_min = std::min({a.y, b.y, c.y, d.y});
-    double y_max = std::max({a.y,b.y,c.y,d.y});
-
-    return (x_max >= top_left.x and bottom_right.x >= x_min) and (y_max >= top_left.y and bottom_right.y >= y_min);
+    return false;
 }
 
 bool DrawObj::fully_visible()
 {
-    pos window_zero;
-    pos window_max;
+    sprite* spr = dynamic_cast<sprite*>(texture);
 
-    if (has_target)
+    if (spr)
     {
-        window_zero = draw_target->get_zero();
-        window_max = draw_target->get_max();
+        pos window_zero;
+        pos window_max;
+
+        if (has_target)
+        {
+            window_zero = draw_target->get_zero();
+            window_max = draw_target->get_max();
+        }
+
+        else
+        {
+            window_zero = window->get_top_left();
+            window_max = window->get_bottom_right();
+        }
+
+        pos glo_pos = global_transform.compute();
+        rad glo_angle = global_transform.compute_angle();
+
+        pos bottom_right = (glo_pos + spr->size).rotated(glo_angle);
+        if (!bottom_right.within(window_zero, window_max))
+        {
+            return false;
+        }
+
+        pos top_left = (glo_pos - spr->size).rotated(glo_angle);
+        if (!top_left.within(window_zero, window_max))
+        {
+            return false;
+        }
+
+        pos top_right = pos(glo_pos.x + spr->size.x, glo_pos.y - spr->size.y).rotated(glo_angle);
+        if (!top_right.within(window_zero, window_max))
+        {
+            return false;
+        }
+
+        pos bottom_left = pos(glo_pos.x - spr->size.x, glo_pos.y + spr->size.y).rotated(glo_angle);
+        if (!bottom_left.within(window_zero, window_max))
+        {
+            return false;
+        }
+
+        return true;
     }
 
-    else
-    {
-        window_zero = window->get_top_left();
-        window_max = window->get_bottom_right();
-    }
-
-    pos glo_pos = global_transform.compute();
-    rad glo_angle = global_transform.compute_angle();
-
-    pos bottom_right = (glo_pos + size).rotated(glo_angle);
-    if (!bottom_right.within(window_zero, window_max))
-    {
-        return false;
-    }
-
-    pos top_left = (glo_pos - size).rotated(glo_angle);
-    if (!top_left.within(window_zero, window_max))
-    {
-        return false;
-    }
-
-    pos top_right = pos(glo_pos.x + size.x, glo_pos.y - size.x).rotated(glo_angle);
-    if (!top_right.within(window_zero, window_max))
-    {
-        return false;
-    }
-
-    pos bottom_left = pos(glo_pos.x - size.x, glo_pos.y + size.y).rotated(glo_angle);
-    if (!bottom_left.within(window_zero, window_max))
-    {
-        return false;
-    }
-
-    return true;
+    return false;
 }

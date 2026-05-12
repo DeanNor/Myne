@@ -41,6 +41,8 @@ void Process::_process()
 {
     process();
 
+    add_children();
+
     process_children();
 }
 
@@ -59,7 +61,7 @@ void Process::process_children()
 
 void Process::add_child(Process* child)
 {
-    children.push_back(child);
+    new_children.push_back(child);
     child->set_parent(this);
 }
 
@@ -71,25 +73,52 @@ void Process::remove_child(Process* child)
 
         std::vector<Process*>::iterator index = std::find(children.begin(), children.end(), child);
 
-        ASSERT(index != children.end(), "Error with remove child");
+        if (index == children.end())
+        {
+            index = std::find(new_children.begin(), new_children.end(), child);
 
-        children.erase(index);
+            ASSERT(index != new_children.end(), "Error with remove child");
+
+            new_children.erase(index);
+        }
+
+        else children.erase(index);
     }
+}
+
+void Process::add_children()
+{
+    for (Process* x : new_children)
+    {
+        children.push_back(x);
+    }
+
+    new_children.clear();
 }
 
 Process* Process::get_child(size_t index)
 {
+    if (index > children.size())
+    {
+        return new_children.at(index - children.size());
+    }
+
     return children.at(index);
 }
 
-std::vector<Process*> Process::get_children()
+std::vector<Process*>& Process::get_children()
 {
     return children;
 }
 
+std::vector<Process*>& Process::get_new_children()
+{
+    return new_children;
+}
+
 size_t Process::get_total_children()
 {
-    return children.size();
+    return children.size() + new_children.size();
 }
 
 size_t Process::get_sum_total_children()
@@ -101,6 +130,11 @@ size_t Process::get_sum_total_children()
         val += child->get_sum_total_children() + 1;
     }
 
+    for (Process* child : new_children)
+    {
+        val += child->get_sum_total_children() + 1;
+    }
+
     return val;
 }
 
@@ -108,6 +142,14 @@ std::vector<Process*> Process::get_named_children(std::string term)
 {
     std::vector<Process*> found_children;
     for (Process* child : children)
+    {
+        if (child->name == term)
+        {
+            found_children.push_back(child);
+        }
+    }
+
+    for (Process* child : new_children)
     {
         if (child->name == term)
         {
@@ -139,6 +181,11 @@ void Process::start_delete()
             child->start_delete();
         }
 
+        for (Process* child : new_children)
+        {
+            child->start_delete();
+        }
+
         get_current_game()->add_to_deletes(this);
     }
 }
@@ -147,7 +194,13 @@ void Process::del()
 {
     for (Process* child : children)
     {
-        child->parent = nullptr; // Remove the parent of this child so it does not intentionally resize the children
+        child->set_parent(nullptr);
+        child->del();
+    }
+
+    for (Process* child : new_children)
+    {
+        child->set_parent(nullptr);
         child->del();
     }
 

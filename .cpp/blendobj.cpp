@@ -8,29 +8,38 @@
 
 void BlendObj::update_image()
 {
+    update_image_size();
+
+    if (!texture || image_size != ((sprite*)texture)->size)
+    {
+        SDL_DestroyTexture(texture->get());
+
+        SDL_Texture* new_texture = SDL_CreateTexture(renderer, SDL_FORMAT, SDL_TEXTUREACCESS_STREAMING, image_size.x, image_size.y);
+
+        ((sprite*)texture)->set(new_texture);
+    }
+
     BLImageData data;
     image.get_data(&data);
 
-    if (sprite) SDL_DestroyTexture(sprite);
-    sprite = SDL_CreateTexture(renderer, SDL_FORMAT, SDL_TEXTUREACCESS_STREAMING, size.x, size.y);
-
     void* values;
     int stride;
-    SDL_LockTexture(sprite, nullptr, &values, &stride);
+    SDL_LockTexture(texture->get(), nullptr, &values, &stride);
     
-    values = std::memcpy(values, data.pixel_data, stride * size.y);
+    values = std::memcpy(values, data.pixel_data, stride * image_size.y);
 
-    SDL_UnlockTexture(sprite);
+    SDL_UnlockTexture(texture->get());
+}
 
-    set_size({(double)image.width(), (double)image.height()});
+void BlendObj::update_image_size()
+{
+    image_size.x = image.width();
+    image_size.y = image.height();
 }
 
 void BlendObj::set_image(BLImage new_image)
 {
     image = new_image;
-
-    image_size.x = image.width();
-    image_size.y = image.height();
 
     update_image();
 }
@@ -38,11 +47,4 @@ void BlendObj::set_image(BLImage new_image)
 BLImage BlendObj::get_image()
 {
     return image;
-}
-
-void BlendObj::set_size(pos new_size)
-{
-    size = new_size;
-    
-    half_size = size / 2;
 }

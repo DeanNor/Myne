@@ -4,22 +4,22 @@
 #include <chrono>
 #include <cstdlib>
 #include <filesystem>
-#include <iostream>
-
-#include "ast/ast_search.hpp"
-#include "ast/ts_tool.h"
 
 #include "ast/ast_load.hpp"
+#include "ast/ast_stuff.hpp"
+#include "ast/ts_tool.h"
+
+#include "ast/ast_custom.hpp"
 
 #include <thread>
+#include <unordered_map>
 
 // TODO make all the error windows here, and in other ast_* files, present to a buffer to be displayed
 
-std::mutex file_lock;
-std::vector<std::string> header_files;
-std::vector<std::string> code_files;
+inline std::vector<std::string> header_files = {".hpp/blendobj.hpp"};
+inline std::vector<std::string> code_files = {".hpp/blendobj.hpp"};
 
-std::vector<std::thread> active_searches;
+inline std::vector<std::thread> active_searches;
 
 void check_file_changes();
 
@@ -41,27 +41,39 @@ inline void exit_ast()
     free(refs);
 }
 
-void load_files()
+inline void load_files()
 {
-    // TODO load from file
-    header_files = {"./.hpp/drawobj.hpp","./.hpp/pos.hpp","./.hpp/rad.hpp", "./main.cpp"};
 
-    code_files = {"./.cpp/drawobj.cpp","./.cpp/pos.cpp","./.hpp/rad.hpp"};
 }
 
-void init_base_loads();
-
-void check_file_changes()
+inline void init_base_loads()
 {
-    auto tim = std::chrono::high_resolution_clock::now();
-    file_lock.lock();
+    // TODO in-library stuff
 
+    load_process* process = new load_process("Process");
+    base_loads_process.emplace(process->class_type.value,process);
+    load_object* object = new load_object("Object");
+    base_loads_process.emplace(object->class_type.value,object);
+    load_drawobj* drawobj = new load_drawobj("DrawObj");
+    base_loads_process.emplace(drawobj->class_type.value,drawobj);
+
+    load_pos* pos_v = new load_pos("pos");
+    base_loads_complex.emplace(pos_v->class_type.value,pos_v);
+    load_rad* rad_v = new load_rad("rad");
+    base_loads_complex.emplace(rad_v->class_type.value,rad_v);
+
+    load_string* string = new load_string("std::string");
+    base_loads_complex.emplace(string->class_type.value,string);
+}
+
+inline void check_file_changes()
+{
     static std::filesystem::file_time_type last_check = std::chrono::file_clock::now();
 
     bool changed = false;
     for (auto x : header_files)
     {
-        if (std::filesystem::last_write_time(x) > last_check || true)
+        if (std::filesystem::last_write_time(x) > last_check || true) // TODO remove true
         {
             active_searches.emplace_back(search_definition,x);
             changed = true;
@@ -85,15 +97,13 @@ void check_file_changes()
     if (changed) link_with_classes();
 
     last_check = std::chrono::file_clock::now();
-
-    file_lock.unlock();
-
-    std::cout << std::chrono::high_resolution_clock::now() - tim << '\n';
 }
 
-void run_prgm()
+inline void run_prgm()
 {
     setup_ast();
 
     check_file_changes();
+
+    exit_ast();
 }

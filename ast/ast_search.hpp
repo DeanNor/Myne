@@ -4,18 +4,17 @@
 #include ".hpp/hash.hpp"
 #include "ast/ast_stuff.hpp"
 #include "tree_sitter/api.h"
-#include <cstring>
-#include <stdexcept>
 #include <string>
 #include <fstream>
 #include "ts_tool.h"
 #include "print.hpp"
 
-extern ref_storer* refs;
-extern std::unordered_map<hash_t, ast_expands*> found_loads;
-extern std::mutex loader_lock;
+inline std::vector<class_hint*> found_loaders;
+inline std::unordered_map<hash_t, load_expandable*> found_loads;
 
-load_ast* get_load_type(TSNode expr, const char* file)
+inline static ref_storer* refs;
+
+inline load_type* get_load_type(TSNode expr, const char* file)
 {
     TSNode identifier, call_expression;
     if (search_for_node(expr, refs->identifier, identifier) && search_for_node(expr, refs->call_expr, call_expression))
@@ -47,9 +46,9 @@ load_ast* get_load_type(TSNode expr, const char* file)
     return nullptr;
 }
 
-std::vector<std::pair<named_hash, ast_expands*>> unknown_to_be_linked;
+inline std::vector<std::pair<hash_t, load_expandable*>> parent_to_be_linked;
 
-void search_load_data(TSNode body, ast_expands* ast_object, const char* file)
+inline void search_load_data(TSNode body, load_expandable* ast_object, const char* file)
 {
     uint32_t children = ts_node_named_child_count(body);
 
@@ -71,13 +70,9 @@ void search_load_data(TSNode body, ast_expands* ast_object, const char* file)
                         hash func_name = hash::hash_for(file + ts_node_start_byte(identifier), ts_node_end_byte(identifier) - ts_node_start_byte(identifier));
                         if (func_name == hash("load"))
                         {
-                            std::string class_name_str;
-                            named_hash class_name = hash::hash_for_str(file + ts_node_start_byte(namespace_identifier), ts_node_end_byte(namespace_identifier) - ts_node_start_byte(namespace_identifier), class_name_str);
-                            class_name.name = class_name_str;
+                            hash parent_name = hash::hash_for(file + ts_node_start_byte(namespace_identifier), ts_node_end_byte(namespace_identifier) - ts_node_start_byte(namespace_identifier));
 
-                            loader_lock.lock();
-                            unknown_to_be_linked.emplace_back(class_name, ast_object);
-                            loader_lock.unlock();
+                            parent_to_be_linked.emplace_back(parent_name.value, ast_object);
                         }
                     }
                 }
@@ -87,7 +82,7 @@ void search_load_data(TSNode body, ast_expands* ast_object, const char* file)
             {
                 auto a = get_load_type(expr, file);
 
-                if (a) ast_object->add_to_values(a);
+                if (a) ast_object->values.push_back(a);
             }
         }
     }
@@ -102,7 +97,7 @@ void search_load_out(TSNode function_def, const char* file);
 
 void search_load_in(TSNode function_def, TSNode class_ast, const char* file);
 
-void search_load(std::string file_loc) // TODO external versions
+inline void search_load(std::string file_loc) // TODO external versions
 {
     std::ifstream ifile(file_loc);
 
@@ -136,7 +131,7 @@ inline void search_class(TSNode class_ast, const char* file)
     }
 }
 
-void search_load_content(TSNode content, const char* file)
+inline void search_load_content(TSNode content, const char* file)
 {
     uint32_t child_count = ts_node_named_child_count(content);
     for (uint32_t i = 0; i < child_count; i++)
@@ -157,7 +152,7 @@ void search_load_content(TSNode content, const char* file)
     }
 }
 
-void search_load_class_content(TSNode content, TSNode class_ast, const char* file)
+inline void search_load_class_content(TSNode content, TSNode class_ast, const char* file)
 {
     uint32_t child_count = ts_node_named_child_count(content);
     for (uint32_t i = 0; i < child_count; i++)
@@ -178,7 +173,7 @@ void search_load_class_content(TSNode content, TSNode class_ast, const char* fil
     }
 }
 
-void create_load_ast(TSNode identifier, TSNode namespace_identifier, TSNode compound_statement, const char* file)
+inline void create_load_ast(TSNode identifier, TSNode namespace_identifier, TSNode compound_statement, const char* file)
 {
     hash hsh = hash::hash_for(file + ts_node_start_byte(identifier), ts_node_end_byte(identifier) - ts_node_start_byte(identifier));
     if (hsh == hash("load"))
@@ -186,14 +181,14 @@ void create_load_ast(TSNode identifier, TSNode namespace_identifier, TSNode comp
         std::string name;
         hash class_name = hash::hash_for_str(file + ts_node_start_byte(namespace_identifier), ts_node_end_byte(namespace_identifier) - ts_node_start_byte(namespace_identifier), name);
 
-        ast_expands* expansion = new ast_expands(name);
+        load_expandable* expansion = new load_expandable(name, class_name);
         search_load_data(compound_statement, expansion, file);
 
         found_loads[class_name.value] = expansion;
     }
 }
 
-void search_load_out(TSNode function_def, const char* file)
+inline void search_load_out(TSNode function_def, const char* file)
 {
     TSNode function_declarator;
     if (search_for_node(function_def, refs->function_declarator, function_declarator))
@@ -225,7 +220,7 @@ void search_load_out(TSNode function_def, const char* file)
     }
 }
 
-void search_load_in(TSNode function_def, TSNode class_ast, const char* file)
+inline void search_load_in(TSNode function_def, TSNode class_ast, const char* file)
 {
     TSNode function_declarator, field_identifier, compound_statement;
     if (search_for_node(function_def, refs->function_declarator, function_declarator) && search_for_node(function_def, refs->compound_statement, compound_statement))

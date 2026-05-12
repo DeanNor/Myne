@@ -1,14 +1,25 @@
 
 #include ".hpp/tfm.hpp"
+#include ".hpp/pos.hpp"
 
 void tfm::set(pos value)
 {
-    if (parent != nullptr)
+    if (parent)
     {
-            *position = value - parent->compute();
+        *position = ((value - parent->compute()) / parent->compute_scale()).rotated(-(parent->compute_angle()));
     }
 
     else *position = value;
+}
+
+void tfm::set_angle(rad value)
+{
+    if (parent)
+    {
+        *angle = (value - parent->compute_angle());
+    }
+
+    else *angle = value;
 }
 
 // TODO: replace recursive calls to angle_changed and has_changed.
@@ -21,7 +32,7 @@ bool tfm::has_changed()
 
     if (parent != nullptr)
     {
-        if (par_pos != *parent->position)
+        if (parent->transform != par_pos)
         {
             return true;
         }
@@ -44,14 +55,18 @@ pos tfm::compute()
         if (parent != nullptr)
         {
             par_pos = parent->compute();
-            transform = position->rotated(parent->compute_angle());
 
             if (parent->scale != nullptr)
             {
-                transform += *(parent->scale) * par_pos;
+                transform = position->rotated(parent->compute_angle()) * *(parent->scale);
             }
             
-            else transform += par_pos;
+            else
+            {
+                transform = position->rotated(parent->compute_angle());
+            }
+
+            transform += par_pos;
         }
 
         else
@@ -75,8 +90,8 @@ bool tfm::angle_changed()
     }
 
     if (parent != nullptr)
-    {        
-        if (par_angle != *parent->angle)
+    {
+        if (parent->transform_angle != par_angle)
         {
             return true;
         }
@@ -95,8 +110,9 @@ rad tfm::compute_angle()
         {
             transform_angle = *angle;
             past_angle = transform_angle;
-            
+
             par_angle = parent->compute_angle();
+            
             transform_angle += par_angle;
         }
 
@@ -112,9 +128,31 @@ rad tfm::compute_angle()
 
 bool tfm::scale_changed()
 {
-    if (scale) return past_scale == *scale;
+    if (!scale) return false;
+    
+    if(past_scale != *scale)
+    {
+        return true;
+    }
+
+    if (parent) return parent->scale_changed();
 
     return false;
+}
+
+pos tfm::compute_scale()
+{
+    pos transform_scale;
+    
+    if (scale) transform_scale = *scale;
+    else transform_scale = {1,1};
+
+    if (parent)
+    {
+        transform_scale *= parent->compute_scale();
+    }
+
+    return transform_scale;
 }
 
 void tfm::deparent()

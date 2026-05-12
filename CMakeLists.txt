@@ -1,9 +1,9 @@
 
-cmake_minimum_required(VERSION 3.21)
+cmake_minimum_required(VERSION 3.31.6)
 
 project("TEST")
 
-set(CMAKE_CXX_STANDARD 23)
+set(CMAKE_CXX_STANDARD 26)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 set(PROJECT_BINARY_DIR ${PROJECT_SOURCE_DIR})
@@ -16,28 +16,31 @@ set(CMAKE_INSTALL_BINDIR ${PROJECT_BINARY_DIR})
 
 set(LIB_NAME "Myne")
 
-set(IMGUI_PATH ${CMAKE_CURRENT_SOURCE_DIR}/include/imgui-docking)
-file(GLOB IMGUI_GLOB
-    ${IMGUI_PATH}/imgui.h
-    ${IMGUI_PATH}/imgui.cpp
-    ${IMGUI_PATH}/imconfig.h
-    ${IMGUI_PATH}/imgui_demo.cpp
-    ${IMGUI_PATH}/imgui_draw.cpp
-    ${IMGUI_PATH}/imgui_tables.cpp
-    ${IMGUI_PATH}/imgui_widgets.cpp
+# set(IMGUI_PATH ${CMAKE_CURRENT_SOURCE_DIR}/include/imgui-docking)
+# file(GLOB IMGUI_GLOB
+#     ${IMGUI_PATH}/imgui.h
+#     ${IMGUI_PATH}/imgui.cpp
+#     ${IMGUI_PATH}/imconfig.h
+#     ${IMGUI_PATH}/imgui_demo.cpp
+#     ${IMGUI_PATH}/imgui_draw.cpp
+#     ${IMGUI_PATH}/imgui_tables.cpp
+#     ${IMGUI_PATH}/imgui_widgets.cpp
 
-    ${IMGUI_PATH}/imgui.h
-    ${IMGUI_PATH}/imgui.cpp
-    ${IMGUI_PATH}/imgui_draw.cpp
-    ${IMGUI_PATH}/imgui_tables.cpp
-    ${IMGUI_PATH}/imgui_widgets.cpp
-    ${IMGUI_PATH}/imgui_demo.cpp
+#     ${IMGUI_PATH}/imgui.h
+#     ${IMGUI_PATH}/imgui.cpp
+#     ${IMGUI_PATH}/imgui_draw.cpp
+#     ${IMGUI_PATH}/imgui_tables.cpp
+#     ${IMGUI_PATH}/imgui_widgets.cpp
+#     ${IMGUI_PATH}/imgui_demo.cpp
 
-    ${IMGUI_PATH}/backends/imgui_impl_sdl3.cpp
-    ${IMGUI_PATH}/backends/imgui_impl_sdlrenderer3.cpp
-)
-add_library(ImGui STATIC ${IMGUI_GLOB})
-target_include_directories(ImGui PUBLIC ${IMGUI_PATH} ${IMGUI_PATH}/backends)
+#     ${IMGUI_PATH}/backends/imgui_impl_sdl3.cpp
+#     ${IMGUI_PATH}/backends/imgui_impl_sdlrenderer3.cpp
+    
+#     ${IMGUI_PATH}/misc/cpp/imgui_stdlib.cpp
+# )
+
+# add_library(ImGui STATIC ${IMGUI_GLOB})
+# target_include_directories(ImGui PUBLIC ${IMGUI_PATH} ${IMGUI_PATH}/backends)
 
 add_executable(${LIB_NAME}
     main.cpp
@@ -57,8 +60,16 @@ add_executable(${LIB_NAME}
     .cpp/loader.cpp
     .cpp/saver.cpp
     .cpp/tube.cpp
+    .cpp/hash.cpp
 
-    ast/ts_tool.c
+    #ast/ts_tool.c
+    #ast/ast_stuff.cpp
+    #editorstuff.cpp
+    #editorobj.cpp
+
+    gambling_simulator/player.cpp
+    gambling_simulator/sprite_extra.cpp
+    gambling_simulator/chuds.cpp
     )
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
@@ -70,12 +81,18 @@ add_subdirectory(include/box2d)
 add_subdirectory(include/SDL_image)
 add_subdirectory(include/tree-sitter)
 add_subdirectory(include/tree-sitter-cpp)
+add_subdirectory(include/json)
 
-include_directories(include include/SDL_image/include include/box2d/include include/tree-sitter/lib/include/)
+include_directories(include include/SDL_image/include include/SDL/include include/box2d/include/ include/tree-sitter/lib/include/ include/blend2d/blend2d)
 
 find_package(box2d QUIET)
 if (!box2d_FOUND)
     add_dependencies(box2d)
+endif()
+
+find_package(nlohmann_json QUIET)
+if (!nlohmann_json_FOUND)
+    add_dependencies(nlohmann_json)
 endif()
 
 target_link_libraries(${LIB_NAME}
@@ -86,18 +103,22 @@ target_link_libraries(${LIB_NAME}
     
     PUBLIC blend2d
 
-    PUBLIC ImGui
+    #PUBLIC ImGui
 
     PUBLIC tree-sitter
+
+    PUBLIC nlohmann_json::nlohmann_json
 )
 
-if (!win32)
-    target_compile_options(${LIB_NAME} PUBLIC -pedantic)# -O3 -march=native)
-endif ()
+#target_compile_definitions(${LIB_NAME} PUBLIC EDITOR) # Sets defines for editor
+
+target_compile_options(${LIB_NAME} PUBLIC -pedantic -O3 -march=native)
 
 if (win32)
     add_custom_command(TARGET ${LIB_NAME} POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_RUNTIME_DLLS:${LIB_NAME}> $<TARGET_FILE_DIR:${LIB_NAME}>
         COMMAND_EXPAND_LISTS
     )
+
+    target_compile_options(${LIB_NAME} PUBLIC -pedantic)
 endif()

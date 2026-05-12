@@ -1,15 +1,18 @@
 
 #include ".hpp/SDL3.h"
 
+#include <SDL3/SDL_asyncio.h>
 #include <SDL3_image/SDL_image.h>
 #include <cassert>
 #include <filesystem>
 
 #include ".hpp/err.hpp"
+#include ".hpp/game.hpp"
+#include "SDL3/SDL_audio.h"
 #include "SDL3/SDL_render.h"
 #include "SDL3/SDL_surface.h"
 
-// Should not be called in the draw function as it clears the content of renderer, although YOLO
+// Should not be called in the draw function as it clears the content of renderer (causes lag, not actual problem), although YOLO // TODO add to .h not this
 // Saves the texture to path as a png, but does not add the .png to the end
 // Texture must be attached to renderer
 void save_img(SDL_Texture* texture, SDL_Renderer* renderer, std::filesystem::path path)
@@ -34,13 +37,40 @@ void save_img(SDL_Texture* texture, SDL_Renderer* renderer, std::filesystem::pat
 }
 
 // Loads texture from path. The texture will be attached to the renderer
-void load_img(SDL_Texture*& texture, SDL_Renderer* renderer, std::filesystem::path path, SDL_ScaleMode scale_mode)
+SDL_Texture* load_img(SDL_Renderer* renderer, std::filesystem::path path, SDL_ScaleMode scale_mode)
 {
     ASSERT(std::filesystem::exists(path), std::string("File path does not exist ") + path.generic_string());
 
-    texture = IMG_LoadTexture(renderer, path.generic_string().c_str());
+    SDL_Texture* texture = IMG_LoadTexture(renderer, path.generic_string().c_str());
     
     ASSERT(texture, "ERROR with texture creation");
 
-    SDL_SetTextureScaleMode(texture, scale_mode);
+    return texture;
+}
+
+void play_audio(std::filesystem::path path, game* game, float gain)
+{
+    audio_type audio = load_audio(path);
+    play_audio(audio, game, gain);
+    audio.free_data();
+}
+
+void play_audio(audio_type audio, game* game, float gain)
+{
+    SDL_AudioStream* stream = SDL_OpenAudioDeviceStream(SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK, &audio.spec, NULL, NULL);
+
+    SDL_PutAudioStreamData(stream, audio.wav_data, audio.wav_data_len);
+
+    SDL_SetAudioStreamGain(stream, gain);
+
+    SDL_ResumeAudioStreamDevice(stream);
+
+    game->add_audio_stream(stream);
+}
+
+audio_type load_audio(std::filesystem::path path)
+{
+    audio_type v;
+    SDL_LoadWAV(path.c_str(), &v.spec, &v.wav_data, &v.wav_data_len);
+    return v;
 }

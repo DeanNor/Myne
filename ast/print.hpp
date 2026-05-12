@@ -6,12 +6,11 @@
 #include <iostream>
 
 static const int MAX_STRING_LENGTH = 100;
-const static ImGuiTreeNodeFlags load_ast_flags = 0;
-static const ImGuiTreeNodeFlags tree_flags = ImGuiTreeNodeFlags_DrawLinesToNodes | ImGuiTreeNodeFlags_DefaultOpen;
+const static ImGuiTreeNodeFlags load_ast_flags = ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_OpenOnDoubleClick;
+static const ImGuiTreeNodeFlags tree_flags = ImGuiTreeNodeFlags_DrawLinesToNodes | ImGuiTreeNodeFlags_OpenOnDoubleClick | ImGuiTreeNodeFlags_DefaultOpen;
 
-void print_node(TSNode root, const char* file)
+inline void print_node(TSNode root, const char* file)
 {
-
     std::cout << ts_node_type(root) << '\n';
 
     std::cout << std::string(file + ts_node_start_byte(root), file + ts_node_end_byte(root)) << '\n';
@@ -29,7 +28,7 @@ void print_node(TSNode root, const char* file)
     std::cout << std::endl;
 }
 
-void print_node_base(TSNode root)
+inline void print_node_base(TSNode root)
 {
 
     std::cout << ts_node_type(root) << '\n';

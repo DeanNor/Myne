@@ -3,15 +3,28 @@
 
 #include ".hpp/process.hpp"
 #include ".hpp/drawobj.hpp"
-#include ".hpp/blendobj.hpp"
 #include ".hpp/collobj.hpp"
+#include "SDL3/SDL_audio.h"
 #include "SDL3/SDL_events.h"
-
 #include <SDL3/SDL_timer.h>
 #include <SDL3/SDL_init.h>
-#include <limits>
+#include <cstddef>
+
+#ifdef EDITOR
+#include "imgui_impl_sdl3.h"
+
+inline ImGuiIO& init_imgui()
+{
+    ImGui::CreateContext();
+    return ImGui::GetIO();
+}
+
+#endif
 
 game::game(const char* name, SDL_WindowFlags flags, pos window_size)
+#ifdef EDITOR
+    : io(init_imgui())
+#endif
 {
     if (!SDL_Init(SDL_INIT_AUDIO | SDL_INIT_VIDEO))
     {
@@ -22,8 +35,7 @@ game::game(const char* name, SDL_WindowFlags flags, pos window_size)
     }
 
     game_window = new display(window_size, name, flags);
-
-    root = new Process; // TODO decide to remove
+    game_window->update_size();
 
     /*std::cout.setf(std::ios::fixed | std::ios::showpoint);
     std::cout.precision(80);*/
@@ -36,6 +48,8 @@ game::~game()
         delete game_window;
         game_window = nullptr;
     }
+
+    kill_audio_streams();
 
     SDL_Quit();
 }
@@ -53,15 +67,18 @@ bool game::frame()
 
     if (count > 0 || coll_count > 0 || frame_count)
     {
-        update_run_data();
-        
         do
         {
             if (count > 0)
             {
                 total_ticks = tick_count;
 
+                update_run_data();
+                view_events();
+
                 run_processes();
+
+                kill_audio_streams();
                 --count;
             }
 
@@ -71,6 +88,13 @@ bool game::frame()
                 {
                     total_coll_ticks = tick_count;
 
+                    collisions.reserve(new_collisions.size());
+                    for (auto x : new_collisions)
+                    {
+                        collisions.push_back(x);
+                    }
+                    new_collisions.clear();
+
                     run_collision();
                     --coll_count;
                 }
@@ -79,7 +103,14 @@ bool game::frame()
         } while (count > 0 || coll_count > 0);
 
         if (frame_count)
-        {
+        {            
+            for (auto x : new_draws)
+            {
+                draws[x.second].push_back(x.first);
+            }
+
+            new_draws.clear();
+
             run_frame();
 
             total_frame_ticks = tick_count;
@@ -107,6 +138,10 @@ void game::view_events()
 
 void game::process_event(SDL_Event event)
 {
+#ifdef EDITOR
+    ImGui_ImplSDL3_ProcessEvent(&event);
+#endif
+
     switch (event.type)
     {
     case SDL_EVENT_WINDOW_CLOSE_REQUESTED:
@@ -124,15 +159,63 @@ void game::process_event(SDL_Event event)
         game_window->update_size();
         break;
 
-    case SDL_EVENT_MOUSE_BUTTON_DOWN:
     case SDL_EVENT_MOUSE_BUTTON_UP:
-        mouse.recheck(event.button);
+    case SDL_EVENT_MOUSE_BUTTON_DOWN:
+#ifdef EDITOR
+        if (!io.WantCaptureMouse)
+        {
+            mse_was_on_global = true;
+#endif
+            mouse.recheck(event.button);
+#ifdef EDITOR
+        }
+#endif
+        break;
+
+    case SDL_EVENT_MOUSE_WHEEL:
+#ifdef EDITOR
+        if (!io.WantCaptureMouse)
+        {
+#endif
+            mouse.scroll(event.wheel);
+#ifdef EDITOR
+        }
+#endif
+
+        break;
+    
+    case SDL_EVENT_MOUSE_MOTION:
+#ifdef EDITOR
+        if (!io.WantCaptureMouse)
+        {
+#endif
+            mouse.move(event.motion);
+#ifdef EDITOR
+        }
+#endif
         break;
 
     case SDL_EVENT_KEY_DOWN:
     case SDL_EVENT_KEY_UP:
-        keyboard.recheck(event.key);
+#ifdef EDITOR
+        if (!io.WantTextInput)
+        {
+#endif
+            keyboard.recheck(event.key);
+#ifdef EDITOR
+        }
+#endif
+        break;
     }
+}
+
+void game::update_mouse()
+{
+    // Update mouse position
+    float x,y;
+    SDL_GetMouseState(&x,&y);
+    mouse.global_position = pos(x,y);
+    mouse.position = ((pos(x,y)) / game_window->get_scale()) + game_window->get_center() - game_window->get_half_size();
 }
 
 void game::update_run_data()
@@ -141,12 +224,16 @@ void game::update_run_data()
     keyboard.reset();
     mouse.reset();
 
-    view_events();
+    update_mouse();
 
-    // Update mouse position
-    float x,y;
-    SDL_GetMouseState(&x,&y);
-    mouse.position = (pos(x,y) / game_window->get_scale()) + game_window->get_center() - game_window->get_half_size();
+#ifdef EDITOR
+    if (io.WantCaptureMouse && mse_was_on_global)
+    {
+        mouse.blank();
+
+        mse_was_on_global = false;
+    }
+#endif
 }
 
 void game::run_processes()
@@ -160,11 +247,9 @@ void game::run_processes()
 
 void game::run_collision()
 {
-    uint64_t tim = SDL_GetTicksNS();
-    
     for (CollObj* collision : collisions) // Update b2 values before b2 process
     {
-        collision->set_collision_info();
+        collision->set_collision_info(coll_progression);
     }
 
     b2World_Step(coll_world, coll_progression, coll_iterations);
@@ -172,17 +257,19 @@ void game::run_collision()
     for (CollObj* collision : collisions) // Update CollObj values to b2 values before process frame and events
     {
         collision->update_collision_info();
+
+        collision->collision_process();
     }
 
     const b2SensorEvents sensors = b2World_GetSensorEvents(coll_world);
 
-    for (int x = 0; x < sensors.beginCount; ++x)
+    for (size_t x = 0; x < sensors.beginCount; ++x)
     {
         b2SensorBeginTouchEvent* event = sensors.beginEvents + x;
         CollObj::SensorBegin(event->sensorShapeId, event->visitorShapeId);
     }
 
-    for (int y = 0; y < sensors.endCount; ++y)
+    for (size_t y = 0; y < sensors.endCount; ++y)
     {
         b2SensorEndTouchEvent* event = sensors.endEvents + y;
         CollObj::SensorEnd(event->sensorShapeId, event->visitorShapeId);
@@ -190,24 +277,17 @@ void game::run_collision()
 
     const b2ContactEvents contacts = b2World_GetContactEvents(coll_world);
 
-    for (int x = 0; x < contacts.beginCount; ++x)
+    for (size_t x = 0; x < contacts.beginCount; ++x)
     {
         b2ContactBeginTouchEvent* event = contacts.beginEvents + x;
         CollObj::CollisionBegin(event->shapeIdA, event->shapeIdB);
     }
 
-    for (int y = 0; y < contacts.endCount; ++y)
+    for (size_t y = 0; y < contacts.endCount; ++y)
     {
         b2ContactEndTouchEvent* event = contacts.endEvents + y;
         CollObj::CollisionEnd(event->shapeIdA, event->shapeIdB);
     }
-
-    for (CollObj* collision : collisions)
-    {
-        collision->collision_process();
-    }
-
-    std::cout << SDL_GetTicksNS() - tim << std::endl;
 }
 
 void game::run_frame()
@@ -221,7 +301,13 @@ void game::run_frame()
 
 void game::start()
 {
+    running = true;
     while(frame());
+}
+
+void game::exit()
+{
+    running = false;
 }
 
 void game::process()
@@ -240,7 +326,7 @@ void game::process()
 
 void game::draw() const
 {
-    const pos origin = game_window->get_center() - game_window->get_half_size();
+    const pos origin = (game_window->get_center() - game_window->get_half_size()) * game_window->get_scale();
 
     unsigned char x = 0;
     do
@@ -248,7 +334,7 @@ void game::draw() const
         const std::vector<DrawObj*>& layer = draws[x];
         for (DrawObj* object : layer)
         {
-            object->draw(origin);
+            object->draw(origin, game_window->get_scale());
         }
         
         ++x;
@@ -275,12 +361,12 @@ void game::add_to_deletes(Process* who)
 
 void game::add_to_collisions(CollObj* who)
 {
-    collisions.push_back(who);
+    new_collisions.push_back(who);
 }
 
 void game::add_to_draws(DrawObj* who, const unsigned char& depth)
 {
-    draws[depth].push_back(who);
+    new_draws.push_back({who, depth});
 }
 
 bool game::__remove_from_draws(DrawObj* who, const unsigned char& depth)
@@ -318,6 +404,24 @@ void game::remove_from_collisions(CollObj* who)
     else
     {
         std::cout << "HUH Collision" << std::endl; // Error, object seems already deleted and has no draw calls
+    }
+}
+
+void game::kill_audio_streams()
+{
+    std::vector<std::vector<SDL_AudioStream*>::iterator> indexes;
+
+    for (auto x = audio_streams.begin(); x != audio_streams.end(); ++x)
+    {
+        if (SDL_GetAudioStreamQueued(*x) <= 0)
+        {
+            indexes.push_back(x);
+        }
+    }
+
+    for (auto x : indexes)
+    {
+        audio_streams.erase(x);
     }
 }
 

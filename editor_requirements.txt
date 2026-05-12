@@ -4,3 +4,22 @@
 2. Only one inheritance.
     Ex. no virtual class inheritance and no incest
 
+
+When creating a custom expansion, create something off of an ast_expansion_base object, and expand only this object in the use_editor() function
+ If there are custom expansions inside of the object, it should implement them manually, especially if they are reference values
+    Ex. ast_tryobj() : ast_expansion_base("TryObj") {}
+    ... virtual void use_editor() override {/*DO SOMETHING*/}
+
+Then create a load for that object from a load_expandable_base object. This should copy_to just itself and fill the expansion object's pointers with values
+
+Then add them to the init_base_loads() function. Keep the order of ones that inherit using the parent_expansion in order of inheritance
+
+When saving to a binary file from ast_value-s, use the save function from the ast_value manually instead of calling saver.save(obj)
+
+### When creating load_customs, the complex and process will use different functions
+# Complex:
+    virtual ast_expanded* copy(EditorObj*) override will be used ONLY!! in a parent object to add extras to the child.
+    virtual void copy_to(ast_expanded*, ast_expansion*) override should be preferred, and will be the one called to expand
+
+# Process:
+    virtual ast_expanded* copy(EditorObj*) override will be used solely. It will expand from a child or be used on its own. NO copy_to()

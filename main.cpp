@@ -1,86 +1,89 @@
 
-#include ".hpp/factory.hpp"
+#include ".hpp/b2.h"
 #include ".hpp/game.hpp"
-
 #include ".hpp/process.hpp"
-// #include "ast/ast_load.hpp"
-// #include "ast/ast_stuff.hpp"
-#include "collobjs.hpp"
-
-#include "editorstuff.hpp"
-
-static double fps = 1 / 60.0;
-
-class ENDLESS : public Process
-{
-ASSIGN_CONSTRUCTOR(ENDLESS);
-
-    int remaining_boxes = 8 * 3 + 4;
-
-public:
-    EditorObj* editor_var;
-
-    void process() override
-    {
-        if (remaining_boxes > 0)
-        {
-            if (get_current_game()->get_delta() >= fps)
-            {
-                --remaining_boxes;
-                
-                EditorObj* p_editor_var = editor_var;
-
-                editor_var = new EditorObj(hash("Object").value);
-                editor_var->set_sprite(EDITOR::basic_positional, false);
-                editor_var->set_size(pos(EDITOR::basic_positional->w / 2.0,EDITOR::basic_positional->h / 2.0));
-                editor_var->set_position({10,10});
-
-                editor_var->init();
-
-                p_editor_var->add_child(editor_var);
-            }
-        }
-    }
-
-    
-};
-
-// #include "ast/ast.hpp"
-// #include <thread>
+#include "SDL3/SDL_timer.h"
+#include "SDL3/SDL_video.h"
+#include "box2d/box2d.h"
+#include "box2d/id.h"
+#include "gambling_simulator/mainmenu.hpp"
+#include "gambling_simulator/sprite_extra.hpp"
 
 int main()
 {
-    editor gameplay("HI", SDL_WINDOW_RESIZABLE, {500,500});
-    set_editor(&gameplay);
-    set_current_game(&gameplay);
+    // editor gameplay("HI", SDL_WINDOW_RESIZABLE | SDL_WINDOW_VULKAN, {1500,800});
+    // set_editor(&gameplay);
+    // set_current_game(&gameplay);
+
+    // gameplay.set_physics(false);
+
+    // EditorManager* manager = new EditorManager;
+    // gameplay.set_editor_manager(manager); // No need to add child of root.
 
     // std::thread ast_thread(run_prgm);
     // ast_thread.join();
 
-    EDITOR::setup_namespace();
+    // EDIT::setup_namespace();
 
-    EditorObj* editor_root = new EditorObj(hash("Object").value);
+    // gameplay.set_root(new Process);
 
-    gameplay.set_current_selection(editor_root);
-    gameplay.set_editor_root(editor_root);
+    // std::ifstream ifile("ofile.txt");
+    // if (ifile.good())
+    // {
+    //     json ison;
+    //     ifile >> ison;
+    //     auto v = find_loaded_process(ison[0]);
+        
+    //     gameplay.set_editor_root(v);
+    //     manager->add_child(v);
+    // }
 
-    editor_root->set_sprite(EDITOR::basic_positional, false);
-    editor_root->set_size(pos(EDITOR::basic_positional->w / 2.0,EDITOR::basic_positional->h / 2.0));
-    editor_root->set_position({100,100});
+    // gameplay.start();
 
-    editor_root->init();
+    // json v;
+    
+    // if (gameplay.get_editor_root())
+    // {
+    //     gameplay.get_editor_root()->expansion->save_readable(v);
 
-    gameplay.set_physics(false);
+    //     std::ofstream file("ofile.txt");
 
-    ENDLESS* end = new ENDLESS;
-    end->add_child(editor_root);
-    end->editor_var = editor_root;
+    //     file << v.dump();
+    // }
 
-    gameplay.get_root()->add_child(end);
+    // gameplay.get_root()->del();
+
+    init_healthbar();
+
+    game gameplay("Minecraft", SDL_WINDOW_RESIZABLE /*;>*/, {1000,1000});
+    set_current_game(&gameplay);
+
+    gameplay.set_physics(true);
+
+    b2Init();
+
+    b2WorldDef coll_world = WorldDef({0, 20});
+    b2WorldId coll_id = b2CreateWorld(&coll_world);
+    gameplay.set_coll_world(coll_id);
+    set_current_coll_world(coll_id);
+
+    srand(SDL_GetTicksNS());
+
+    MainMenu* menu = new MainMenu;
+
+    gameplay.set_root(menu);
+
+    menu->set_depth(0);
 
     gameplay.start();
 
     gameplay.get_root()->del();
 
+    delete SPR::lance_mist;
+    delete SPR::bullet_sprite;
+    delete SPR::missile_sprite;
+    delete SPR::portal_particle;
+    delete SPR::splash;
+    
     return 0;
 }

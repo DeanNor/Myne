@@ -7,8 +7,9 @@
 #include "saver.hpp"
 
 #include <cmath>
+#include <iostream>
 
-// Radian type, auto looping
+// Radian type, auto looping. Bounded by [-pi,pi] inclusive
 struct rad
 {
 ASSIGN_VAR_CONSTRUCTOR(rad);
@@ -17,42 +18,54 @@ private:
     constexpr static const double _PI = 3.14159265358979323846;
     constexpr static const double TO_DEG = 180.0 / _PI;
 
-    constexpr double rad_constraint(const double amount) const
+    constexpr static double rad_constraint(const double amount)
     {
-        if (amount > 0)
+        int c = amount / _PI;
+
+        if (c < 0)
         {
-            return std::fmod(amount, _PI) - _PI;
+            if (c % 2 != 0) return std::fmod(amount, _PI) + _PI;
+            return std::fmod(amount, _PI);
         }
-        
-        return std::fmod(amount, _PI) + _PI;
+
+        else
+        {
+            if (c % 2 != 0) return std::fmod(amount, _PI) - _PI;
+            return std::fmod(amount, _PI);
+        }
     }
 
-    constexpr double constrain_rad(const double amount) const
+public:
+    constexpr static rad _constrain_rad(const rad amount)
     {
-        if (amount > _PI || amount <= -_PI)
+        if (amount.radian > _PI || amount.radian < -_PI)
         {
-            return rad_constraint(amount);
+            return rad(rad::rad_constraint(amount.radian));
         }
 
         return amount;
     }
 
-    constexpr rad constrain_rad(const rad amount) const
+    constexpr static double _constrain_rad(const double amount)
     {
-        if (amount.radian > _PI || amount.radian <= -_PI)
+        if (amount > _PI || amount < -_PI)
         {
-            return rad_constraint(amount.radian);
+            return rad::rad_constraint(amount);
         }
 
-        return amount.radian;
+        return amount;
     }
 
-public:
     double radian;
 
     static constexpr rad PI()
     {
         return rad(_PI);
+    }
+
+    static constexpr double PI_d()
+    {
+        return _PI;
     }
 
     static constexpr double DEG_CONV_CONST()
@@ -65,13 +78,21 @@ public:
         return radian * TO_DEG;
     }
 
-    constexpr rad(const double& val) : radian(constrain_rad(val)) {}
+    explicit constexpr rad(const double& val) : radian(rad::rad::_constrain_rad(val)) {}
 
     constexpr rad(const b2Rot& val) : radian(b2Rot_GetAngle(val)) {}
 
     constexpr rad() = default;
 
-    constexpr operator double()
+    // Create rad without bound checks
+    static constexpr rad force(const double& val)
+    {
+        rad v;
+        v.radian = val;
+        return v;
+    }
+
+    constexpr operator double() const
     {
         return radian;
     }
@@ -91,25 +112,33 @@ public:
         save->save_data(radian);
     }
 
+    // Returns current angle to the nearest chunk. Chunk size is designated by offset. Amount of chunks is in 2 * rad::PI() / amount
+    rad nearest(double offset)
+    {
+        int multiple = std::round(radian / offset);
+
+        return rad(offset * multiple);
+    }
+
     // ----- ?
     constexpr bool operator> (rad compare) const
     {
-        return constrain_rad(radian - compare.radian) > 0;
+        return rad::_constrain_rad(radian - compare.radian) > 0;
     }
 
     constexpr bool operator< (rad compare) const
     {
-        return constrain_rad(radian - compare.radian) < 0;
+        return rad::_constrain_rad(radian - compare.radian) < 0;
     }
 
     constexpr bool operator>= (rad compare) const
     {
-        return constrain_rad(radian - compare.radian) >= 0;
+        return rad::_constrain_rad(radian - compare.radian) >= 0;
     }
 
     constexpr bool operator<= (rad compare) const
     {
-        return constrain_rad(radian - compare.radian) <= 0;
+        return rad::_constrain_rad(radian - compare.radian) <= 0;
     }
 
     constexpr bool operator== (rad compare) const
@@ -123,9 +152,14 @@ public:
     }
 
     // ----- +
+    constexpr rad operator+() const
+    {
+        return *this;
+    }
+
     constexpr rad operator+ (rad amount) const
     {
-        return amount.radian + radian;
+        return rad(amount.radian + radian);
     }
 
     constexpr rad operator+ (double amount) const
@@ -135,9 +169,9 @@ public:
 
     constexpr rad& operator+= (rad amount)
     {
-        radian = radian + amount;
+        radian = radian + amount.radian;
 
-        radian = constrain_rad(radian);
+        radian = rad::_constrain_rad(radian);
 
         return *this;
     }
@@ -146,15 +180,20 @@ public:
     {
         radian = radian + amount;
 
-        radian = constrain_rad(radian);
+        radian = rad::_constrain_rad(radian);
 
         return *this;
     }
 
     // ----- -
+    constexpr rad operator- () const
+    {
+        return rad(-radian);
+    }
+
     constexpr rad operator- (rad amount) const
     {
-        return radian - amount.radian;
+        return rad(radian - amount.radian);
     }
 
     constexpr rad operator- (double amount) const
@@ -164,9 +203,9 @@ public:
 
     constexpr rad& operator-= (rad amount)
     {
-        radian = radian - amount;
+        radian = radian - amount.radian;
 
-        radian = constrain_rad(radian);
+        radian = rad::_constrain_rad(radian);
 
         return *this;
     }
@@ -175,7 +214,7 @@ public:
     {
         radian = radian - amount;
 
-        radian = constrain_rad(radian);
+        radian = rad::_constrain_rad(radian);
 
         return *this;
     }
@@ -183,7 +222,7 @@ public:
     // ----- *
     constexpr rad operator* (rad amount) const
     {
-        return amount.radian * radian;
+        return rad(amount.radian * radian);
     }
 
     constexpr rad operator* (double amount) const
@@ -193,9 +232,9 @@ public:
 
     constexpr rad& operator*= (rad amount)
     {
-        radian = radian * amount;
+        radian = radian * amount.radian;
 
-        radian = constrain_rad(radian);
+        radian = rad::_constrain_rad(radian);
 
         return *this;
     }
@@ -204,7 +243,7 @@ public:
     {
         radian = radian * amount;
 
-        radian = constrain_rad(radian);
+        radian = rad::_constrain_rad(radian);
 
         return *this;
     }
@@ -212,7 +251,7 @@ public:
     // ----- /
     constexpr rad operator/ (rad amount) const
     {
-        return amount.radian / radian;
+        return rad(amount.radian / radian);
     }
 
     constexpr rad operator/ (double amount) const
@@ -222,9 +261,9 @@ public:
 
     constexpr rad& operator/= (rad amount)
     {
-        radian = radian / amount;
+        radian = radian / amount.radian;
 
-        radian = constrain_rad(radian);
+        radian = rad::_constrain_rad(radian);
 
         return *this;
     }
@@ -233,7 +272,7 @@ public:
     {
         radian = radian / amount;
 
-        radian = constrain_rad(radian);
+        radian = rad::_constrain_rad(radian);
 
         return *this;
     }
@@ -250,7 +289,7 @@ constexpr rad operator ""_r(const long double v)
     return rad(v);
 }
 
-constexpr long double operator ""_d(const long double v)
+constexpr rad operator ""_d(const long double v)
 {
     return drad(v);
 }
@@ -260,7 +299,7 @@ constexpr rad operator ""_r(const unsigned long long v)
     return rad(v);
 }
 
-constexpr long double operator ""_d(const unsigned long long v)
+constexpr rad operator ""_d(const unsigned long long v)
 {
     return drad(v);
 }

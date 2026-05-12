@@ -4,17 +4,34 @@
 #include ".hpp/object.hpp"
 
 #include ".hpp/display.hpp"
+#include ".hpp/sprite.hpp"
 #include "SDL3/SDL_render.h"
+#include "SDL3/SDL_surface.h"
 #include <filesystem>
 
 class DrawTarget;
 
+#ifdef EDITOR
+class ast_drawobj;
+#endif
+
+// Needs to call set_depth or target in order to draw
 class DrawObj : public Object
 {
 ASSIGN_CONSTRUCTOR(DrawObj);
 
+#ifdef EDITOR
+friend ast_drawobj;
+#endif
+
 protected:
     SDL_Renderer* renderer = nullptr;
+
+    bool sprite_ownership = false;
+
+    unsigned char depth;
+
+    pos scale = {1,1};
 
     bool has_target = false;
     union
@@ -23,26 +40,11 @@ protected:
         DrawTarget* draw_target;
     };
 
-    SDL_Texture* sprite = nullptr;
-
-    // TODO pos scale = {1,1};
-
-    // Both size and half size of the sprite
-    pos size;
-    pos half_size;
-
-    pos scale = {1,1};
-
-    // If the sprite pointer is owned.
-    bool sprite_ownership = false;
-
-    SDL_ScaleMode sprite_scale_mode;
-
-    std::string sprite_path;
-
-    unsigned char depth = 0;
+    basic_sprite* texture = nullptr;
 
     bool active_drawer = true;
+
+    bool initialized = false;
 
 public:
     DrawObj();
@@ -53,46 +55,30 @@ public:
 
     void save(Saver* ar) const override;
 
-    virtual void draw(const pos& origin);
+    virtual void draw(const pos& origin, const pos& global_scale);
 
-    void set_sprite(SDL_Texture* bitmap, bool owns_sprite);
-    void set_sprite(std::filesystem::path path, SDL_ScaleMode scale_mode);
+    void set_sprite(basic_sprite* new_sprite, bool owns_sprite);
+    void set_sprite(std::filesystem::path path, SDL_ScaleMode scale_mode = SDL_SCALEMODE_PIXELART);
 
-    SDL_Texture* get_sprite() const;
-
-    void set_sprite_path(std::string path);
-
-    std::string get_sprite_path() const;
+    basic_sprite* get_texture() const;
 
     void set_depth(unsigned char depth);
 
     unsigned char get_depth() const;
 
-    // Assumes that the depth is already assigned.
-    void init();
-
-    void init(unsigned char depth);
-
     // Set to use a custom draw target
-    void init(DrawTarget* target);
+    void target(DrawTarget* target);
 
     // If any pixel of the object is on the screen. Calls compute & compute_angle()
+    // Will only return true for sprite versions of the texture
     bool visible();
 
     // If 100% of the object is on the screen. Calls compute. Note, rounding errors (and moveover, physics) make this a little inaccurate.
+    // Will only return true for sprite versions of the texture // TODO add a virtual function to do this in basic_sprite
     bool fully_visible();
 
-    pos get_size() const
-    {
-        return size;
-    }
-
-    pos get_half_size() const
-    {
-        return half_size;
-    }
-
-    void make_active(bool is)
+    // Can draw = is
+    void set_active(bool is)
     {
         active_drawer = is;
     }

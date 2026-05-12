@@ -1,6 +1,7 @@
 
 #pragma once
 
+#include "SDL3/SDL_audio.h"
 #include "SDL3/SDL_events.h"
 #include "box2d/id.h"
 
@@ -10,6 +11,10 @@
 
 #include <limits>
 #include <vector>
+
+#ifdef EDITOR
+#include "imgui.h"
+#endif
 
 class Process;
 class DrawObj;
@@ -32,21 +37,26 @@ protected:
     std::vector<CollObj*> collisions = {};
     std::vector<Process*> deletes = {};
 
+    std::vector<std::pair<DrawObj*, unsigned char>> new_draws;
+    std::vector<CollObj*> new_collisions;
+
+    std::vector<SDL_AudioStream*> audio_streams;
+
     b2WorldId coll_world;
     bool physics = false;
 
-    bool running = true;
+    bool running = false;
 
     double fps = 60;
     double spf = 1.0 / fps; // Seconds per frame
     Uint64 fpsticks = 1000 / fps; // MSeconds between ticks
 
     double coll_fps = 60;
-    double coll_spf = 1 / coll_fps;
+    double coll_spf = 1.0 / coll_fps;
     Uint64 collticks = 1000 / coll_fps;
 
     double frame_fps = 60;
-    double frame_spf = 1 / frame_fps;
+    double frame_spf = 1.0 / frame_fps;
     Uint64 frameticks = 1000 / frame_fps;
 
     Uint64 total_ticks = 0; // Internal clocks
@@ -58,10 +68,16 @@ protected:
     Uint64 total_delay = 0; // Internal clock #2, uses NS //TODO remove the #2
     double delta; // Delta time for last frame, before all other calls.
 
-    int coll_iterations = 10;
+    int coll_iterations = 4;
 
     mouse_state mouse;
     keyboard_state keyboard;
+
+#ifdef EDITOR
+    ImGuiIO& io;
+
+    bool mse_was_on_global = false;
+#endif
 
 public:
     game(const char* name, SDL_WindowFlags flags, pos window_size);
@@ -76,6 +92,8 @@ public:
 
     void process_event(SDL_Event event);
 
+    void update_mouse();
+
     void update_run_data();
 
     void run_processes();
@@ -85,6 +103,8 @@ public:
     void run_frame();
 
     void start();
+
+    void exit();
 
     void process();
 
@@ -101,6 +121,8 @@ public:
     void remove_from_draws(DrawObj* who, const unsigned char& depth);
 
     void remove_from_collisions(CollObj* who);
+
+    void kill_audio_streams();
 
     display* get_game_window() const 
     {
@@ -242,6 +264,11 @@ public:
     keyboard_state& get_keyboard()
     {
         return keyboard;
+    }
+
+    void add_audio_stream(SDL_AudioStream* what)
+    {
+        audio_streams.push_back(what);
     }
 
 private:

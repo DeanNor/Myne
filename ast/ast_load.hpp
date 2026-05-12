@@ -6,197 +6,182 @@
 #include "ast/ast_stuff.hpp"
 #include "ast/print.hpp"
 #include "ast/ts_tool.h"
-#include "imgui-docking/imgui.h"
 
-#include <mutex>
 #include <fstream>
+#include <ostream>
+#include <stdexcept>
+#include <string>
+#include <unordered_map>
 
-struct named_class
+struct late_class
 {
 public:
-    bool is_class;
+    load_expandable_base* expansion = nullptr;
+    
+    std::string& str_parent;
+    hash& parent_name;
 
-    std::string name;
-    ast_expands* ast_expansion;
+    late_class(class_hint* _what) : str_parent(_what->str_parent), parent_name(_what->parent_name) {}
 
-    bool inherits = false;
-    hash base_class;
-
-    named_class(bool _is_class, std::string _name) : is_class(_is_class), name(_name)
+    load_expandable_base* get_expansion(std::unordered_map<hash_t, load_expandable_base*>& loads, std::unordered_map<hash_t, late_class*>& lates)
     {
+        if (expansion) return expansion;
+        
+        try
+        {
+            late_class* direct_parent = lates.at(parent_name.value);
 
-    }
+            expansion = direct_parent->get_expansion(loads, lates);
 
+            return expansion;
+        }
 
-    named_class(bool _is_class, std::string _name, hash _base_class) : is_class(_is_class), name(_name), inherits(true), base_class(_base_class)
-    {
+        catch (...)
+        {
+            std::cout << "Error late linking loadable:\n\t" << str_parent << ' ' << parent_name.value << '\n'; // No load found
 
+            return nullptr;
+        }
+
+        try
+        {
+            expansion = loads.at(parent_name.value);
+        
+            return expansion;
+        }
+
+        catch (...)
+        {
+            std::cout << "Error late linking loadable:\n\t" << str_parent << ' ' << parent_name.value << '\n'; // No load found
+
+            return nullptr;
+        }
     }
 };
 
-std::mutex loader_lock;
-std::vector<named_class*> found_loaders;
-std::unordered_map<hash_t, ast_expands*> found_loads;
+inline void add_to_map(class_hint* hint, std::unordered_map<hash_t, load_expandable_base*>& map, std::unordered_map<hash_t, late_class*>& late)
+{
+    try
+    {
+        load_expandable* expansion = found_loads.at(hint->class_name.value);
 
-// TODO list of inheritances to show in editor
-static std::unordered_map<hash_t, ast_expands*> loadable_processes;
-static std::unordered_map<hash_t, ast_expands*> loadable_complexes;
+        expansion->is_class = hint->is_class;
+        map.emplace(hint->class_name.value,expansion);
+    }
 
-extern std::vector<std::pair<named_hash, ast_expands*>> unknown_to_be_linked;
+    catch (...) // For classes that do not explicitly define a load function, but have a parent who (SHOULD) implicitly gives it to them
+    {
+        if (hint->inherits)
+        {
+            late.emplace(hint->class_name.value,new late_class(hint));
+        }
 
-ref_storer* refs;
+        else
+        {
+            // TODO queue error here and below
+            std::cout << "Error linking loadable:\n\t" << hint->str_name << ' ' << hint->class_name.value << '\n'; // No load found
+        }
+    }
+}
+
+// Throws if not found in list of objects
+inline load_expandable_base* get_expandable_process(hash_t type)
+{
+    if (loadable_processes.contains(type)) return loadable_processes.at(type);
+
+    else if (base_loads_process.contains(type)) return base_loads_process.at(type);
+
+    else throw std::logic_error(std::string("Bad Type") + std::to_string(type));
+}
+
+// Throws if not found in list of objects
+inline load_expandable_base* get_expandable_complex(hash_t type)
+{
+    try
+    {
+        return loadable_complexes.at(type);
+    }
+
+    catch (...)
+    {
+        return base_loads_complex.at(type);
+    }
+}
 
 // Links the loadable_* and finds the stuff to be linked
-void link_with_classes()
+inline void link_with_classes()
 {
-    loader_lock.lock();
-
-    std::vector<std::pair<hash_t, named_class*>> late_linkers_process;
-    std::vector<std::pair<hash_t, named_class*>> late_linkers_complex;
+    std::unordered_map<hash_t, late_class*> late_linkers_process;
+    std::unordered_map<hash_t, late_class*> late_linkers_complex;
 
     for (auto x : found_loaders)
     {
-        named_hash hash_name = x->name.data();
         if (x->is_class == true)
         {
-            x->ast_expansion = found_loads[hash_name.value];
-
-            if (x->ast_expansion)
-            {
-                loadable_processes[hash_name.value] = x->ast_expansion;
-            }
-
-            else
-            {
-                if (x->inherits)
-                {
-                    late_linkers_process.emplace_back(hash_name.value, x);
-                }
-
-                else
-                {
-                    // TODO queue error here and below
-                    std::cout << "Error linking loadable Processes:\n\t" << x->name << ' ' << hash_name.value << '\n'; // No load found
-                }
-            }
+            add_to_map(x, loadable_processes, late_linkers_process);
         }
 
         else
         {
-            x->ast_expansion = found_loads[hash_name.value];
-
-            if (x->ast_expansion)
-            {
-                loadable_complexes[hash_name.value] = x->ast_expansion;
-            }
-
-            else
-            {
-                if (x->inherits)
-                {
-                    late_linkers_complex.emplace_back(hash_name.value, x);
-                }
-
-                else
-                {
-                    std::cout << "Error linking loadable Complexes:\n\t" << x->name << ' ' << hash_name.value << '\n'; // No load found
-                }
-            }
+            add_to_map(x, loadable_complexes, late_linkers_complex);
         }
     }
 
-    for (auto x : late_linkers_process)
+    for (auto& x : late_linkers_process)
     {
-        auto parent = loadable_processes[x.second->base_class.value];
-        if (parent)
-        {
-            x.second->ast_expansion = parent;
+        load_expandable_base* late_expansion = x.second->get_expansion(loadable_processes, late_linkers_process);
 
-            loadable_processes[x.first] = x.second->ast_expansion;
+        if (late_expansion)
+        {
+            loadable_processes.emplace(x.first, late_expansion);
         }
 
         else 
         {
-            std::cout << "Error late linking loadable Processes: \n\t" << x.second->name << ' ' << x.first << ' ' << x.second->base_class.value << '\n';
+            std::cout << "Error late linking loadable process with parent: \n\t" << x.second->str_parent << ' ' << x.second->parent_name.value << '\n';
         }
     }
 
-    for (auto x : late_linkers_complex)
+    for (auto& x : late_linkers_complex)
     {
-        auto parent = loadable_complexes[x.second->base_class.value];
-        if (parent)
-        {
-            x.second->ast_expansion = parent;
+        load_expandable_base* late_expansion = x.second->get_expansion(loadable_complexes, late_linkers_complex);
 
-            loadable_complexes[x.first] = x.second->ast_expansion;
+        if (late_expansion)
+        {
+            loadable_complexes.emplace(x.first, late_expansion);
         }
 
         else 
         {
-            std::cout << "Error late linking loadable Complexes: \n\t" << x.second->name << ' ' << x.first << ' ' << x.second->base_class.value << '\n';
+            std::cout << "Error late linking loadable complex with parent: \n\t" << x.second->str_parent << ' ' << x.second->parent_name.value << '\n';
         }
     }
 
-    for (auto x : process_to_be_linked)
+    for (auto x : parent_to_be_linked)
     {
-        auto expansion = loadable_processes[x.first.value];
-
-        if (expansion)
+        try
         {
-            for (auto y : x.second)
+            if (x.second->is_class)
             {
-               (*y) = dynamic_cast<ast_expands*>(expansion);
-            }
-        }
-
-        else std::cout << "ERR PROCESS_LINK " << x.first.name << '\n';
-    }
-
-    for (auto x : complex_to_be_linked)
-    {
-        auto expansion = loadable_complexes[x.first.value];
-        
-        if (expansion)
-        {
-            for (auto y : x.second)
-            {
-               (*y) = dynamic_cast<ast_expands*>(expansion);
-            }
-        }
-
-        else std::cout << "ERR COMPLEX_LINK " << x.first.name << '\n';
-    }
-
-    for (auto x : unknown_to_be_linked)
-    {
-        auto process_expansion = loadable_processes[x.first.value];
-        if (process_expansion)
-        {
-            x.second->add_to_values(process_expansion);
-        }
-
-        else
-        {
-            auto complex_expansion = loadable_complexes[x.first.value];
-            if (complex_expansion)
-            {
-                x.second->add_to_values(complex_expansion);
+                x.second->parent_expansion = get_expandable_process(x.first);
             }
 
             else
             {
-                std::cout << "ERR UNKNOWN_LINK " << x.first.name << '\n';
+                x.second->parent_expansion = get_expandable_complex(x.first);
             }
         }
-    }
 
-    loader_lock.unlock();
+        catch (...)
+        {
+            std::cout << "ERROR LINKING PARENT IN CLASS " << x.second->var_name << " with type " << x.first << std::endl;
+        }
+    }
 }
 
-void add_process_class(TSNode process, TSNode class_ast, const char* file);
-void add_complex_class(TSNode complex, TSNode class_ast, const char* file);
+void add_class(TSNode process, TSNode class_ast, const char* file, bool is_class);
 
-void search_definition(std::string file_loc)
+inline void search_definition(std::string file_loc)
 {
     std::ifstream ifile(file_loc);
 
@@ -246,13 +231,13 @@ void search_definition(std::string file_loc)
                                         {
                                         case hash("ASSIGN_CONSTRUCTOR").value:
                                         case hash("ASSIGN_CONSTRUCTOR_OVERRIDE").value:
-                                            add_process_class(parameter_declaration, class_specifier, file_content);
+                                            add_class(parameter_declaration, class_specifier, file_content, true);
                                             break;
 
                                         case hash("ASSIGN_VAR_CONSTRUCTOR").value:
                                         case hash("ASSIGN_VIR_VAR_CONSTRUCTOR").value:
                                         case hash("ASSIGN_VIR_VAR_CONSTRUCTOR_OVERRIDE").value:
-                                            add_complex_class(parameter_declaration, class_specifier, file_content);
+                                            add_class(parameter_declaration, class_specifier, file_content, false);
                                             break;
                                         }
                                     }
@@ -282,43 +267,20 @@ inline bool get_base_class(TSNode class_ast, const char* file, std::string& ret_
     return false;
 }
 
-void add_process_class(TSNode process, TSNode class_ast, const char* file)
+inline void add_class(TSNode process, TSNode class_ast, const char* file, bool is_class)
 {
     std::string name(file + ts_node_start_byte(process), file + ts_node_end_byte(process));
 
     std::string base_class;
     if (get_base_class(class_ast, file, base_class))
     {
-        loader_lock.lock();
-        found_loaders.push_back(new named_class(true, name, base_class.c_str()));
-        loader_lock.unlock();
+        found_loaders.push_back(new class_hint(is_class, name, base_class.c_str()));
     }
 
     else
     {
-        std::cout << "CLASS: " << name << " does not inherit from anything???\n";
-        loader_lock.lock();
-        found_loaders.push_back(new named_class(true, name));
-        loader_lock.unlock();
-    }
-}
+        if (is_class) std::cout << "CLASS: " << name << " does not inherit from anything???\n";
 
-void add_complex_class(TSNode complex, TSNode class_ast, const char* file)
-{
-    std::string name(file + ts_node_start_byte(complex), file + ts_node_end_byte(complex));
-
-    std::string base_class;
-    if (get_base_class(class_ast, file, base_class))
-    {
-        loader_lock.lock();
-        found_loaders.push_back(new named_class(false, name, base_class.c_str()));
-        loader_lock.unlock();
-    }
-
-    else 
-    {
-        loader_lock.lock();
-        found_loaders.push_back(new named_class(false, name));
-        loader_lock.unlock();
+        found_loaders.push_back(new class_hint(is_class, name));
     }
 }
