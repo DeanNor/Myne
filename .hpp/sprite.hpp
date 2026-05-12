@@ -73,7 +73,7 @@ public:
     {
         basic_texture::save(os);
 
-        os->save_complex<std::string>(sprite_path);
+        os->save_complex<std::string>(sprite_path.string());
     }
 
     virtual void load(Loader* os) override
@@ -93,7 +93,7 @@ public:
 
     sprite() = default;
 
-    sprite(std::filesystem::path _sprite_path, SDL_Renderer* renderer) : basic_sprite(_sprite_path), texture(load_img(renderer, _sprite_path))
+    sprite(std::filesystem::path _sprite_path, SDL_Renderer* renderer) : basic_sprite(_sprite_path.string()), texture(load_img(renderer, _sprite_path.string()))
     {
         size = (pos)texture;
         half_size = size / 2.0;

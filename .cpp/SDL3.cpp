@@ -71,6 +71,6 @@ void play_audio(audio_type audio, game* game, float gain)
 audio_type load_audio(std::filesystem::path path)
 {
     audio_type v;
-    SDL_LoadWAV(path.c_str(), &v.spec, &v.wav_data, &v.wav_data_len);
+    SDL_LoadWAV(path.string().data(), &v.spec, &v.wav_data, &v.wav_data_len);
     return v;
 }

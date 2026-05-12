@@ -10,13 +10,21 @@ void BlendObj::update_image()
 {
     update_image_size();
 
-    if (!texture || image_size != ((sprite*)texture)->size)
+    if (!texture)
+    {
+        SDL_Texture* new_texture = SDL_CreateTexture(renderer, SDL_FORMAT, SDL_TEXTUREACCESS_STREAMING, image_size.x, image_size.y);
+        
+        texture = new sprite();
+        texture->set(new_texture);
+    }
+
+    else if (image_size != ((sprite*)texture)->size)
     {
         SDL_DestroyTexture(texture->get());
 
         SDL_Texture* new_texture = SDL_CreateTexture(renderer, SDL_FORMAT, SDL_TEXTUREACCESS_STREAMING, image_size.x, image_size.y);
 
-        ((sprite*)texture)->set(new_texture);
+        texture->set(new_texture);
     }
 
     BLImageData data;
