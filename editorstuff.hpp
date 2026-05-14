@@ -45,7 +45,7 @@ public:
         set_current_game(this);
 
         io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
-        //io.ConfigFlags |= ImGuiConfigFlags_Docking;         // Enable Docking
+        io.ConfigFlags |= ImGuiConfigFlags_Docking;         // Enable Docking
 
         ImGui::StyleColorsDark();
 
