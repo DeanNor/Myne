@@ -2,7 +2,7 @@
 
 #include ".hpp/SDL3.h"
 #include "SDL3/SDL_render.h"
-#include "imgui.h"
+#include "imgui-docking/imgui.h"
 #include "imgui-docking/backends/imgui_impl_sdl3.h"
 #include "imgui-docking/backends/imgui_impl_sdlrenderer3.h"
 
@@ -45,7 +45,7 @@ public:
         set_current_game(this);
 
         io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
-        io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;         // Enable Docking
+        //io.ConfigFlags |= ImGuiConfigFlags_Docking;         // Enable Docking
 
         ImGui::StyleColorsDark();
 

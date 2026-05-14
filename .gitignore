@@ -7,3 +7,7 @@ lib*
 *.0
 Game.Linux.x86_64
 /include
+Myne
+*.exe
+*.dll
+*.ini

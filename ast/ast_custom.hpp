@@ -100,7 +100,7 @@ struct ast_rad : public ast_expansion_base
 ASSIGN_VIR_VAR_CONSTRUCTOR(ast_rad);
 
 public:
-    rad v = 0;
+    rad v{0.};
 
     int degree_v = 0;
 
@@ -135,7 +135,7 @@ public:
         ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
         if (ImGui::SliderInt("##xx", _degree_v, ast_rad::angle_low, ast_rad::angle_high))
         {
-            *_v = rad::_constrain_rad(*_degree_v / rad::DEG_CONV_CONST());
+            *_v = rad::force(rad::_constrain_rad(*_degree_v / rad::DEG_CONV_CONST()));
         }
         ImGui::PopID();
     }
@@ -178,7 +178,7 @@ public:
 
         if (internal["Type"].get<std::string>() == "rad")
         {
-            _v = internal["radian"]["v"].get<double>();
+            _v = rad::force(internal["radian"]["v"].get<double>());
         }
 
         else throw std::logic_error("!");
