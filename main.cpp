@@ -1,17 +1,44 @@
 
-#include ".hpp/b2.h"
 #include ".hpp/game.hpp"
+#include "SDL3/SDL_render.h"
+#include "SDL3/SDL_timer.h"
 #include "editormanager.hpp"
 #include "editorstuff.hpp"
-#include "SDL3/SDL_timer.h"
 #include "SDL3/SDL_video.h"
-#include "box2d/box2d.h"
-#include "box2d/id.h"
+#include <cstddef>
 #include <thread>
 #include "ast/ast.hpp"
 
+class Doer
+{
+    int v = 100;
+
+    public:
+    void doer()
+    {
+        std::cout << v << std::endl;
+    }
+};
+
 int main()
 {
+    for (int x = 0; x < 10; x++)
+    {
+        void* c, *p;
+        SDL_CreateWindowAndRenderer("Minecraft", 100, 100, 0, (SDL_Window**)&c, (SDL_Renderer**)&p);
+    }
+
+    // SDL_Delay(4000);
+
+    // for (size_t x = 0; x < 100; x++)
+    // {
+    //     Doer* v = (Doer*)x;
+
+    //     v->doer();
+    // }
+
+
+
     editor gameplay("HI", SDL_WINDOW_RESIZABLE | SDL_WINDOW_VULKAN, {1500,800});
     set_editor(&gameplay);
     set_current_game(&gameplay);

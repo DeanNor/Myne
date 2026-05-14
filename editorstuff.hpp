@@ -52,11 +52,11 @@ public:
         ImGui_ImplSDL3_InitForSDLRenderer(game_window->get_window(), game_window->get_renderer());
         ImGui_ImplSDLRenderer3_Init(game_window->get_renderer());
 
-        line_cube = load_img(get_game_window()->get_renderer(), "img/track2.png");
+        line_cube = load_img(get_game_window()->get_renderer(), "img/default.bmp");
         cube_size = {100,100};
 
-        center_plus_x = load_img(get_game_window()->get_renderer(), "img/track3.png");
-        center_plus_y = load_img(get_game_window()->get_renderer(), "img/track4.png");
+        center_plus_x = load_img(get_game_window()->get_renderer(), "img/default.bmp");
+        center_plus_y = load_img(get_game_window()->get_renderer(), "img/default.bmp");
     }
     
     ~editor();

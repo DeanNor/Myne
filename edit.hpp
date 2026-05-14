@@ -14,7 +14,7 @@ namespace EDIT
 
     inline void setup_namespace()
     {
-        basic_positional = load_img(get_current_game()->get_game_window()->get_renderer(), "img/track1.png", SDL_SCALEMODE_PIXELART);
+        basic_positional = load_img(get_current_game()->get_game_window()->get_renderer(), "img/default.bmp", SDL_SCALEMODE_PIXELART);
 
         positional_half_size = pos(basic_positional->w, basic_positional->h) / 2.;
     }
