@@ -69,31 +69,33 @@ add_subdirectory(include/tree-sitter)
 add_subdirectory(include/tree-sitter-cpp)
 add_subdirectory(include/json)
 
-include_directories(include include/SDL_image/include include/SDL/include include/box2d/include/ include/tree-sitter/lib/include/ include/blend2d/blend2d ${IMGUI_PATH})
+include_directories(include include/SDL_image/include include/SDL/include include/box2d/include/ include/tree-sitter/lib/include/ include/blend2d/blend2d
+    ${IMGUI_PATH}
+)
 
 find_package(box2d QUIET)
 if (!box2d_FOUND)
-    add_dependencies(box2d)
+    add_dependencies(${LIB_NAME} box2d)
 endif()
 
 find_package(nlohmann_json QUIET)
 if (!nlohmann_json_FOUND)
-    add_dependencies(nlohmann_json)
+    add_dependencies(${LIB_NAME} nlohmann_json)
 endif()
 
 target_link_libraries(${LIB_NAME}
-    PUBLIC SDL3::SDL3
-    PUBLIC SDL3_image::SDL3_image
+    PRIVATE SDL3::SDL3
+    PRIVATE SDL3_image::SDL3_image
 
-    PUBLIC box2d
+    PRIVATE box2d
     
-    PUBLIC blend2d
+    PRIVATE blend2d
 
-    PUBLIC ImGui
+    PRIVATE ImGui
 
-    PUBLIC tree-sitter
+    PRIVATE tree-sitter
 
-    PUBLIC nlohmann_json::nlohmann_json
+    PRIVATE nlohmann_json::nlohmann_json
 )
 
 target_compile_definitions(${LIB_NAME} PUBLIC EDITOR) # Sets defines for editor

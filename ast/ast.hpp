@@ -16,8 +16,8 @@
 
 // TODO make all the error windows here, and in other ast_* files, present to a buffer to be displayed
 
-inline std::vector<std::string> header_files = {".hpp/blendobj.hpp"};
-inline std::vector<std::string> code_files = {".hpp/blendobj.hpp"};
+inline std::vector<std::string> header_files = {".hpp/blendobj.hpp", ".hpp/drawtarget.hpp"};
+inline std::vector<std::string> code_files = {".hpp/blendobj.hpp", ".hpp/drawtarget.hpp"};
 
 inline std::vector<std::thread> active_searches;
 

@@ -23,3 +23,6 @@
 	path = include/imgui-docking
 	url = https://github.com/ocornut/imgui.git
 	branch = docking
+[submodule "include/convex_decomposition"]
+	path = include/convex_decomposition
+	url = https://github.com/mjjq/ConvexDecomposition.git

@@ -3,6 +3,7 @@
 
 #include ".hpp/drawobj.hpp"
 #include ".hpp/loader.hpp"
+#include ".hpp/object.hpp"
 #include ".hpp/saver.hpp"
 
 class DrawTarget : public DrawObj
@@ -10,7 +11,7 @@ class DrawTarget : public DrawObj
 ASSIGN_CONSTRUCTOR(DrawTarget);
 
 protected:
-    std::vector<DrawObj*> drawers;
+    std::vector<DrawObj*> drawers; // TODO new_queue Sorry future me, im lazy
 
     // Background draw color // TODO rgba struct??
     unsigned char r = 0,g = 0,b = 0,a = 0;
@@ -18,9 +19,11 @@ protected:
     pos origin = {0,0};
 
 public:
+    // TODO base constructor for size?
+
     void save(Saver* saver) const override
     {
-        DrawObj::save(saver);
+        Object::save(saver);
 
         saver->save_data(r);
         saver->save_data(g);
@@ -30,7 +33,7 @@ public:
 
     virtual void load(Loader* loader) override
     {
-        DrawObj::load(loader);
+        Object::load(loader);
 
         r = loader->load_data<unsigned char>();
         g = loader->load_data<unsigned char>();

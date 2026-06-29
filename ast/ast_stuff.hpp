@@ -732,7 +732,7 @@ public:
 
     void save_readable(json& os) const override
     {
-
+        
     }
 
     virtual void load_readable(json& os) override

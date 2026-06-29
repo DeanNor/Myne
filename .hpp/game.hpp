@@ -274,8 +274,7 @@ public:
 private:
     bool __remove_from_draws(DrawObj* who, const unsigned char& depth);
 
-
-    bool __remove_from_overlay_draws(BlendObj* who, const unsigned char& depth);
+    bool __remove_from_new_draws(DrawObj* who, const unsigned char& depth);
 };
 
 void set_current_coll_world(b2WorldId world);

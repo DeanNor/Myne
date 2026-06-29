@@ -75,7 +75,7 @@ void DrawObj::draw(const pos& origin, const pos& global_scale)
         {
             const SDL_FRect pos_rect = pos::Make_SDL_FRect(global_transform.compute() * global_scale - origin, EDIT::positional_half_size);
 
-            SDL_RenderTextureRotated(renderer, EDIT::basic_positional, nullptr, &pos_rect, global_transform.compute_angle().deg(), nullptr, SDL_FLIP_NONE);
+            SDL_RenderTextureRotated(renderer, EDIT::basic_positional->get(), nullptr, &pos_rect, global_transform.compute_angle().deg(), nullptr, SDL_FLIP_NONE);
         }
 #endif
     }
@@ -102,7 +102,7 @@ basic_sprite* DrawObj::get_texture() const
 }
 
 void DrawObj::set_depth(unsigned char z)
-{
+{    
     if (initialized)
     {
         if (has_target)

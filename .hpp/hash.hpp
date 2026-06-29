@@ -14,6 +14,11 @@ typedef uint64_t hash_t;
 // Definitely not a secure hash type, but it'll work for non-breaking users
 class hash
 {
+#ifdef NAME_HASH
+public:
+    const char* name = nullptr;
+#endif
+
 public:
     const constexpr hash &_get_type_hash() const
     {
@@ -45,7 +50,11 @@ public:
     constexpr hash() : value(0) {};
     constexpr hash(hash_t v) : value(v) {}
 
-    constexpr hash(const char* key) : value(_FNV1a(key)) {}
+    constexpr hash(const char* key) : value(_FNV1a(key))
+    #ifdef NAME_HASH
+    , name(key)
+    #endif
+    {}
 
     constexpr bool operator==(const hash& other) const { return value == other.value; }
     constexpr bool operator!=(const hash& other) const { return !(*this == other); }

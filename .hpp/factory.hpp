@@ -1,8 +1,14 @@
 
 #pragma once
 
+#include <cmath>
 #include <unordered_map>
 #include <functional>
+
+#ifdef NAME_HASH
+#include <filesystem>
+#include <fstream>
+#endif
 
 #include ".hpp/hash.hpp"
 
@@ -24,6 +30,36 @@ private:
         static std::unordered_map<hash, std::function<Process*()>> process_constructors;
         return process_constructors;
     }
+
+    #ifdef NAME_HASH
+public:
+    static void list_hashes(std::filesystem::path path)
+    {
+        std::ofstream file(path);
+
+        file << "Process Hashes:\n---------------\n";
+        for (auto x : get_process_constructors())
+        {
+            file << x.first.value;
+            for (int v = 0; v < 25 - floor(std::log10(x.first.value)); ++v)
+            {
+                file << ' ';
+            }
+            file << x.first.name << '\n';
+        }
+
+        file << "\n\nComplex Hashes:\n---------------\n";
+        for (auto x : get_complex_constructors())
+        {
+            file << x.first.value;
+            for (int v = 0; v < 25 - floor(std::log10(x.first.value)); ++v)
+            {
+                file << ' ';
+            }
+            file << x.first.name << '\n';
+        }
+    }
+    #endif
 
 public:
     static void* construct(const hash name);

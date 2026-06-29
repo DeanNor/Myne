@@ -36,7 +36,7 @@ public:
     // Only to change hit to true, no callback called
     click_rect(tfm* new_scope, pos new_half_size, pos new_offset) : scope(new_scope), half_size(new_half_size), offset(new_offset), passthrough(true), has_callback(false)
     {
-
+        
     }
 };
 
@@ -113,5 +113,10 @@ public:
     bool was_hit()
     {
         return hit;
+    }
+
+    void empty()
+    {
+        click_rects.clear();
     }
 };

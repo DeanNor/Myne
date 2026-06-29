@@ -88,13 +88,6 @@ bool game::frame()
                 {
                     total_coll_ticks = tick_count;
 
-                    collisions.reserve(new_collisions.size());
-                    for (auto x : new_collisions)
-                    {
-                        collisions.push_back(x);
-                    }
-                    new_collisions.clear();
-
                     run_collision();
                     --coll_count;
                 }
@@ -104,13 +97,6 @@ bool game::frame()
 
         if (frame_count)
         {            
-            for (auto x : new_draws)
-            {
-                draws[x.second].push_back(x.first);
-            }
-
-            new_draws.clear();
-
             run_frame();
 
             total_frame_ticks = tick_count;
@@ -247,6 +233,13 @@ void game::run_processes()
 
 void game::run_collision()
 {
+    collisions.reserve(new_collisions.size());
+    for (auto x : new_collisions)
+    {
+        collisions.push_back(x);
+    }
+    new_collisions.clear();
+
     for (CollObj* collision : collisions) // Update b2 values before b2 process
     {
         collision->set_collision_info(coll_progression);
@@ -292,6 +285,13 @@ void game::run_collision()
 
 void game::run_frame()
 {
+    for (auto x : new_draws)
+    {
+        draws[x.second].push_back(x.first);
+    }
+
+    new_draws.clear();
+
     game_window->prepare_screen();
 
     draw();
@@ -380,15 +380,28 @@ bool game::__remove_from_draws(DrawObj* who, const unsigned char& depth)
     return true;
 }
 
+bool game::__remove_from_new_draws(DrawObj* who, const unsigned char& depth)
+{
+    auto index = std::find(new_draws.begin(), new_draws.end(), {who, depth});
+
+    if (index == new_draws.end()) return false;
+
+    new_draws.erase(index);
+    return true;
+}
+
 void game::remove_from_draws(DrawObj* who, const unsigned char& depth)
 {
     if (__remove_from_draws(who,depth)) return;
+
+    if (__remove_from_new_draws(who,depth)) return;
 
     for (unsigned char x = depth + 1; x != depth; ++x) // Uses unsigned looping to get all
     {
         if (__remove_from_draws(who, x)) return;
     }
 
+    std::cout << who->get_name() << std::endl;
     std::cout << "Huh Draws" << std::endl;
 }
 
@@ -403,6 +416,13 @@ void game::remove_from_collisions(CollObj* who)
 
     else
     {
+        const std::vector<CollObj*>::iterator new_index = std::find(new_collisions.begin(), new_collisions.end(), who);
+
+        if (index != new_collisions.end())
+        {
+            new_collisions.erase(new_index);
+        }
+
         std::cout << "HUH Collision" << std::endl; // Error, object seems already deleted and has no draw calls
     }
 }

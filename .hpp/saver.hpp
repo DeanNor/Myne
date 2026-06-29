@@ -27,6 +27,11 @@ public:
 
     void open(std::string where);
 
+    void close()
+    {
+        file.close();
+    }
+
     template <VAR T>
     void save_data(T data)
     {

@@ -4,12 +4,15 @@
 #include ".hpp/sprite.hpp"
 #include "SDL3/SDL_dialog.h"
 #include "ast/ast_stuff.hpp"
+#include "convex_decomposition/src/ConcavePolygon.h"
+#include "edit.hpp"
 #include "editorstuff.hpp"
 #include "imgui.h"
 
 #include "editorobj.hpp"
 
 #include ".hpp/pos.hpp"
+#include <filesystem>
 #include <stdexcept>
 
 struct ast_pos : public ast_expansion_base
@@ -102,7 +105,7 @@ ASSIGN_VIR_VAR_CONSTRUCTOR(ast_rad);
 public:
     rad v{0.};
 
-    int degree_v = 0;
+    int degree_v;
 
     static constexpr int angle_high = 360;
     static constexpr int angle_low = 0;
@@ -254,6 +257,96 @@ public:
     }
 };
 
+#include ".hpp/hull.hpp"
+
+#include "editorstuff.hpp"
+
+struct ast_hull : public ast_expansion_base
+{
+public:
+    std::filesystem::path v_path;
+
+    std::pair<hull,std::vector<cxd::Vertex>> v;
+
+    bool active;
+
+    ast_hull() = default;
+
+    ast_hull(std::string _var_name) : ast_expansion_base(_var_name, "hull", false) {}
+
+    ~ast_hull()
+    {
+        if (active)
+        {
+            get_editor()->enter_normal_mode();
+        }
+    }
+
+    virtual void use_editor() override
+    {
+        ImGui::Text("%s", var_name.c_str());
+        ImGui::SameLine();
+
+        _use_editor(&v_path, &v, &active);
+    }
+
+    static void _use_editor(std::filesystem::path* _v_path, std::pair<hull,std::vector<cxd::Vertex>>* _v, bool* active_check)
+    {
+        ImGui::PushID(_v_path);
+
+        if (std::filesystem::exists(*_v_path))
+        {
+            get_editor()->enter_hull_save_mode(_v, active_check);
+        }
+
+        ImGui::PopID();
+    }
+
+    virtual void save(Saver* saver) const override
+    {
+        saver->save_complex(v.first);
+    }
+
+    virtual void save_readable(json& os) const override
+    {
+        json internal = _save_readable(&v_path);
+
+        os[var_name] = internal;
+
+        Saver file(v_path);
+        
+        file.save_complex(hull(v.second));
+
+        // TODO final compile version that loads, decomposes, and saves separately
+    }
+
+    static json _save_readable(const std::filesystem::path* _v)
+    {
+        json internal = JSON(std::filesystem::path, *_v);
+
+        return internal;
+    }
+
+    virtual void load_readable(json& os) override
+    {
+        json internal = os[var_name];
+
+        v_path = _load_readable(internal);
+    }
+
+    static std::filesystem::path _load_readable(json& internal)
+    {
+        std::string _v;
+
+        if (internal["Type"].get<std::string>() == "std::string")
+        {
+            _v = internal["v"].get<std::string>();
+        }
+
+        return _v;
+    }
+};
+
 // TODO error if unable to enable specific file_filter stuff (can this be autoloaded from CMAKE data???)
 const constexpr inline SDL_DialogFileFilter file_filter{"Select Image", "stb;avif;bmp;gif;jpg;lbm;pcx;png;pnm;qoi;svg;tga;tif;webp;xcf;xpm;xv;imageio;wic;jxl"};
 
@@ -307,6 +400,14 @@ public:
     {
         json internal;
         internal["Path"] = v->sprite_path;
+
+        return internal;
+    }
+
+    static json _save_readable(SDL_Texture* v, std::filesystem::path path)
+    {
+        json internal;
+        internal["Path"] = path;
 
         return internal;
     }
@@ -462,6 +563,8 @@ public:
     {
         *rad_v = ast_rad::_load_readable(internal["angle"]);
 
+        degree_v = rad_v->deg();
+
         parent->load_readable(internal["Process Chunk"]);
     }
 };
@@ -473,7 +576,7 @@ ASSIGN_VIR_VAR_CONSTRUCTOR(ast_drawobj);
 private:
     static void open_sprite_callback(void* drawobj, const char* const* files, int file_count)
     {
-        if (files)
+        if (files && file_count == 1)
         {
             get_editor()->set_loaded_img(drawobj, files[0]);
         }
@@ -531,14 +634,27 @@ public:
 
         internal["Type"] = "DrawObj";
 
-        internal["texture"] = ast_sprite::_save_readable(drawer->texture);
+        if (drawer->texture)
+        {
+            internal["texture"] = ast_sprite::_save_readable(drawer->texture);
+        }
+
+        else
+        {
+            internal["texture"] = ast_sprite::_save_readable(EDIT::basic_positional->get(), "NULL");
+        }
 
         internal["Object Chunk"] = object_chunk[0]; // TODO remove [0] workaround
 
         os.push_back(internal);
     }
 
-    virtual void load_readable(json& internal) override {}
+    virtual void load_readable(json& internal) override
+    {
+        drawer->texture = ast_sprite::_load_readable(internal["texture"]);
+
+        parent->load_readable(internal["Object Chunk"]);
+    }
 };
 
 

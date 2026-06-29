@@ -8,6 +8,8 @@
 #include ".hpp/hull.hpp"
 #include "box2d/id.h"
 
+#include <filesystem>
+
 EXTERNAL_VAR_CONSTRUCTOR(b2Vec2);
 OVERRIDE_LOAD(b2Vec2)
 {
@@ -44,13 +46,14 @@ OVERRIDE_SAVE(b2Rot)(b2Rot data)
 class CollObj : public Object
 {
 ASSIGN_CONSTRUCTOR(CollObj);
+
 protected:
     b2BodyId collision_body;
     b2BodyDef collision_def;
 
     bool body_ownership = true;
 
-    std::string hull_path = "";
+    std::filesystem::path hull_path = "";
 
     pos lin_velocity = {0,0};
     double rot_velocity = 0;
@@ -159,38 +162,38 @@ public:
     {
         Object::load(ar);
         
-        hull_path = ar->load_complex<std::string>();
+        //hull_path = ar->load_complex<std::filesystem::path>();
 
-        if (hull_path.size() > 0)
-        {
-            hull obj_hull;
-            obj_hull.load(hull_path);
-        }
-
-        collision_def.allowFastRotation = ar->load_data<bool>();
-        collision_def.angularDamping = ar->load_data<float>();
-        collision_def.enableSleep = ar->load_data<bool>();
-        collision_def.gravityScale = ar->load_data<float>();
-        collision_def.isAwake = ar->load_data<bool>();
-        collision_def.isBullet = ar->load_data<bool>();
-        collision_def.isEnabled = ar->load_data<bool>();
-        collision_def.linearDamping = ar->load_data<float>();
-                
-        // Do not save nor load collision_def.name
-
+        collision_def.type = ar->load_enum<b2BodyType>();
         collision_def.position = ar->load_complex<b2Vec2>();
         collision_def.rotation = ar->load_complex<b2Rot>();
         collision_def.linearVelocity = ar->load_complex<b2Vec2>();
         collision_def.angularVelocity = ar->load_data<float>();
+        collision_def.linearDamping = ar->load_data<float>();
+        collision_def.angularDamping = ar->load_data<float>();
+        collision_def.gravityScale = ar->load_data<float>();
+        collision_def.allowFastRotation = ar->load_data<bool>();
+        collision_def.enableSleep = ar->load_data<bool>();
         collision_def.sleepThreshold = ar->load_data<float>();
-        collision_def.type = ar->load_enum<b2BodyType>();
+        collision_def.isAwake = ar->load_data<bool>();
+        collision_def.isBullet = ar->load_data<bool>();
+        collision_def.isEnabled = ar->load_data<bool>();
+                
+        // Do not save nor load collision_def.name
+        
+        // TODO attach to the object
+        if (std::filesystem::exists(hull_path))
+        {
+            hull obj_hull;
+            obj_hull.load(hull_path);
+        }
     }
 
     void save(Saver* ar) const override
     {
         Object::save(ar);
         
-        ar->save_complex(hull_path);
+        //ar->save_complex(hull_path);
 
         ar->save_data(collision_def.allowFastRotation);
         ar->save_data(collision_def.angularDamping);

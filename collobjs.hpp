@@ -3,9 +3,12 @@
 #include ".hpp/factory.hpp"
 
 #include ".hpp/game.hpp"
+#include ".hpp/saver.hpp"
 #include "box2d/types.h"
+#include "convex_decomposition/src/ConcavePolygon.h"
+#include <fstream>
 
-static const int HUH = 1000000;
+static const int HUH = 1000;
 static const int width = 500;
 
 #include ".hpp/collobj.hpp"
@@ -46,12 +49,23 @@ ASSIGN_CONSTRUCTOR(DynamObj);
 public:
     DynamObj()
     {
-        collision_def.type = b2_kinematicBody;
+        collision_def.type = b2_dynamicBody;
         collision_def.enableSleep = false;
 
         collision_body = b2CreateBody(get_current_coll_world(), &collision_def);
 
-        b2Polygon box = b2MakeBox(size, size);
+        {
+            hull b_hull({cxd::Vec2(-3,-1), cxd::Vec2(0,0), cxd::Vec2(2,-1), cxd::Vec2(0,2)});
+            Saver v("ohull.aaaaa");
+            b_hull.decompose_points();
+            v.save_complex(b_hull);
+        }
+
+        hull b_hull;
+        {
+            Loader v("ohull.aaaaa");
+            b_hull = v.load_complex<hull>();
+        }
         
         b2ShapeDef fixtureDef = b2DefaultShapeDef();
         fixtureDef.density = 0.0001;
@@ -60,7 +74,7 @@ public:
         fixtureDef.filter.categoryBits = 2;
         fixtureDef.filter.maskBits = 1;
 
-        b2CreatePolygonShape(collision_body, &fixtureDef, &box);
+        hull::attach_to_body(collision_body, &fixtureDef, b_hull);
     }
 };
 

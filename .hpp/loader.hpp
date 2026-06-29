@@ -34,6 +34,11 @@ public:
 
     void open(std::string where);
 
+    void close()
+    {
+        file.close();
+    }
+
     // Enables repeat loading after the file has been read through
     void repeat();
 

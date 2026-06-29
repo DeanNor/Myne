@@ -1,6 +1,7 @@
 
 #include "ast/ast_stuff.hpp"
 #include "ast/ast_load.hpp"
+#include "click.hpp"
 #include "editorobj.hpp"
 
 ast_value* LOAD::create_load(LOAD::load_t v, const std::string& var_name)
@@ -79,6 +80,8 @@ EditorObj* find_loaded_process(json& internal)
     EditorObj* edit = new EditorObj;
 
     edit->set_depth(DRAW_LAYERS::E_OBJ);
+
+    edit->add_to_clicks(get_editor()->get_click_manager());
 
     edit->expansion = expandable->copy(edit);
 
