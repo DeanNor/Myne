@@ -95,7 +95,7 @@ public:
         keyboard.add_watcher(&zoom_speed_watcher);
         keyboard.add_watcher(&delete_watcher);
 
-        mode_data = new std::pair<hull, std::vector<cxd::Vertex>>();
+        mode_data = new hull;
         mode = HULL;
     }
     

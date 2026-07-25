@@ -5,6 +5,7 @@
 #include ".hpp/game.hpp"
 #include ".hpp/hull.hpp"
 #include ".hpp/pos.hpp"
+#include ".hpp/process.hpp"
 #include "SDL3/SDL_render.h"
 #include "SDL3/SDL_timer.h"
 #include "ast/ast_stuff.hpp"
@@ -61,11 +62,12 @@ void editor::hull_mode()
             if (mouse.position.round() != dragged->get_position())
             {
                 dragged->set_position(mouse.position.round());
+                std::size_t loc;
+                loc = std::distance(mode_nodes.begin(), std::find(mode_nodes.begin(), mode_nodes.end(), dragged));
 
-                auto loc = std::find(mode_nodes.begin(), mode_nodes.end(), dragged);
-                if (loc != mode_nodes.end())
+                if (loc != mode_nodes.size())
                 {
-                    ((hull*)mode_data)->values.setPoint(std::distance(mode_nodes.begin(), loc), cxd::Vec2{(float)dragged->get_position().x, (float)dragged->get_position().y});
+                    ((hull*)mode_data)->values.setPoint(loc, cxd::Vec2{(float)dragged->get_position().x, (float)dragged->get_position().y});
                 }
 
                 update_hull();
@@ -88,9 +90,9 @@ void editor::hull_mode()
             node->set_depth(100);
 
             node->add_to_clicks(&mode_clicks);
-        }
 
-        update_hull();
+            update_hull();
+        }
     }
 
     if (((hull*)mode_data)->error == false)
@@ -99,7 +101,8 @@ void editor::hull_mode()
         {
             SDL_SetRenderDrawColor(game_window->get_renderer(), 0xFF, 0xFF, 0xFF, 0xFF);
 
-            SDL_FPoint* lines = (SDL_FPoint*)std::malloc(sizeof(SDL_FPoint) * (x.getVertices().size() + 1));
+            SDL_FPoint* lines = (SDL_FPoint*)std::malloc(sizeof(SDL_FPoint) * (x.getVertices().size() + 1)); // TODO do I really have to malloc this every frame
+            
             for (size_t y = 0; y < x.getVertices().size(); ++y)
             {
                 cxd::Vertex v = x.getVertices().at(y);
@@ -112,11 +115,6 @@ void editor::hull_mode()
 
             free(lines);
         }
-    }
-
-    for (auto x : ((hull*)mode_data)->values.getVertices())
-    {
-        std::cout << x.position.x << ' ' << x.position.y << '\n';
     }
 }
 

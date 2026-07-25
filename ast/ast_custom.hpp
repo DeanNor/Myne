@@ -294,11 +294,6 @@ public:
     {
         ImGui::PushID(_v_path);
 
-        if (std::filesystem::exists(*_v_path))
-        {
-            get_editor()->enter_hull_save_mode(_v, active_check);
-        }
-
         ImGui::PopID();
     }
 
@@ -658,7 +653,59 @@ public:
 };
 
 
+struct ast_collobj : ast_expansion_base
+{
+ASSIGN_VIR_VAR_CONSTRUCTOR(ast_collobj);
 
+public:
+    hull v;
+
+    ast_collobj() = default;
+
+    ast_collobj(std::string _var_name) : ast_expansion_base(_var_name, "CollObj", true) {}
+
+    void fill(EditorObj* owner)
+    {
+        ((ast_object*)parent)->fill(owner);
+    }
+
+    virtual void use_editor() override
+    {
+        ImGui::Text("%s", var_name.c_str());
+
+        
+
+        parent->use_editor();
+    }
+
+    virtual void save(Saver* saver) const override
+    {
+
+    }
+
+    virtual void save_readable(json& os) const override
+    {
+        json internal;
+
+        json object_chunk;
+
+        parent->save_readable(object_chunk);
+
+        internal["Type"] = "CollObj";
+
+
+        internal["Object Chunk"] = object_chunk[0]; // TODO remove [0] workaround
+
+        os.push_back(internal);
+    }
+
+    virtual void load_readable(json& internal) override
+    {
+    //     drawer->texture = ast_sprite::_load_readable(internal["texture"]);
+
+        parent->load_readable(internal["Object Chunk"]);
+    }
+};
 
 
 
