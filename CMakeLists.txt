@@ -2,6 +2,7 @@
 cmake_minimum_required(VERSION 3.31.0)
 
 project("TEST")
+set(BUILD_SHARED_LIBS OFF)
 
 set(CMAKE_CXX_STANDARD 26)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
@@ -16,21 +17,21 @@ set(CMAKE_INSTALL_BINDIR ${PROJECT_BINARY_DIR})
 
 set(LIB_NAME "Myne")
 
-set(IMGUI_PATH include/imgui-docking)
-file(GLOB IMGUI_GLOB
-    ${IMGUI_PATH}/imgui.cpp
-    ${IMGUI_PATH}/imgui_draw.cpp
-    ${IMGUI_PATH}/imgui_tables.cpp
-    ${IMGUI_PATH}/imgui_widgets.cpp
+# set(IMGUI_PATH include/imgui-docking)
+# file(GLOB IMGUI_GLOB
+#     ${IMGUI_PATH}/imgui.cpp
+#     ${IMGUI_PATH}/imgui_draw.cpp
+#     ${IMGUI_PATH}/imgui_tables.cpp
+#     ${IMGUI_PATH}/imgui_widgets.cpp
 
-    ${IMGUI_PATH}/backends/imgui_impl_sdl3.cpp
-    ${IMGUI_PATH}/backends/imgui_impl_sdlrenderer3.cpp
+#     ${IMGUI_PATH}/backends/imgui_impl_sdl3.cpp
+#     ${IMGUI_PATH}/backends/imgui_impl_sdlrenderer3.cpp
     
-    ${IMGUI_PATH}/misc/cpp/imgui_stdlib.cpp
-)
+#     ${IMGUI_PATH}/misc/cpp/imgui_stdlib.cpp
+# )
 
-add_library(ImGui STATIC ${IMGUI_GLOB})
-include_directories(ImGui PUBLIC ${IMGUI_PATH} ${IMGUI_PATH}/backends)
+# add_library(ImGui STATIC ${IMGUI_GLOB})
+# include_directories(ImGui PUBLIC ${IMGUI_PATH} ${IMGUI_PATH}/backends)
 
 add_executable(${LIB_NAME}
     main.cpp
@@ -52,10 +53,10 @@ add_executable(${LIB_NAME}
     .cpp/tube.cpp
     .cpp/hash.cpp
 
-    ast/ts_tool.c
-    ast/ast_stuff.cpp
-    editorstuff.cpp
-    editorobj.cpp
+    # ast/ts_tool.c
+    # ast/ast_stuff.cpp
+    # editorstuff.cpp
+    # editorobj.cpp
     )
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
@@ -65,11 +66,11 @@ add_subdirectory(include/blend2d)
 add_subdirectory(include/SDL)
 add_subdirectory(include/box2d)
 add_subdirectory(include/SDL_image)
-add_subdirectory(include/tree-sitter)
-add_subdirectory(include/tree-sitter-cpp)
+# add_subdirectory(include/tree-sitter)
+# add_subdirectory(include/tree-sitter-cpp)
 add_subdirectory(include/json)
 
-include_directories(include include/SDL_image/include include/SDL/include include/box2d/include/ include/tree-sitter/lib/include/ include/blend2d/blend2d
+include_directories(include include/SDL_image/include include/SDL/include include/box2d/include/ include/blend2d/blend2d
     ${IMGUI_PATH}
 )
 
@@ -78,10 +79,10 @@ if (!box2d_FOUND)
     add_dependencies(${LIB_NAME} box2d)
 endif()
 
-find_package(nlohmann_json QUIET)
-if (!nlohmann_json_FOUND)
-    add_dependencies(${LIB_NAME} nlohmann_json)
-endif()
+# find_package(nlohmann_json QUIET)
+# if (!nlohmann_json_FOUND)
+#     add_dependencies(${LIB_NAME} nlohmann_json)
+# endif()
 
 target_link_libraries(${LIB_NAME}
     PRIVATE SDL3::SDL3
@@ -91,14 +92,19 @@ target_link_libraries(${LIB_NAME}
     
     PRIVATE blend2d
 
-    PRIVATE ImGui
+    # PRIVATE ImGui
 
-    PRIVATE tree-sitter
+    # PRIVATE tree-sitter
 
     PRIVATE nlohmann_json::nlohmann_json
 )
 
-target_compile_definitions(${LIB_NAME} PUBLIC EDITOR) # Sets defines for editor
+# target_compile_definitions(${LIB_NAME} PUBLIC EDITOR) # Sets defines for editor
+target_compile_definitions(${LIB_NAME} PUBLIC NO_PHYS) # Sets defines for removing physics checks ever
+
+# set_target_properties(${LIB_NAME} PROPERTIES INTERPROCEDURAL_OPTIMIZATION TRUE)
+# target_compile_options(${LIB_NAME} PRIVATE -Os -fdata-sections -ffunction-sections)
+# target_link_options(${LIB_NAME} PRIVATE -Wl,--gc-sections -s)
 
 target_compile_options(${LIB_NAME} PUBLIC -pedantic -O3 -march=native)
 
