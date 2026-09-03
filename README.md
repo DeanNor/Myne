@@ -29,15 +29,15 @@ However, you should be hesitant when deleting the root without replacing it. Set
 
 The class diagram is `Process-->Object-->CollObj/DrawObj`  
 
-###Process  
+### Process  
   A Process is the most basic class, and any game object or thing that acts every frame should inherit from it.  ]
   Uses the .process() function, which is called every frame in the order of parent to child.
 
-###Object
+### Object
   An Object is a Process with position. The main difference is the `pos position` variable.  
   As a bonus, children of the Object will inherit the position. Their position can be viewed as an offset from the parent.
 
-###CollObj
+### CollObj
   A Collision Object that allows its position to be controlled by the physics engine. Like Objects, child Objects inherit their position, but the CollObj will move in the world according to the current physics engine. Note: the current game must have an assigned physics engine or the CollObj creation will fail.
 
 ###DrawObj
