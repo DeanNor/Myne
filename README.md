@@ -12,6 +12,7 @@
  ```cpp
     game gameplay("Hi I exist", SDL_WINDOW_RESIZABLE, {1500,800});
     set_current_game(&gameplay);
+    gameplay.set_physics(false);
 
     gameplay.set_root(new Process);
 
