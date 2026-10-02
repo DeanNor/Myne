@@ -40,9 +40,9 @@ The class diagram is `Process-->Object-->CollObj/DrawObj`
 ### CollObj
   A Collision Object that allows its position to be controlled by the physics engine. Like Objects, child Objects inherit their position, but the CollObj will move in the world according to the current physics engine. Note: the current game must have an assigned physics engine or the CollObj creation will fail.
 
-###DrawObj
+### DrawObj
   An Object with a sprite. Acts the exact same as an Object, but the object can have a depth set (unsigned char, 0 is furthest on screen, 255 is closest on screen)
   A DrawObj also has access to the .draw() function, for per frame calls.
-  Sorry, but right now only the sprite type is guaranteed to work as a texture.
+  Sorry, but right now only the sprite type is guaranteed to work as a texture. 
 
   
