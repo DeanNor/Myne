@@ -10,15 +10,15 @@
  For example, to have a game that exists:
  
  ```cpp
-    game gameplay("Hi I exist", SDL_WINDOW_RESIZABLE, {1500,800});
-    set_current_game(&gameplay);
-    gameplay.set_physics(false);
+game gameplay("Hi I exist", SDL_WINDOW_RESIZABLE, {1500,800});
+set_current_game(&gameplay);
+gameplay.set_physics(false);
 
-    gameplay.set_root(new Process);
+gameplay.set_root(new Process);
 
-    gameplay.start();
+gameplay.start();
 
-    gameplay.get_root()->del();
+gameplay.get_root()->del();
 ```
 
 The process root allows any children of it to be part of the game. It is entirely legal to
@@ -45,4 +45,47 @@ The class diagram is `Process-->Object-->CollObj/DrawObj`
   A DrawObj also has access to the .draw() function, for per frame calls.
   Sorry, but right now only the sprite type is guaranteed to work as a texture. 
 
-  
+### CMakeLists
+  You can include Myne into your CMake project with the following CMakeLists.txt file:
+  ```cmake
+cmake_minimum_required(VERSION 3.31.0)
+
+set(PROJECT_BINARY_DIR ${PROJECT_SOURCE_DIR})
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR})
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR})
+set(CMAKE_INSTALL_LIBDIR ${PROJECT_BINARY_DIR})
+set(CMAKE_INSTALL_BINDIR ${PROJECT_BINARY_DIR})
+
+project("PROKECT")
+
+set(PROJECT_NAME "Prokect")
+
+add_executable(${PROJECT_NAME}
+    main.cpp
+)
+
+add_subdirectory(include/myne)
+
+target_link_libraries(${PROJECT_NAME}
+    PRIVATE Myne
+)
+
+# target_compile_definitions(${PROJECT_NAME} PUBLIC EDITOR) # Sets defines for editor
+target_compile_definitions(${PROJECT_NAME} PUBLIC NO_PHYS) # Sets defines for removing physics checks ever
+                                                           # Mostly just for code efficiency and autocomplete. Physics can be switched on and off from the game object
+
+# set_target_properties(${PROJECT_NAME} PROPERTIES INTERPROCEDURAL_OPTIMIZATION TRUE) # Output compression
+# target_compile_options(${PROJECT_NAME} PRIVATE -Os -fdata-sections -ffunction-sections)
+# target_link_options(${PROJECT_NAME} PRIVATE -Wl,--gc-sections -s)
+
+target_compile_options(${PROJECT_NAME} PUBLIC -pedantic -O3 -march=native) # Debug flags
+
+if (win32) // Windows and finding dlls
+    add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_RUNTIME_DLLS:${PROJECT_NAME}> $<TARGET_FILE_DIR:${PROJECT_NAME}>
+        COMMAND_EXPAND_LISTS
+    )
+
+    target_compile_options(${PROJECT_NAME} PUBLIC -pedantic)
+endif()
+  ```

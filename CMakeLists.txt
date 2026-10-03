@@ -1,17 +1,11 @@
 
 cmake_minimum_required(VERSION 3.31.0)
 
-project("TEST")
+project("Myne")
 set(BUILD_SHARED_LIBS OFF)
 
 set(CMAKE_CXX_STANDARD 26)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
-
-set(PROJECT_BINARY_DIR ${PROJECT_SOURCE_DIR})
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR})
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR})
-set(CMAKE_INSTALL_LIBDIR ${PROJECT_BINARY_DIR})
-set(CMAKE_INSTALL_BINDIR ${PROJECT_BINARY_DIR})
 
 #set(CMAKE_CXX_CLANG_TIDY "clang-tidy;-checks=misc-const-correctness") # Do not have the compile time for this, but good debug
 
@@ -33,7 +27,7 @@ set(LIB_NAME "Myne")
 # add_library(ImGui STATIC ${IMGUI_GLOB})
 # include_directories(ImGui PUBLIC ${IMGUI_PATH} ${IMGUI_PATH}/backends)
 
-add_executable(${LIB_NAME}
+add_library(${LIB_NAME}
     main.cpp
 
     .cpp/drawobj.cpp
@@ -98,21 +92,3 @@ target_link_libraries(${LIB_NAME}
 
     PRIVATE nlohmann_json::nlohmann_json
 )
-
-# target_compile_definitions(${LIB_NAME} PUBLIC EDITOR) # Sets defines for editor
-target_compile_definitions(${LIB_NAME} PUBLIC NO_PHYS) # Sets defines for removing physics checks ever
-
-# set_target_properties(${LIB_NAME} PROPERTIES INTERPROCEDURAL_OPTIMIZATION TRUE)
-# target_compile_options(${LIB_NAME} PRIVATE -Os -fdata-sections -ffunction-sections)
-# target_link_options(${LIB_NAME} PRIVATE -Wl,--gc-sections -s)
-
-target_compile_options(${LIB_NAME} PUBLIC -pedantic -O3 -march=native)
-
-if (win32)
-    add_custom_command(TARGET ${LIB_NAME} POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_RUNTIME_DLLS:${LIB_NAME}> $<TARGET_FILE_DIR:${LIB_NAME}>
-        COMMAND_EXPAND_LISTS
-    )
-
-    target_compile_options(${LIB_NAME} PUBLIC -pedantic)
-endif()
