@@ -48,6 +48,7 @@ The class diagram is `Process-->Object-->CollObj/DrawObj`
 ### CMakeLists
   You can include Myne into your CMake project with the following CMakeLists.txt file:
   ```cmake
+
 cmake_minimum_required(VERSION 3.31.0)
 
 set(PROJECT_BINARY_DIR ${PROJECT_SOURCE_DIR})
@@ -67,20 +68,19 @@ add_executable(${PROJECT_NAME}
 add_subdirectory(include/myne)
 
 target_link_libraries(${PROJECT_NAME}
-    PRIVATE Myne
+    PUBLIC Myne
 )
 
 # target_compile_definitions(${PROJECT_NAME} PUBLIC EDITOR) # Sets defines for editor
 target_compile_definitions(${PROJECT_NAME} PUBLIC NO_PHYS) # Sets defines for removing physics checks ever
-                                                           # Mostly just for code efficiency and autocomplete. Physics can be switched on and off from the game object
 
-# set_target_properties(${PROJECT_NAME} PROPERTIES INTERPROCEDURAL_OPTIMIZATION TRUE) # Output compression
+# set_target_properties(${PROJECT_NAME} PROPERTIES INTERPROCEDURAL_OPTIMIZATION TRUE)
 # target_compile_options(${PROJECT_NAME} PRIVATE -Os -fdata-sections -ffunction-sections)
 # target_link_options(${PROJECT_NAME} PRIVATE -Wl,--gc-sections -s)
 
-target_compile_options(${PROJECT_NAME} PUBLIC -pedantic -O3 -march=native) # Debug flags
+target_compile_options(${PROJECT_NAME} PUBLIC -pedantic -O3 -march=native)
 
-if (win32) // Windows and finding dlls
+if (win32)
     add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_RUNTIME_DLLS:${PROJECT_NAME}> $<TARGET_FILE_DIR:${PROJECT_NAME}>
         COMMAND_EXPAND_LISTS
