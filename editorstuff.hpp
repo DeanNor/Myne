@@ -8,6 +8,8 @@
 #include "imgui-docking/imgui.h"
 #include "imgui-docking/backends/imgui_impl_sdl3.h"
 #include "imgui-docking/backends/imgui_impl_sdlrenderer3.h"
+#include <cstddef>
+#include <vector>
 
 static const char* objects = "Scene Objects";
 static const char* data = "Variables";
@@ -41,6 +43,7 @@ private:
     const constexpr static double rescale_fast_scale = 1.25;
 
     EditorObj* current_selection = nullptr;
+    std::size_t selection_loc = 0;
     EditorObj* editor_root = nullptr;
 
     EditorObj* queued_texture = nullptr;
@@ -140,6 +143,11 @@ public:
         mode_active = data_active;
     }
 
+    std::vector<Process*>& get_mode_nodes()
+    {
+        return mode_nodes;
+    }
+
     void show_loadable_processes();
 
     void set_current_selection(EditorObj* new_selection)
@@ -151,6 +159,16 @@ public:
     EditorObj* get_current_selection() const
     {
         return current_selection;
+    }
+
+    void set_selection_location(std::size_t loc)
+    {
+        selection_loc = loc;
+    }
+
+    std::size_t get_selection_location()
+    {
+        return selection_loc;
     }
 
     void set_editor_root(EditorObj* new_editor_root)

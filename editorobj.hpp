@@ -9,6 +9,7 @@
 #include "imgui.h"
 
 #include "edit.hpp"
+#include <cstddef>
 #include <stdexcept>
 
 namespace DRAW_LAYERS
@@ -29,6 +30,8 @@ private:
     void remove_from_clicks();
 
 public:
+    EDIT::DRAG_TYPE type = EDIT::DRAG_TYPE::NONE;
+
     void add_to_clicks(ClickManager* manager);
 
     bool has_transform = false;
@@ -43,6 +46,24 @@ public:
     ~DragObj()
     {
         remove_from_clicks();
+    }
+
+    virtual void draw(const pos& origin, const pos& global_scale) override
+    {
+        if (active_drawer)
+        {
+            if (texture != nullptr)
+            {
+                texture->display(global_transform.compute() * global_scale - origin, global_transform.compute_scale() * global_scale, get_global_angle().deg(), renderer);
+            }
+
+            else
+            {
+                const SDL_FRect pos_rect = pos::Make_SDL_FRect(global_transform.compute() * global_scale - origin, EDIT::positional_half_size);
+
+                SDL_RenderTextureRotated(renderer, EDIT::get_sprite_from_type(type)->get(), nullptr, &pos_rect, global_transform.compute_angle().deg(), nullptr, SDL_FLIP_NONE);
+            }
+        }
     }
 
     tfm* get_tfm_of_expanded()
@@ -181,8 +202,28 @@ public:
     }
 };
 
-class HullObj : public DragObj
+class PhysObj : public DragObj
 {
-public:
+private:
+    static void on_drag_callback(void* callee, void* caller)
+    {
+        try
+        {
+            ((DragObj*)get_editor()->get_mode_nodes().at(get_editor()->get_selection_location()))->type = EDIT::DRAG_TYPE::PHYS;
+        }
 
+        catch (...) {}
+
+        get_editor()->set_selection_location(((PhysObj*)callee)->loc);
+        ((editor*)caller)->set_dragged((DragObj*)callee);
+        ((PhysObj*)callee)->type = EDIT::DRAG_TYPE::NEW_PHYS;
+    }
+
+public:
+    std::size_t loc;
+
+    PhysObj(std::size_t _loc) : DragObj(PhysObj::on_drag_callback), loc(_loc)
+    {
+
+    }
 };

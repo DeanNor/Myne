@@ -266,7 +266,7 @@ struct ast_hull : public ast_expansion_base
 public:
     std::filesystem::path v_path;
 
-    std::pair<hull,std::vector<cxd::Vertex>> v;
+    hull v;
 
     bool active;
 
@@ -290,7 +290,7 @@ public:
         _use_editor(&v_path, &v, &active);
     }
 
-    static void _use_editor(std::filesystem::path* _v_path, std::pair<hull,std::vector<cxd::Vertex>>* _v, bool* active_check)
+    static void _use_editor(std::filesystem::path* _v_path, hull* _v, bool* active_check)
     {
         ImGui::PushID(_v_path);
 
@@ -299,25 +299,32 @@ public:
 
     virtual void save(Saver* saver) const override
     {
-        saver->save_complex(v.first);
+        saver->save_complex(v);
     }
 
     virtual void save_readable(json& os) const override
     {
-        json internal = _save_readable(&v_path);
+        json internal = _save_readable(&v);
 
         os[var_name] = internal;
-
-        Saver file(v_path);
-        
-        file.save_complex(hull(v.second));
-
-        // TODO final compile version that loads, decomposes, and saves separately
     }
 
-    static json _save_readable(const std::filesystem::path* _v)
+    static json _save_readable(const hull* _v)
     {
-        json internal = JSON(std::filesystem::path, *_v);
+        json internal;
+
+        internal["Type"] = "Hull"; // REFERENCE OBJECTS??????????
+
+        internal["Handedness"] = _v->values.right_handed;
+        json& points = internal["Points"];
+        for (auto x : _v->values.getVertices())
+        {
+            json point;
+            point["x"] = x.position.x;
+            point["y"] = x.position.y;
+            
+            points.push_back(point);
+        }
 
         return internal;
     }
@@ -693,7 +700,6 @@ public:
 
         internal["Type"] = "CollObj";
 
-
         internal["Object Chunk"] = object_chunk[0]; // TODO remove [0] workaround
 
         os.push_back(internal);
@@ -706,8 +712,6 @@ public:
         parent->load_readable(internal["Object Chunk"]);
     }
 };
-
-
 
 
 
@@ -809,6 +813,17 @@ public:
     }
 };
 
+struct load_hull : public load_expandable_base
+{
+public:
+    load_hull(std::string _var_name) : load_expandable_base(_var_name, "hull") {is_class = false;}
+
+    virtual void copy_to(EditorObj*, ast_expansion* parent) override
+    {
+        parent->values.push_back(new ast_hull(var_name));
+    }
+};
+
 struct load_process : public load_expandable_base
 {
 public:
@@ -864,5 +879,27 @@ public:
         drawobj->fill(owner);
 
         return drawobj;
+    }
+};
+
+struct load_collobj : public load_expandable_base
+{
+public:
+    load_collobj(std::string _var_name) : load_expandable_base(_var_name, "CollObj")
+    {
+        is_class = false;
+
+        parent_expansion = base_loads_process.at(hash("Object").value);
+    }
+
+    virtual ast_expansion_base* copy(EditorObj* owner) override
+    {
+        ast_collobj* collobj = new ast_collobj(var_name);
+
+        collobj->parent = parent_expansion->copy(owner);
+
+        collobj->fill(owner);
+
+        return collobj;
     }
 };

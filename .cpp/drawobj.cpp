@@ -69,15 +69,6 @@ void DrawObj::draw(const pos& origin, const pos& global_scale)
         {
             texture->display(global_transform.compute() * global_scale - origin, global_transform.compute_scale() * global_scale, get_global_angle().deg(), renderer);
         }
-
-#ifdef EDITOR
-        else
-        {
-            const SDL_FRect pos_rect = pos::Make_SDL_FRect(global_transform.compute() * global_scale - origin, EDIT::positional_half_size);
-
-            SDL_RenderTextureRotated(renderer, EDIT::basic_positional->get(), nullptr, &pos_rect, global_transform.compute_angle().deg(), nullptr, SDL_FLIP_NONE);
-        }
-#endif
     }
 }
 

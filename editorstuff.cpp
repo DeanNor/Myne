@@ -17,6 +17,7 @@
 #include <cstddef>
 #include <cstdlib>
 #include <iterator>
+#include <stdexcept>
 
 const char* draggable_id = "draggable";
 
@@ -62,13 +63,8 @@ void editor::hull_mode()
             if (mouse.position.round() != dragged->get_position())
             {
                 dragged->set_position(mouse.position.round());
-                std::size_t loc;
-                loc = std::distance(mode_nodes.begin(), std::find(mode_nodes.begin(), mode_nodes.end(), dragged));
 
-                if (loc != mode_nodes.size())
-                {
-                    ((hull*)mode_data)->values.setPoint(loc, cxd::Vec2{(float)dragged->get_position().x, (float)dragged->get_position().y});
-                }
+                ((hull*)mode_data)->values.setPoint(((PhysObj*)dragged)->loc, cxd::Vec2{(float)dragged->get_position().x, (float)dragged->get_position().y});
 
                 update_hull();
             }
@@ -81,15 +77,51 @@ void editor::hull_mode()
 
         if (!mode_clicks.was_hit())
         {
-            cxd::Vec2 point = {(float)std::round(mouse.position.x), (float)std::round(mouse.position.y)};
-            ((hull*)mode_data)->values.addPoint(point);
-            HullObj* node = new HullObj();
-            node->set_position({point.x, point.y});
-            mode_nodes.push_back(node);
-            node->set_sprite(EDIT::hull_point, false);
-            node->set_depth(100);
+            try
+            {
+                ((DragObj*)mode_nodes.at(selection_loc))->type = EDIT::DRAG_TYPE::PHYS;
 
-            node->add_to_clicks(&mode_clicks);
+                cxd::Vec2 point = {(float)std::round(mouse.position.x), (float)std::round(mouse.position.y)};
+                ((hull*)mode_data)->values.addPointAt(point, selection_loc + 1);
+                PhysObj* node = new PhysObj(selection_loc + 1);
+                node->set_position({point.x, point.y});
+
+                mode_nodes.insert(mode_nodes.begin() + node->loc,node);
+
+                for (auto x = mode_nodes.begin() + node->loc + 1; x < mode_nodes.end(); ++x)
+                {
+                    ((PhysObj*)(*x))->loc++;
+                }
+
+                node->set_depth(100);
+
+                node->add_to_clicks(&mode_clicks);
+                
+                set_dragged(node);
+                set_selection_location(node->loc);
+
+                node->type = EDIT::DRAG_TYPE::NEW_PHYS;
+            }
+
+            catch (std::out_of_range) // If no current nodes
+            {
+                cxd::Vec2 point = {(float)std::round(mouse.position.x), (float)std::round(mouse.position.y)};
+                ((hull*)mode_data)->values.addPoint(point);
+                PhysObj* node = new PhysObj(mode_nodes.size());
+                node->set_position({point.x, point.y});
+
+                mode_nodes.push_back(node);
+
+                node->set_depth(100);
+
+                node->add_to_clicks(&mode_clicks);
+                
+                set_dragged(node);
+                set_selection_location(node->loc);
+
+                node->type = EDIT::DRAG_TYPE::NEW_PHYS;
+            }
+
 
             update_hull();
         }
@@ -115,7 +147,28 @@ void editor::hull_mode()
 
             free(lines);
         }
+
+        SDL_SetRenderDrawColor(game_window->get_renderer(), 0x00, 0x00, 0xFF, 0x55);
     }
+
+    else
+    {
+        SDL_SetRenderDrawColor(game_window->get_renderer(), 0xFF, 0x00, 0x55, 0xFF);
+    }
+
+    SDL_FPoint* lines = (SDL_FPoint*)std::malloc(sizeof(SDL_FPoint) * (((hull*)mode_data)->values.getVertices().size() + 1)); // TODO do I really have to malloc this every frame
+    
+    for (size_t y = 0; y < ((hull*)mode_data)->values.getVertices().size(); ++y)
+    {
+        cxd::Vertex v = ((hull*)mode_data)->values.getVertices().at(y);
+        lines[y] = {(float)((v.position.x - game_window->get_top_left().x) * game_window->get_scale().x), (float)((v.position.y - game_window->get_top_left().y) * game_window->get_scale().y)};
+    }
+
+    lines[((hull*)mode_data)->values.getVertices().size()] = lines[0];
+
+    SDL_RenderLines(game_window->get_renderer(), lines, ((hull*)mode_data)->values.getVertices().size() + 1);
+
+    free(lines);
 }
 
 void editor::update_hull()

@@ -56,6 +56,7 @@ add_executable(${LIB_NAME}
     ast/ast_stuff.cpp
     editorstuff.cpp
     editorobj.cpp
+    edit.cpp
     )
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
