@@ -1,12 +1,10 @@
 
 #pragma once
 
-#include "box2d/box2d.h"
+#include "object.hpp"
+#include "hull.hpp"
 
-#include ".hpp/object.hpp"
-
-#include ".hpp/hull.hpp"
-#include "box2d/id.h"
+#include "b2.h"
 
 #include <filesystem>
 

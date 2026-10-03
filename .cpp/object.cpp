@@ -1,5 +1,5 @@
 
-#include ".hpp/object.hpp"
+#include "object.hpp"
 
 void Object::load(Loader* load)
 {

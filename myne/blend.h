@@ -1,8 +1,8 @@
 
 #pragma once
 
-#include "SDL3/SDL_pixels.h"
-#include <blend2d/blend2d.h>
+#include <SDL3/SDL_pixels.h>
+#include <blend2d/core/format.h>
 
 // For some reason, the formats are backwards, what is going on!!!! Mainly a Blend2d problem, but good luck fixing that
 constexpr const BLFormat BLEND_FORMAT = BL_FORMAT_PRGB32;

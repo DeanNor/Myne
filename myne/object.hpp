@@ -1,9 +1,9 @@
 
 #pragma once
 
-#include ".hpp/process.hpp"
+#include "process.hpp"
 
-#include ".hpp/tfm.hpp"
+#include "tfm.hpp"
 
 class Object: public Process
 {

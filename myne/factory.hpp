@@ -10,7 +10,7 @@
 #include <fstream>
 #endif
 
-#include ".hpp/hash.hpp"
+#include "hash.hpp"
 
 class Process;
 

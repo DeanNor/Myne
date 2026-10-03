@@ -1,6 +1,5 @@
 
-#include ".hpp/drawtarget.hpp"
-#include "SDL3/SDL_render.h"
+#include "drawtarget.hpp"
 
 void DrawTarget::draw(const pos& global_origin, const pos& global_scale)
 {

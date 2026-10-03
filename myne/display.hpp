@@ -1,10 +1,10 @@
 
 #pragma once
 
-#include "SDL3/SDL_render.h"
-#include "SDL3/SDL_video.h"
+#include <SDL3/SDL_video.h>
+#include <SDL3/SDL_render.h>
 
-#include ".hpp/pos.hpp"
+#include "pos.hpp"
 
 struct display
 {

@@ -1,6 +1,6 @@
 
-#include ".hpp/tfm.hpp"
-#include ".hpp/pos.hpp"
+#include "tfm.hpp"
+#include "pos.hpp"
 
 void tfm::set(pos value)
 {

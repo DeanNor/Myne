@@ -1,12 +1,8 @@
 
-#include ".hpp/factory.hpp"
-#include ".hpp/loader.hpp"
-#include ".hpp/pos.hpp"
+#include "factory.hpp"
+#include "loader.hpp"
+#include "pos.hpp"
 
-#include "SDL3/SDL_events.h"
-#include "SDL3/SDL_keycode.h"
-#include "SDL3/SDL_mouse.h"
-#include "SDL3/SDL_stdinc.h"
 #include <stdexcept>
 
 struct mouse_state

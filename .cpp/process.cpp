@@ -1,8 +1,8 @@
 
-#include ".hpp/process.hpp"
+#include "process.hpp"
 
-#include ".hpp/err.hpp"
-#include ".hpp/game.hpp"
+#include "err.hpp"
+#include "game.hpp"
 
 Process::~Process()
 {

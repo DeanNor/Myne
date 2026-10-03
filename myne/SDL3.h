@@ -1,9 +1,7 @@
 
 #pragma once
 
-#include "SDL3/SDL_oldnames.h"
-#include "SDL3/SDL_render.h"
-#include "SDL3/SDL_surface.h"
+#include <SDL3/SDL_render.h>
 
 #include <filesystem>
 

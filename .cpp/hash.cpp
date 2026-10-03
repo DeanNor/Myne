@@ -1,10 +1,10 @@
 
-#include ".hpp/hash.hpp"
+#include "hash.hpp"
 
-#include ".hpp/factory.hpp"
+#include "factory.hpp"
 
-#include ".hpp/saver.hpp"
-#include ".hpp/loader.hpp"
+#include "saver.hpp"
+#include "loader.hpp"
 
 bool hash::_register_hash()
 {

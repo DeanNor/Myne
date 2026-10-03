@@ -28,8 +28,6 @@ set(LIB_NAME "Myne")
 # include_directories(ImGui PUBLIC ${IMGUI_PATH} ${IMGUI_PATH}/backends)
 
 add_library(${LIB_NAME}
-    main.cpp
-
     .cpp/drawobj.cpp
     .cpp/drawtarget.cpp
     .cpp/blendobj.cpp
@@ -53,8 +51,6 @@ add_library(${LIB_NAME}
     # editorobj.cpp
     )
 
-include_directories(${CMAKE_CURRENT_SOURCE_DIR})
-
 set(BLEND2D_NO_JIT true) # No need for jit, I presume. Would require adding another subdir in /blend2d/.../?
 add_subdirectory(include/blend2d)
 add_subdirectory(include/SDL)
@@ -64,8 +60,10 @@ add_subdirectory(include/SDL_image)
 # add_subdirectory(include/tree-sitter-cpp)
 add_subdirectory(include/json)
 
-include_directories(include include/SDL_image/include include/SDL/include include/box2d/include/ include/blend2d/blend2d
-    ${IMGUI_PATH}
+# include_directories(${IMGUI_PATH})
+target_include_directories(${LIB_NAME}
+    PRIVATE myne
+    PRIVATE include/convex_decomposition/src
 )
 
 find_package(box2d QUIET)

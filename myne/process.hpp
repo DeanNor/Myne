@@ -4,7 +4,7 @@
 #include "loader.hpp"
 #include "saver.hpp"
 
-#include ".hpp/tfm.hpp"
+#include "tfm.hpp"
 
 class Process
 {

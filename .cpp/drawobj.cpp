@@ -1,11 +1,10 @@
 
-#include ".hpp/drawobj.hpp"
+#include "drawobj.hpp"
 
-#include ".hpp/err.hpp"
-#include ".hpp/game.hpp"
-#include ".hpp/drawtarget.hpp"
-#include ".hpp/sprite.hpp"
-#include "SDL3/SDL_surface.h"
+#include "err.hpp"
+#include "game.hpp"
+#include "drawtarget.hpp"
+#include "sprite.hpp"
 
 #ifdef EDITOR
 #include "edit.hpp"

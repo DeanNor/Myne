@@ -2,7 +2,6 @@
 #pragma once
 
 #include <box2d/math_functions.h>
-#include <SDL3/SDL_rect.h>
 #include <SDL3/SDL_render.h>
 
 #include "rad.hpp"

@@ -1,21 +1,19 @@
 
 #pragma once
 
-#include ".hpp/saver.hpp"
-#include ".hpp/loader.hpp"
-
-#include "box2d/box2d.h"
-#include "box2d/collision.h"
-#include "box2d/id.h"
-
-#include "box2d/math_functions.h"
-#include "box2d/types.h"
-#include "include/convex_decomposition/src/ConcavePolygon.h"
+#include "saver.hpp"
+#include "loader.hpp"
 
 #include <cstddef>
 #include <cstdlib>
 #include <string>
 #include <vector>
+
+#include <box2d/id.h>
+#include <box2d/types.h>
+#include <ConcavePolygon.h>
+
+#include "b2.h"
 
 #include <iostream>
 

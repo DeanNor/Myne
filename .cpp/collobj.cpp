@@ -1,8 +1,8 @@
 
-#include ".hpp/collobj.hpp"
+#include "collobj.hpp"
 
-#include ".hpp/b2.h"
-#include ".hpp/game.hpp"
+#include "b2.h"
+#include "game.hpp"
 
 CollObj::CollObj()
 {

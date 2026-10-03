@@ -1,10 +1,10 @@
 
 #pragma once
 
-#include ".hpp/drawobj.hpp"
-#include ".hpp/loader.hpp"
-#include ".hpp/object.hpp"
-#include ".hpp/saver.hpp"
+#include "drawobj.hpp"
+#include "loader.hpp"
+#include "object.hpp"
+#include "saver.hpp"
 
 class DrawTarget : public DrawObj
 {

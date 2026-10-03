@@ -1,9 +1,11 @@
 
-#include ".hpp/blendobj.hpp"
+#include "blendobj.hpp"
 
-#include ".hpp/blend.h"
-#include ".hpp/game.hpp"
-#include "SDL3/SDL_render.h"
+#include "blend.h"
+#include "game.hpp"
+
+#include <blend2d/core/image.h>
+
 #include <cstring>
 
 void BlendObj::update_image()

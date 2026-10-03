@@ -1,9 +1,7 @@
 
-#include ".hpp/display.hpp"
-#include "SDL3/SDL_render.h"
-#include "SDL3/SDL_video.h"
+#include "display.hpp"
 
-#include ".hpp/game.hpp"
+#include "game.hpp"
 
 display::display(const pos& display_size, const char* name, SDL_WindowFlags flags)
 {

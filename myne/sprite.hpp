@@ -1,11 +1,9 @@
 
 #pragma once
 
-#include ".hpp/SDL3.h"
-#include ".hpp/factory.hpp"
-#include ".hpp/game.hpp"
-#include "SDL3/SDL_rect.h"
-#include "SDL3/SDL_render.h"
+#include "SDL3.h"
+#include "factory.hpp"
+#include "game.hpp"
 
 #include "pos.hpp"
 

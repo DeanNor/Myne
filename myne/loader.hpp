@@ -1,16 +1,16 @@
 
 #pragma once
 
-#include ".hpp/tube.hpp"
-#include ".hpp/factory.hpp"
-#include ".hpp/hash.hpp"
+#include "tube.hpp"
+#include "factory.hpp"
+#include "hash.hpp"
 
 #include <cstdlib>
 #include <cstring>
 #include <fstream>
 #include <stdexcept>
 
-#include ".hpp/load_save_requirements.hpp"
+#include "load_save_requirements.hpp"
 
 class Loader
 {

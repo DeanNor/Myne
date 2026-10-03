@@ -1,12 +1,11 @@
 
 #pragma once
 
-#include ".hpp/object.hpp"
+#include "object.hpp"
 
-#include ".hpp/display.hpp"
-#include ".hpp/sprite.hpp"
-#include "SDL3/SDL_render.h"
-#include "SDL3/SDL_surface.h"
+#include "display.hpp"
+#include "sprite.hpp"
+
 #include <filesystem>
 
 class DrawTarget;

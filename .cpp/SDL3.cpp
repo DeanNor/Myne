@@ -1,16 +1,13 @@
 
-#include ".hpp/SDL3.h"
+#include "SDL3.h"
 
-#include <SDL3/SDL_asyncio.h>
-#include <SDL3_image/SDL_image.h>
 #include <cassert>
 #include <filesystem>
 
-#include ".hpp/err.hpp"
-#include ".hpp/game.hpp"
-#include "SDL3/SDL_audio.h"
-#include "SDL3/SDL_render.h"
-#include "SDL3/SDL_surface.h"
+#include "err.hpp"
+#include "game.hpp"
+
+#include <SDL3_image/SDL_image.h>
 
 // Should not be called in the draw function as it clears the content of renderer (causes lag, not actual problem), although YOLO // TODO add to .h not this
 // Saves the texture to path as a png, but does not add the .png to the end

@@ -1,11 +1,14 @@
 
 #pragma once
 
-#include "SDL3/SDL_audio.h"
-#include "SDL3/SDL_events.h"
-#include "box2d/id.h"
+#include <SDL3/SDL_events.h>
+#include <SDL3/SDL_audio.h>
 
-#include ".hpp/display.hpp"
+#ifndef NO_PHYS
+#include <box2d/id.h>
+#endif
+
+#include "display.hpp"
 
 #include "input.hpp"
 

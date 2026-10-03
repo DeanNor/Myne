@@ -1,10 +1,12 @@
 
 #pragma once
 
-#include ".hpp/drawobj.hpp"
+#include "drawobj.hpp"
 
-#include ".hpp/sprite.hpp"
+#include "sprite.hpp"
 #include "blend.h"
+
+#include <blend2d/core/image.h>
 
 // Requires that set_depth or target is called and the size is set for drawing
 class BlendObj : public DrawObj

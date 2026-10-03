@@ -1,14 +1,15 @@
 
-#include ".hpp/game.hpp"
+#include "game.hpp"
 
-#include ".hpp/process.hpp"
-#include ".hpp/drawobj.hpp"
-#include ".hpp/collobj.hpp"
-#include "SDL3/SDL_audio.h"
-#include "SDL3/SDL_events.h"
+#include "process.hpp"
+#include "drawobj.hpp"
+#include "collobj.hpp"
+
+#include <cstddef>
+
+#include "SDL3.h"
 #include <SDL3/SDL_timer.h>
 #include <SDL3/SDL_init.h>
-#include <cstddef>
 
 #ifdef EDITOR
 #include "imgui_impl_sdl3.h"
@@ -18,7 +19,6 @@ inline ImGuiIO& init_imgui()
     ImGui::CreateContext();
     return ImGui::GetIO();
 }
-
 #endif
 
 game::game(const char* name, SDL_WindowFlags flags, pos window_size)

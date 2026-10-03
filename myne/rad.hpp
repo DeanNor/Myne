@@ -1,8 +1,6 @@
 
 #pragma once
 
-#include <box2d/math_functions.h>
-
 #include "loader.hpp"
 #include "saver.hpp"
 
