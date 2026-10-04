@@ -7,6 +7,12 @@ set(BUILD_SHARED_LIBS OFF)
 set(CMAKE_CXX_STANDARD 26)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
+set(PROJECT_BINARY_DIR ${PROJECT_SOURCE_DIR})
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR})
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR})
+set(CMAKE_INSTALL_LIBDIR ${PROJECT_BINARY_DIR})
+set(CMAKE_INSTALL_BINDIR ${PROJECT_BINARY_DIR})
+
 #set(CMAKE_CXX_CLANG_TIDY "clang-tidy;-checks=misc-const-correctness") # Do not have the compile time for this, but good debug
 
 set(LIB_NAME "Myne")
@@ -64,12 +70,12 @@ add_subdirectory(include/json)
 target_include_directories(${LIB_NAME}
     PRIVATE myne
     PRIVATE include/convex_decomposition/src
+    
+    PUBLIC include/box2d/include
+    PUBLIC ./
 )
 
-find_package(box2d QUIET)
-if (!box2d_FOUND)
-    add_dependencies(${LIB_NAME} box2d)
-endif()
+# target_compile_definitions(${PROJECT_NAME} PUBLIC EDITOR) # Sets defines for editor
 
 # find_package(nlohmann_json QUIET)
 # if (!nlohmann_json_FOUND)

@@ -4,8 +4,6 @@
 #include "blend.h"
 #include "game.hpp"
 
-#include <blend2d/core/image.h>
-
 #include <cstring>
 
 void BlendObj::update_image()

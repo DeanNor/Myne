@@ -1,6 +1,7 @@
 
 #include "game.hpp"
 
+#include "SDL3/SDL_audio.h"
 #include "process.hpp"
 #include "drawobj.hpp"
 #include "collobj.hpp"
@@ -46,10 +47,14 @@ game::~game()
     if (game_window != nullptr)
     {
         delete game_window;
-        game_window = nullptr;
     }
 
-    kill_audio_streams();
+    for (auto x : audio_streams)
+    {
+        SDL_DestroyAudioStream(x);
+    }
+
+    audio_streams.clear();
 
     SDL_Quit();
 }

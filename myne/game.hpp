@@ -4,9 +4,7 @@
 #include <SDL3/SDL_events.h>
 #include <SDL3/SDL_audio.h>
 
-#ifndef NO_PHYS
 #include <box2d/id.h>
-#endif
 
 #include "display.hpp"
 
@@ -36,24 +34,16 @@ protected:
 
     // 255 depth values for both draws and overlay
     std::vector<DrawObj*> draws[std::numeric_limits<unsigned char>::max() + 1];
-
-    #ifndef NO_PHYS
     std::vector<CollObj*> collisions = {};
-    #endif
     std::vector<Process*> deletes = {};
 
     std::vector<std::pair<DrawObj*, unsigned char>> new_draws;
 
-    #ifndef NO_PHYS
     std::vector<CollObj*> new_collisions;
-    #endif
-
     std::vector<SDL_AudioStream*> audio_streams;
 
-    #ifndef NO_PHYS
     b2WorldId coll_world;
     bool physics = false;
-    #endif
 
     bool running = false;
 
@@ -61,36 +51,24 @@ protected:
     double spf = 1.0 / fps; // Seconds per frame
     Uint64 fpsticks = 1000 / fps; // MSeconds between ticks
 
-
-    #ifndef NO_PHYS
     double coll_fps = 60;
     double coll_spf = 1.0 / coll_fps;
     Uint64 collticks = 1000 / coll_fps;
-    #endif
 
     double frame_fps = 60;
     double frame_spf = 1.0 / frame_fps;
     Uint64 frameticks = 1000 / frame_fps;
 
     Uint64 total_ticks = 0; // Internal clocks
-
-    #ifndef NO_PHYS
     Uint64 total_coll_ticks = 0;
-    #endif
     Uint64 total_frame_ticks = 0;
 
-
-    #ifndef NO_PHYS
     float coll_progression = spf;
-    #endif
 
     Uint64 total_delay = 0; // Internal clock #2, uses NS //TODO remove the #2
     double delta; // Delta time for last frame, before all other calls.
 
-
-    #ifndef NO_PHYS
     int coll_iterations = 4;
-    #endif
 
     mouse_state mouse;
     keyboard_state keyboard;
@@ -161,7 +139,6 @@ public:
         return root;
     }
 
-    #ifndef NO_PHYS
     void set_coll_world(b2WorldId new_coll_world)
     {
         coll_world = new_coll_world;
@@ -181,7 +158,6 @@ public:
     {
         return physics;
     }
-    #endif
 
     void set_running(bool is_running)
     {
@@ -210,7 +186,6 @@ public:
         return fpsticks;
     }
 
-    #ifndef NO_PHYS
     void set_coll_fps(double val)
     {
         coll_fps = val;
@@ -232,7 +207,6 @@ public:
     {
         return collticks;
     }
-    #endif
 
     void set_frame_fps(double val)
     {
@@ -256,8 +230,6 @@ public:
         return frameticks;
     }
 
-
-    #ifndef NO_PHYS
     // FPS as known by the coll engine
     void set_coll_progression(float new_coll_progression)
     {
@@ -268,15 +240,12 @@ public:
     {
         return coll_progression;
     }
-    #endif
 
     double get_delta() const
     {
         return delta;
     }
 
-
-    #ifndef NO_PHYS
     void set_coll_iterations(int iterations)
     {
         coll_iterations = iterations;
@@ -286,7 +255,6 @@ public:
     {
         return coll_iterations;
     }
-    #endif
 
     mouse_state& get_mouse()
     {

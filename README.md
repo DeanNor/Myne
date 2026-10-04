@@ -10,15 +10,23 @@
  For example, to have a game that exists:
  
  ```cpp
-game gameplay("Hi I exist", SDL_WINDOW_RESIZABLE, {1500,800});
-set_current_game(&gameplay);
-gameplay.set_physics(false);
 
-gameplay.set_root(new Process);
+#include <myne/game.hpp>
+#include <myne/process.hpp>
 
-gameplay.start();
+int main()
+{
+    game gameplay("Hi I exist", SDL_WINDOW_RESIZABLE, {1500,800});
+    set_current_game(&gameplay);
 
-gameplay.get_root()->del();
+    gameplay.set_root(new Process);
+
+    gameplay.start();
+
+    gameplay.get_root()->del();
+
+    return 0;
+}
 ```
 
 The process root allows any children of it to be part of the game. It is entirely legal to
@@ -48,8 +56,10 @@ The class diagram is `Process-->Object-->CollObj/DrawObj`
 ### CMakeLists
   You can include Myne into your CMake project with the following CMakeLists.txt file:
   ```cmake
-
 cmake_minimum_required(VERSION 3.31.0)
+
+set(CMAKE_CXX_STANDARD 26)
+set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 set(PROJECT_BINARY_DIR ${PROJECT_SOURCE_DIR})
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR})
@@ -70,9 +80,6 @@ add_subdirectory(include/myne)
 target_link_libraries(${PROJECT_NAME}
     PUBLIC Myne
 )
-
-# target_compile_definitions(${PROJECT_NAME} PUBLIC EDITOR) # Sets defines for editor
-target_compile_definitions(${PROJECT_NAME} PUBLIC NO_PHYS) # Sets defines for removing physics checks ever
 
 # set_target_properties(${PROJECT_NAME} PROPERTIES INTERPROCEDURAL_OPTIMIZATION TRUE)
 # target_compile_options(${PROJECT_NAME} PRIVATE -Os -fdata-sections -ffunction-sections)
