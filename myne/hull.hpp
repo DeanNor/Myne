@@ -9,13 +9,9 @@
 #include <string>
 #include <vector>
 
-#include <box2d/id.h>
-#include <box2d/types.h>
-#include <ConcavePolygon.h>
+#include <include/convex_decomposition/src/ConcavePolygon.h>
 
 #include "b2.h"
-
-#include <iostream>
 
 // Storer for both concave polygons and decomposed convex polygons. Only decomposed ones can be used by box2d, so call decompose_points() before physics use
 struct hull
@@ -225,12 +221,6 @@ public:
 
             // Things to note: cxd::Vertex is just a container/rename of cxd::Vec2. cxd::Vec2 is just an x,y float pair, which is exactly the same as what a b2Vec2 is. So convertable, hopefully!
             static_assert(sizeof(b2Vec2) == sizeof(cxd::Vertex), "Mismatch with cxd::Vertex size and b2Vec2 size");
-
-            for (auto x : points)
-            {
-                std::cout << x.position.x << ' ' << x.position.y << '\n';
-            }
-            std::cout << '\n';
             
             b2Hull b_hull = b2ComputeHull((b2Vec2*)(&points.front()), points.size());
 

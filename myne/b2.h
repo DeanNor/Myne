@@ -3,8 +3,11 @@
 #include <box2d/box2d.h>
 #include <box2d/types.h>
 #include <box2d/math_functions.h>
+#include <box2d/id.h>
+#include <box2d/collision.h>
+#include <box2d/constants.h>
 
-static float B2_SCALE = 16.0f; // Scale between b2 positions and object positions
+static float B2_SCALE = 100.0f; // Scale between b2 positions and object positions
 static float B2_MAX_MOVEMENT = 500000.0f;
 
 inline void b2Init()
