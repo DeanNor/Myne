@@ -56,6 +56,7 @@ public:
     #endif
     {}
 
+    constexpr bool operator<(const hash& other) const { return value < other.value; }
     constexpr bool operator==(const hash& other) const { return value == other.value; }
     constexpr bool operator!=(const hash& other) const { return !(*this == other); }
 
