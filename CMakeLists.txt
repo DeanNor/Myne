@@ -72,6 +72,7 @@ target_include_directories(${LIB_NAME}
     PRIVATE include/convex_decomposition/src
     
     PUBLIC include/box2d/include
+    PUBLIC include/SDL/include
     PUBLIC ./
 )
 
