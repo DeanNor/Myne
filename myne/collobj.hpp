@@ -183,7 +183,7 @@ public:
         if (std::filesystem::exists(hull_path))
         {
             hull obj_hull;
-            obj_hull.load(hull_path);
+            obj_hull.load(hull_path.generic_string());
         }
     }
 

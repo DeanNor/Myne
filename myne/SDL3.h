@@ -1,7 +1,7 @@
 
 #pragma once
 
-#include "include/SDL/include/SDL3/SDL_render.h"
+#include "SDL3/SDL_render.h"
 
 #include <filesystem>
 
