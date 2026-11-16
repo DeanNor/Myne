@@ -73,6 +73,7 @@ target_include_directories(${LIB_NAME}
     
     PUBLIC include/box2d/include
     PUBLIC include/SDL/include
+    PUBLIC include/blend2d/
     PUBLIC ./
 )
 
